@@ -8,7 +8,7 @@ import 'package:reactive_transport/transport/producer.dart';
 import 'package:reactive_transport/transport/transport.dart';
 
 void errors() {
-  test("1 - request, 1 - throw", () async {
+  test("1 - request, 1 - server throw", () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
     await worker.initialize();
