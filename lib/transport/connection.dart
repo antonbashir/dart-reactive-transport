@@ -1,16 +1,15 @@
 import 'dart:typed_data';
 
 import 'package:iouring_transport/iouring_transport.dart';
-import 'package:reactive_transport/transport/exception.dart';
-import 'package:reactive_transport/transport/supplier.dart';
 
+import 'exception.dart';
+import 'supplier.dart';
 import 'keepalive.dart';
 import 'reader.dart';
 import 'payload.dart';
 import 'writer.dart';
 import 'channel.dart';
 import 'configuration.dart';
-import 'constants.dart';
 import 'responder.dart';
 import 'subcriber.dart';
 
