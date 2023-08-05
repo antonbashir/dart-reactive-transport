@@ -18,6 +18,7 @@ class ReactiveServerSubcriber {
         key,
         onPayload,
         onSubcribe: onSubcribe,
+        onError: onError,
         initialRequestsCount: initialRequestsCount,
       );
 }
@@ -38,6 +39,7 @@ class ReactiveClientSubcriber {
         key,
         onPayload,
         onSubcribe: onSubcribe,
+        onError: onError,
         initialRequestsCount: initialRequestsCount,
       );
 }

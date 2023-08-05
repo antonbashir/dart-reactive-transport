@@ -14,13 +14,13 @@ void errors() {
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracing: true));
     final clientPayload = "client-payload";
-    final errorPayload = "error";
+    final errorPayload = Exception("error");
 
     final completer = Completer();
 
     void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
-      throw Exception(errorPayload);
+      throw errorPayload;
     }
 
     void communicate(dynamic payload, ReactiveProducer producer) {}
@@ -46,7 +46,7 @@ void errors() {
           producer.request(1);
         },
         onError: (error, producer) {
-          expect(error, errorPayload);
+          expect(error, errorPayload.toString());
           completer.complete();
         },
       ),
