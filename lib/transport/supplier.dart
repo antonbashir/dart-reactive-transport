@@ -1,8 +1,8 @@
 import 'constants.dart';
 
 class ReactiveStreamIdSupplier {
-  var current = 0;
-  late int initial;
+  var _current = 0;
+  late int _initial;
 
   static ReactiveStreamIdSupplier client() => ReactiveStreamIdSupplier._streamId(reactiveClientInitialStreamId);
 
@@ -11,17 +11,17 @@ class ReactiveStreamIdSupplier {
   int next(Map<int, dynamic> streamIds) {
     var next = 0;
     do {
-      current += reactiveStreamIdIncrement;
-      if (current > reactiveStreamIdMask) {
-        current = initial + reactiveStreamIdIncrement;
+      _current += reactiveStreamIdIncrement;
+      if (_current > reactiveStreamIdMask) {
+        _current = _initial + reactiveStreamIdIncrement;
       }
-      next = current;
+      next = _current;
     } while (next == 0 || streamIds.containsKey(next));
     return next;
   }
 
   ReactiveStreamIdSupplier._streamId(int streamId) {
-    this.current = streamId;
-    initial = streamId;
+    this._current = streamId;
+    _initial = streamId;
   }
 }
