@@ -129,10 +129,10 @@ class ReactiveChannel {
     );
   }
 
-  void handle(int streamId, int errorCode, Uint8List payload) {
-    if (streamId != 0) {
-      final consumer = _consumers[_streamIdMapping[streamId]];
-      final producer = _producers[streamId];
+  void handle(int remoteStreamId, int errorCode, Uint8List payload) {
+    if (remoteStreamId != 0) {
+      final consumer = _consumers[_streamIdMapping[remoteStreamId]];
+      final producer = _producers[remoteStreamId];
       if (consumer != null && producer != null) consumer.onError?.call(_dataCodec.decode(payload), producer);
       if (_configuration.automaticRequest && producer != null) producer.request(_configuration.automaticRequestCount);
       return;
