@@ -104,7 +104,7 @@ class ReactiveChannel {
     try {
       if (consumer != null && producer != null) consumer.onPayload(_dataCodec.decode(data), producer);
     } catch (exception) {
-      producer?.produceError(exception);
+      producer?.produceError(exception.toString());
     }
     if (_configuration.automaticRequest && producer != null) producer.request(_configuration.automaticRequestCount);
   }

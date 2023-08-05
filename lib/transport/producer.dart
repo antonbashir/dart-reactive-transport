@@ -11,8 +11,8 @@ class ReactiveProducer {
     _requester.scheduleData(_codec.encode(data));
   }
 
-  void produceError(dynamic data) {
-    _requester.scheduleErors(_codec.encode(data));
+  void produceError(String message) {
+    _requester.scheduleErors(_codec.encode(message));
   }
 
   void request(int count) {

@@ -57,26 +57,30 @@ class ReactiveRequester {
   }
 
   void _drainCount(int count) {
-    while (count-- > 0 && _payloads.isNotEmpty) {
-      final frame = _writer.writePayloadFrame(_streamId, false, ReactivePayload.ofData(_payloads.removeLast()));
-      _connection.writeSingle(frame);
-      _pending--;
-    }
-    while (count-- > 0 && _errors.isNotEmpty) {
-      final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, _errors.removeLast());
-      _connection.writeSingle(frame);
-      _pending--;
+    while (count-- > 0) {
+      if (_payloads.isNotEmpty) {
+        final frame = _writer.writePayloadFrame(_streamId, false, ReactivePayload.ofData(_payloads.removeLast()));
+        _connection.writeSingle(frame);
+        _pending--;
+      }
+      if (_errors.isNotEmpty) {
+        final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, _errors.removeLast());
+        _connection.writeSingle(frame);
+        _pending--;
+      }
     }
   }
 
   void _drainInfinity() {
-    while (_payloads.isNotEmpty) {
-      final frame = _writer.writePayloadFrame(_streamId, false, ReactivePayload.ofData(_payloads.removeLast()));
-      _connection.writeSingle(frame);
-    }
-    while (_errors.isNotEmpty) {
-      final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, _errors.removeLast());
-      _connection.writeSingle(frame);
+    while (_payloads.isNotEmpty || _errors.isNotEmpty) {
+      if (_payloads.isNotEmpty) {
+        final frame = _writer.writePayloadFrame(_streamId, false, ReactivePayload.ofData(_payloads.removeLast()));
+        _connection.writeSingle(frame);
+      }
+      if (_errors.isNotEmpty) {
+        final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, _errors.removeLast());
+        _connection.writeSingle(frame);
+      }
     }
   }
 }
