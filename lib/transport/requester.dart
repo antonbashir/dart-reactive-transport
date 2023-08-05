@@ -56,10 +56,6 @@ class ReactiveRequester {
     if (_payloads.isNotEmpty || _errors.isNotEmpty) scheduleMicrotask(() => _drainCount(count));
   }
 
-  void initialize(int count, ReactivePayload payload) {
-    _connection.writeSingle(_writer.writeRequestChannelFrame(_streamId, count, payload));
-  }
-
   void _drainCount(int count) {
     while (count-- > 0 && _payloads.isNotEmpty) {
       final frame = _writer.writePayloadFrame(_streamId, false, ReactivePayload.ofData(_payloads.removeLast()));

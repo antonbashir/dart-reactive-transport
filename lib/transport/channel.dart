@@ -12,6 +12,7 @@ import 'keepalive.dart';
 import 'payload.dart';
 import 'producer.dart';
 import 'requester.dart';
+import 'supplier.dart';
 import 'writer.dart';
 
 class ReactiveChannel {
@@ -19,6 +20,7 @@ class ReactiveChannel {
   final ReactiveWriter _writer;
   final ReactiveConnection _connection;
   final ReactiveKeepAliveTimer _keepAliveTimer;
+  final ReactiveStreamIdSupplier streamIdSupplier;
   final void Function(ReactiveException error)? _onError;
 
   final _consumers = <String, ReactiveConsumer>{};
@@ -38,12 +40,24 @@ class ReactiveChannel {
     this._currentLocalStreamId,
     this._keepAliveTimer,
     this._onError,
+    this.streamIdSupplier,
   );
 
   void setup(String dataMimeType, String metadataMimeType, int keepAliveInterval, int keepAliveMaxLifetime) {
     _dataCodec = _configuration.codecs[dataMimeType]!;
     _metadataCodec = _configuration.codecs[metadataMimeType]!;
     _keepAliveTimer.start(keepAliveInterval, keepAliveMaxLifetime);
+    for (var entry in _consumers.entries) {
+      final consumer = entry.value;
+      final key = entry.key;
+      _streamIdMapping[_currentLocalStreamId] = key;
+      final requester = ReactiveRequester(_connection, _currentLocalStreamId);
+      _requesters[_currentLocalStreamId] = requester;
+      final producer = ReactiveProducer(requester, _dataCodec);
+      _producers[_currentLocalStreamId] = producer;
+      if (consumer.onSubscribe != null) _activators[_currentLocalStreamId] = ReactiveActivator(consumer.onSubscribe!, producer);
+      _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
+    }
   }
 
   List<Uint8List> connect(final ReactiveSetupConfiguration setupConfiguration) {
@@ -62,7 +76,7 @@ class ReactiveChannel {
       _producers[_currentLocalStreamId] = producer;
       if (consumer.onSubscribe != null) _activators[_currentLocalStreamId] = ReactiveActivator(consumer.onSubscribe!, producer);
       frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, consumer.initialRequestCount, payload));
-      _currentLocalStreamId += reactiveStreamIdIncrement;
+      _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
     }
     _keepAliveTimer.start(setupConfiguration.keepAliveInterval, setupConfiguration.keepAliveMaxLifetime);
     return frames;

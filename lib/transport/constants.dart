@@ -63,8 +63,9 @@ const reactiveProtocolMinorVersion = 0;
 
 const infinityRequestsCount = 2147483647;
 
-const reactiveClientInitialStreamId = 1;
-const reactiveServerInitialStreamId = 2;
+const reactiveStreamIdMask = 0x7FFFFFFF;
+const reactiveClientInitialStreamId = -1;
+const reactiveServerInitialStreamId = 0;
 const reactiveStreamIdIncrement = 2;
 
 class ReactiveExceptions {
