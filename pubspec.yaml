@@ -1,0 +1,14 @@
+name: reactive_transport
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: ">=3.0.0 <4.1.0"
+
+dependencies:
+  test: ^1.22.0
+  msgpack_dart : ^1.0.0
+  iouring_transport:
+    git:
+      url: https://github.com/antonbashir/dart-iouring-transport/
+      path: dart
