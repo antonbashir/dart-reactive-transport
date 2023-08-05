@@ -4,11 +4,11 @@ class ReactiveStreamIdSupplier {
   var current = 0;
   late int initial;
 
-  static ReactiveStreamIdSupplier clientSupplier() {
+  static ReactiveStreamIdSupplier client() {
     return ReactiveStreamIdSupplier._streamId(reactiveClientInitialStreamId);
   }
 
-  static ReactiveStreamIdSupplier serverSupplier() {
+  static ReactiveStreamIdSupplier server() {
     return ReactiveStreamIdSupplier._streamId(reactiveServerInitialStreamId);
   }
 

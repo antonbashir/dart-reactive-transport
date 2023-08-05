@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:iouring_transport/iouring_transport.dart';
 import 'package:reactive_transport/transport/exception.dart';
+import 'package:reactive_transport/transport/supplier.dart';
 
 import 'keepalive.dart';
 import 'reader.dart';
@@ -48,6 +49,7 @@ class ReactiveClientConnection implements ReactiveConnection {
       reactiveClientInitialStreamId,
       _keepAliveTimer,
       _onError,
+      ReactiveStreamIdSupplier.client(),
     );
     _responder = ReactiveResponder(_channel, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
     _subcriber = ReactiveClientSubcriber(_channel);
@@ -104,6 +106,7 @@ class ReactiveServerConnection implements ReactiveConnection {
       reactiveServerInitialStreamId,
       _keepAliveTimer,
       _onError,
+      ReactiveStreamIdSupplier.server(),
     );
     _responder = ReactiveResponder(_channel, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
     _subcriber = ReactiveServerSubcriber(_channel);
