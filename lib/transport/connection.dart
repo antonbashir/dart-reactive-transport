@@ -42,14 +42,16 @@ class ReactiveClientConnection implements ReactiveConnection {
     this._transportConfiguration,
   ) {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
+    final supplier = ReactiveStreamIdSupplier.client();
+    final streamId = supplier.next({});
     _channel = ReactiveChannel(
       _channelConfiguration,
       this,
       _writer,
-      reactiveClientInitialStreamId,
+      streamId,
       _keepAliveTimer,
       _onError,
-      ReactiveStreamIdSupplier.client(),
+      supplier,
     );
     _responder = ReactiveResponder(_channel, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
     _subcriber = ReactiveClientSubcriber(_channel);
@@ -99,14 +101,16 @@ class ReactiveServerConnection implements ReactiveConnection {
     this._transportConfiguration,
   ) {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
+    final supplier = ReactiveStreamIdSupplier.server();
+    final streamId = supplier.next({});
     _channel = ReactiveChannel(
       _channelConfiguration,
       this,
       _writer,
-      reactiveServerInitialStreamId,
+      streamId,
       _keepAliveTimer,
       _onError,
-      ReactiveStreamIdSupplier.server(),
+      supplier,
     );
     _responder = ReactiveResponder(_channel, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
     _subcriber = ReactiveServerSubcriber(_channel);
