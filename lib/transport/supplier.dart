@@ -4,13 +4,9 @@ class ReactiveStreamIdSupplier {
   var current = 0;
   late int initial;
 
-  static ReactiveStreamIdSupplier client() {
-    return ReactiveStreamIdSupplier._streamId(reactiveClientInitialStreamId);
-  }
+  static ReactiveStreamIdSupplier client() => ReactiveStreamIdSupplier._streamId(reactiveClientInitialStreamId);
 
-  static ReactiveStreamIdSupplier server() {
-    return ReactiveStreamIdSupplier._streamId(reactiveServerInitialStreamId);
-  }
+  static ReactiveStreamIdSupplier server() => ReactiveStreamIdSupplier._streamId(reactiveServerInitialStreamId);
 
   int next(Map<int, dynamic> streamIds) {
     var next = 0;
