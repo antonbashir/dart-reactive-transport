@@ -57,6 +57,7 @@ class ReactiveResponder {
           _broker.receive(frame.header.streamId, frame.payload, frame.completed);
           continue;
         case reactiveFrameCancel:
+          _broker.cancel(header.streamId);
           continue;
         case reactiveFrameError:
           final frame = _reader.readErrorFrame(buffer, header);
