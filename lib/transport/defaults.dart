@@ -14,6 +14,9 @@ class ReactiveTransportDefaults {
 
   static ReactiveChannelConfiguration channel() => ReactiveChannelConfiguration(
         requestCount: 1,
+      );
+
+  static ReactiveBrokerConfiguration broker() => ReactiveBrokerConfiguration(
         codecs: {
           messagePackMimeType: MessagePackReactiveCodec(),
           octetStreamMimeType: RawReactiveCodec(),

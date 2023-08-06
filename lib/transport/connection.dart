@@ -8,7 +8,7 @@ import 'keepalive.dart';
 import 'reader.dart';
 import 'payload.dart';
 import 'writer.dart';
-import 'channel.dart';
+import 'broker.dart';
 import 'configuration.dart';
 import 'responder.dart';
 import 'subcriber.dart';
@@ -22,11 +22,11 @@ class ReactiveClientConnection implements ReactiveConnection {
   final _reader = ReactiveReader();
   final TransportClientConnection _connection;
   final ReactiveSetupConfiguration _setupConfiguration;
-  final ReactiveChannelConfiguration _channelConfiguration;
+  final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
   final void Function(ReactiveException exception)? _onError;
 
-  late final ReactiveChannel _channel;
+  late final ReactiveBroker _channel;
   late final ReactiveResponder _responder;
   late final ReactiveClientSubcriber _subcriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
@@ -36,15 +36,15 @@ class ReactiveClientConnection implements ReactiveConnection {
   ReactiveClientConnection(
     this._connection,
     this._onError,
-    this._channelConfiguration,
+    this._brokerConfiguration,
     this._setupConfiguration,
     this._transportConfiguration,
   ) {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
     final supplier = ReactiveStreamIdSupplier.client();
     final streamId = supplier.next({});
-    _channel = ReactiveChannel(
-      _channelConfiguration,
+    _channel = ReactiveBroker(
+      _brokerConfiguration,
       this,
       _writer,
       streamId,
@@ -83,10 +83,10 @@ class ReactiveServerConnection implements ReactiveConnection {
   final _reader = ReactiveReader();
   final TransportServerConnection _connection;
   final void Function(ReactiveException exception)? _onError;
-  final ReactiveChannelConfiguration _channelConfiguration;
+  final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
 
-  late final ReactiveChannel _channel;
+  late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
   late final ReactiveServerSubcriber _subcriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
@@ -96,14 +96,14 @@ class ReactiveServerConnection implements ReactiveConnection {
   ReactiveServerConnection(
     this._connection,
     this._onError,
-    this._channelConfiguration,
+    this._brokerConfiguration,
     this._transportConfiguration,
   ) {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
     final supplier = ReactiveStreamIdSupplier.server();
     final streamId = supplier.next({});
-    _channel = ReactiveChannel(
-      _channelConfiguration,
+    _broker = ReactiveBroker(
+      _brokerConfiguration,
       this,
       _writer,
       streamId,
@@ -111,8 +111,8 @@ class ReactiveServerConnection implements ReactiveConnection {
       _onError,
       supplier,
     );
-    _responder = ReactiveResponder(_channel, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
-    _subcriber = ReactiveServerSubcriber(_channel);
+    _responder = ReactiveResponder(_broker, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
+    _subcriber = ReactiveServerSubcriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
@@ -120,6 +120,6 @@ class ReactiveServerConnection implements ReactiveConnection {
   void writeSingle(Uint8List bytes) => _connection.writeSingle(bytes, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
 
   close() {
-    _channel.close();
+    _broker.close();
   }
 }

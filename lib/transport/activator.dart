@@ -1,15 +1,17 @@
+import 'package:reactive_transport/transport/channel.dart';
+
 import 'producer.dart';
 
 class ReactiveActivator {
-  final void Function(ReactiveProducer producer) _action;
+  final ReactiveChannel _channel;
   final ReactiveProducer _producer;
   var _activated = false;
 
-  ReactiveActivator(this._action, this._producer);
+  ReactiveActivator(this._channel, this._producer);
 
   void activate() {
     if (_activated) return;
-    _action(_producer);
+    _channel.onSubcribe(_producer);
     _activated = true;
   }
 }

@@ -17,19 +17,30 @@ class ReactiveTransportConfiguration {
 
 class ReactiveChannelConfiguration {
   final int requestCount;
-  final Map<String, ReactiveCodec> codecs;
 
   const ReactiveChannelConfiguration({
     required this.requestCount,
-    required this.codecs,
   });
 
   ReactiveChannelConfiguration copyWith({
     int? requestCount,
-    Map<String, ReactiveCodec>? codecs,
   }) =>
       ReactiveChannelConfiguration(
         requestCount: requestCount ?? this.requestCount,
+      );
+}
+
+class ReactiveBrokerConfiguration {
+  final Map<String, ReactiveCodec> codecs;
+
+  const ReactiveBrokerConfiguration({
+    required this.codecs,
+  });
+
+  ReactiveBrokerConfiguration copyWith({
+    Map<String, ReactiveCodec>? codecs,
+  }) =>
+      ReactiveBrokerConfiguration(
         codecs: codecs ?? this.codecs,
       );
 }
