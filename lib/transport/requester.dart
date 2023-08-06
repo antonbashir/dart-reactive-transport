@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:typed_data';
 
-import 'package:reactive_transport/transport/exception.dart';
-
+import 'exception.dart';
 import 'constants.dart';
 import 'connection.dart';
 import 'payload.dart';
