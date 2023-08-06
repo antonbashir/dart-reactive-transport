@@ -12,3 +12,9 @@ class ReactiveException {
     return ReactiveExceptions.connectionError(exception.toString());
   }
 }
+
+class ReactiveStateException {
+  final String message;
+
+  const ReactiveStateException(this.message);
+}

@@ -102,6 +102,7 @@ class ReactiveBroker {
     final channel = _channels[_streamIdMapping[remoteStreamId]];
     final producer = _producers[remoteStreamId];
     if (channel != null && producer != null) {
+      if (completed) complete(remoteStreamId);
       Future.sync(() => channel.onPayload(_dataCodec.decode(data), producer)).onError((error, stackTrace) => producer.produceError(error));
     }
   }
@@ -129,6 +130,12 @@ class ReactiveBroker {
       return;
     }
     _onError?.call(ReactiveException(errorCode, utf8.decode(payload)));
+  }
+
+  void complete(int remoteStreamId) {
+    _requesters.remove(remoteStreamId)?.close();
+    _producers.remove(remoteStreamId);
+    _channels.remove(_streamIdMapping.remove(remoteStreamId));
   }
 
   void close() {
