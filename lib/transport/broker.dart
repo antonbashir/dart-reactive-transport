@@ -128,6 +128,7 @@ class ReactiveBroker {
     if (remoteStreamId != 0) {
       final channel = _channels[_streamIdMapping[remoteStreamId]];
       final producer = _producers[remoteStreamId];
+      cancel(remoteStreamId);
       if (channel != null && producer != null) {
         channel.onError(utf8.decode(payload), producer);
       }

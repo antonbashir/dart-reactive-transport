@@ -51,6 +51,7 @@ class ReactiveRequester {
 
   void scheduleErors(Uint8List bytes) {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
+    _accepting = false;
     _errors.addLast(bytes);
     if (_pending == infinityRequestsCount) {
       scheduleMicrotask(_drainInfinity);
