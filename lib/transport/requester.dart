@@ -7,12 +7,20 @@ import 'connection.dart';
 import 'payload.dart';
 import 'writer.dart';
 
+class PendingPayload {
+  final Uint8List bytes;
+  final bool completed;
+
+  PendingPayload(this.bytes, this.completed);
+}
+
 class ReactiveRequester {
-  final ReactiveConnection _connection;
-  final Queue<Uint8List> _payloads = Queue();
-  final Queue<Uint8List> _errors = Queue();
   final _writer = ReactiveWriter();
+
   final int _streamId;
+  final ReactiveConnection _connection;
+  final Queue<PendingPayload> _payloads = Queue();
+  final Queue<Uint8List> _errors = Queue();
 
   var _pending = 0;
 
@@ -22,8 +30,8 @@ class ReactiveRequester {
     _connection.writeSingle(_writer.writeRequestNFrame(_streamId, count));
   }
 
-  void scheduleData(Uint8List bytes) {
-    _payloads.add(bytes);
+  void scheduleData(Uint8List bytes, bool complete) {
+    _payloads.add(PendingPayload(bytes, complete));
     if (_pending == infinityRequestsCount) {
       scheduleMicrotask(_drainInfinity);
       return;
@@ -59,7 +67,8 @@ class ReactiveRequester {
   void _drainCount(int count) {
     while (count-- > 0) {
       if (_payloads.isNotEmpty) {
-        final frame = _writer.writePayloadFrame(_streamId, false, ReactivePayload.ofData(_payloads.removeLast()));
+        final payload = _payloads.removeLast();
+        final frame = _writer.writePayloadFrame(_streamId, payload.completed, ReactivePayload.ofData(payload.bytes));
         _connection.writeSingle(frame);
         _pending--;
       }
@@ -74,7 +83,8 @@ class ReactiveRequester {
   void _drainInfinity() {
     while (_payloads.isNotEmpty || _errors.isNotEmpty) {
       if (_payloads.isNotEmpty) {
-        final frame = _writer.writePayloadFrame(_streamId, false, ReactivePayload.ofData(_payloads.removeLast()));
+        final payload = _payloads.removeLast();
+        final frame = _writer.writePayloadFrame(_streamId, payload.completed, ReactivePayload.ofData(payload.bytes));
         _connection.writeSingle(frame);
       }
       if (_errors.isNotEmpty) {

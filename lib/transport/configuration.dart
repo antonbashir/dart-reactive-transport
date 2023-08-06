@@ -16,17 +16,17 @@ class ReactiveTransportConfiguration {
 }
 
 class ReactiveChannelConfiguration {
-  final int requestCount;
+  final int initialRequestCount;
 
   const ReactiveChannelConfiguration({
-    required this.requestCount,
+    required this.initialRequestCount,
   });
 
   ReactiveChannelConfiguration copyWith({
-    int? requestCount,
+    int? initialRequestCount,
   }) =>
       ReactiveChannelConfiguration(
-        requestCount: requestCount ?? this.requestCount,
+        initialRequestCount: initialRequestCount ?? this.initialRequestCount,
       );
 }
 

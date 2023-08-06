@@ -13,7 +13,7 @@ class ReactiveTransportDefaults {
       );
 
   static ReactiveChannelConfiguration channel() => ReactiveChannelConfiguration(
-        requestCount: 1,
+        initialRequestCount: 1,
       );
 
   static ReactiveBrokerConfiguration broker() => ReactiveBrokerConfiguration(

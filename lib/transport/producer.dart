@@ -7,11 +7,9 @@ class ReactiveProducer {
 
   const ReactiveProducer(this._requester, this._codec);
 
-  void produce(dynamic data) {
-    _requester.scheduleData(_codec.encode(data));
-  }
+  void produce(dynamic data, {bool complete = false}) => _requester.scheduleData(_codec.encode(data), complete);
 
-  void produceError(dynamic message) {
-    _requester.scheduleErors(_codec.encode(message));
-  }
+  void request(int count) => _requester.request(count);
+
+  void produceError(dynamic message) => _requester.scheduleErors(_codec.encode(message));
 }

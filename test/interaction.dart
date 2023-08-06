@@ -21,7 +21,8 @@ void interaction() {
 
     void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
-      producer.produce(serverPayload);
+      producer.produce(serverPayload, complete: true);
+      latch.countDown();
     }
 
     void communicate(dynamic payload, ReactiveProducer producer) {
@@ -37,7 +38,10 @@ void interaction() {
       (connection) => connection.subcriber.subscribe(
         "channel",
         communicate,
-        onSubcribe: (producer) => producer.produce(clientPayload),
+        onSubcribe: (producer) {
+          producer.produce(clientPayload);
+          producer.request(1);
+        },
       ),
     );
 
@@ -58,7 +62,7 @@ void interaction() {
     void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
       producer.produce(serverPayload);
-      producer.produce(serverPayload);
+      producer.produce(serverPayload, complete: true);
       latch.countDown();
     }
 
@@ -79,7 +83,10 @@ void interaction() {
       (connection) => connection.subcriber.subscribe(
         "channel",
         communicate,
-        onSubcribe: (producer) => producer.produce(clientPayload),
+        onSubcribe: (producer) {
+          producer.produce(clientPayload);
+          producer.request(2);
+        },
       ),
     );
 
