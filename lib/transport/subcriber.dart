@@ -12,14 +12,12 @@ class ReactiveServerSubcriber {
     void Function(dynamic payload, ReactiveProducer producer) onPayload, {
     void Function(ReactiveProducer producer)? onSubcribe,
     void Function(dynamic error, ReactiveProducer producer)? onError,
-    int initialRequestsCount = infinityRequestsCount,
   }) =>
       _channel.consume(
         key,
         onPayload,
         onSubcribe: onSubcribe,
         onError: onError,
-        initialRequestsCount: initialRequestsCount,
       );
 }
 
@@ -33,7 +31,7 @@ class ReactiveClientSubcriber {
     void Function(dynamic payload, ReactiveProducer producer) onPayload, {
     void Function(ReactiveProducer producer)? onSubcribe,
     void Function(dynamic error, ReactiveProducer producer)? onError,
-    int initialRequestsCount = infinityRequestsCount,
+    int initialRequestsCount = initalRequestsCount,
   }) =>
       _channel.consume(
         key,

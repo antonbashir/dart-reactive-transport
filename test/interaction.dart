@@ -138,7 +138,7 @@ void interaction() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracing: false));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracing: true));
     final clientPayload = "client-payload";
     final serverPayload = "server-payload";
 
@@ -160,7 +160,7 @@ void interaction() {
       InternetAddress.anyIPv4,
       12345,
       channelConfiguration: ReactiveTransportDefaults.channel().copyWith(automaticRequest: true),
-      (connection) => connection.subcriber.subscribe("channel", serve, onSubcribe: (producer) => producer.request(1)),
+      (connection) => connection.subcriber.subscribe("channel", serve),
     );
 
     reactive.connect(
