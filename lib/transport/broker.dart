@@ -107,7 +107,7 @@ class ReactiveBroker {
         channel.onPayload(_dataCodec.decode(data), producer);
         return;
       }
-      Future.sync(() => channel.onPayload(_dataCodec.decode(data), producer)).onError((error, stackTrace) => producer.produceError(error));
+      Future.sync(() => channel.onPayload(_dataCodec.decode(data), producer)).onError((error, stackTrace) => producer.produceError(error.toString()));
     }
   }
 
@@ -129,7 +129,7 @@ class ReactiveBroker {
       final channel = _channels[_streamIdMapping[remoteStreamId]];
       final producer = _producers[remoteStreamId];
       if (channel != null && producer != null) {
-        channel.onError(_dataCodec.decode(payload), producer);
+        channel.onError(utf8.decode(payload), producer);
       }
       return;
     }

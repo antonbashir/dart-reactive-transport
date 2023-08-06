@@ -11,7 +11,7 @@ abstract class ReactiveChannel {
 
   void onSubcribe(ReactiveProducer producer);
 
-  void onError(dynamic error, ReactiveProducer producer);
+  void onError(String error, ReactiveProducer producer);
 
   void onRequest(int count, ReactiveProducer producer);
 }
@@ -21,7 +21,7 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   final ReactiveChannelConfiguration configuration;
   final void Function(dynamic payload, ReactiveProducer producer) payloadConsumer;
   final void Function(ReactiveProducer producer)? subcribeConsumer;
-  final void Function(dynamic error, ReactiveProducer producer)? errorConsumer;
+  final void Function(String error, ReactiveProducer producer)? errorConsumer;
   final void Function(int count, ReactiveProducer producer)? requestConsumer;
 
   FunctionalReactiveChannel(
@@ -34,10 +34,10 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   });
 
   @override
-  void onError(error, ReactiveProducer producer) => errorConsumer?.call(error, producer);
+  void onError(String error, ReactiveProducer producer) => errorConsumer?.call(error, producer);
 
   @override
-  void onPayload(payload, ReactiveProducer producer) => payloadConsumer(payload, producer);
+  void onPayload(dynamic payload, ReactiveProducer producer) => payloadConsumer(payload, producer);
 
   @override
   void onRequest(int count, ReactiveProducer producer) => requestConsumer?.call(count, producer);

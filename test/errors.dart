@@ -37,7 +37,10 @@ void errors() {
       (connection) => connection.subcriber.subscribe(
         "channel",
         communicate,
-        onSubcribe: (producer) => producer.produce(clientPayload),
+        onSubcribe: (producer) {
+          producer.produce(clientPayload);
+          producer.request(1);
+        },
         onError: (error, producer) {
           expect(error, errorPayload.toString());
           completer.complete();

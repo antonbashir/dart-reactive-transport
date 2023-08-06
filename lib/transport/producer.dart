@@ -1,5 +1,7 @@
-import 'package:reactive_transport/transport/constants.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 
+import 'constants.dart';
 import 'codec.dart';
 import 'requester.dart';
 
@@ -15,5 +17,5 @@ class ReactiveProducer {
 
   void request(int count) => _requester.request(count);
 
-  void produceError(dynamic message) => _requester.scheduleErors(_codec.encode(message));
+  void produceError(String message) => _requester.scheduleErors(Uint8List.fromList(utf8.encode(message)));
 }
