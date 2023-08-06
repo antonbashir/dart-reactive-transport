@@ -1,3 +1,5 @@
+import 'package:reactive_transport/transport/constants.dart';
+
 import 'codec.dart';
 import 'requester.dart';
 
@@ -8,6 +10,8 @@ class ReactiveProducer {
   const ReactiveProducer(this._requester, this._codec);
 
   void produce(dynamic data, {bool complete = false}) => _requester.scheduleData(_codec.encode(data), complete);
+
+  void complete() => _requester.scheduleData(emptyBytes, true);
 
   void request(int count) => _requester.request(count);
 

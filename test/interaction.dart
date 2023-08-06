@@ -102,10 +102,11 @@ void interaction() {
     final clientPayload = "client-payload";
     final serverPayload = "server-payload";
 
-    final latch = Latch(4);
+    final latch = Latch(6);
 
     void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
+      producer.request(1);
       producer.produce(serverPayload);
       producer.produce(serverPayload);
       latch.countDown();
@@ -113,6 +114,7 @@ void interaction() {
 
     void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
+      producer.complete();
       latch.countDown();
     }
 
@@ -131,6 +133,7 @@ void interaction() {
         onSubcribe: (producer) {
           producer.produce(clientPayload);
           producer.produce(clientPayload);
+          producer.request(4);
         },
       ),
     );
