@@ -38,7 +38,7 @@ class ReactiveRequester {
   void scheduleData(Uint8List bytes, bool complete) {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = !complete;
-    _payloads.add(PendingPayload(bytes, complete));
+    _payloads.addLast(PendingPayload(bytes, complete));
     if (_pending == infinityRequestsCount) {
       scheduleMicrotask(_drainInfinity);
       return;
@@ -51,7 +51,7 @@ class ReactiveRequester {
 
   void scheduleErors(Uint8List bytes) {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
-    _errors.add(bytes);
+    _errors.addLast(bytes);
     if (_pending == infinityRequestsCount) {
       scheduleMicrotask(_drainInfinity);
       return;
@@ -82,7 +82,7 @@ class ReactiveRequester {
     if (!_sending) return;
     while (count-- > 0) {
       if (_payloads.isNotEmpty) {
-        final payload = _payloads.removeLast();
+        final payload = _payloads.removeFirst();
         final frame = _writer.writePayloadFrame(_streamId, payload.completed, ReactivePayload.ofData(payload.bytes));
         _connection.writeSingle(frame);
         _pending--;
@@ -92,7 +92,7 @@ class ReactiveRequester {
         }
       }
       if (_errors.isNotEmpty) {
-        final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, _errors.removeLast());
+        final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, _errors.removeFirst());
         _connection.writeSingle(frame);
         _pending--;
       }
@@ -103,7 +103,7 @@ class ReactiveRequester {
     if (!_sending) return;
     while (_payloads.isNotEmpty || _errors.isNotEmpty) {
       if (_payloads.isNotEmpty) {
-        final payload = _payloads.removeLast();
+        final payload = _payloads.removeFirst();
         final frame = _writer.writePayloadFrame(_streamId, payload.completed, ReactivePayload.ofData(payload.bytes));
         _connection.writeSingle(frame);
         if (payload.completed) {
@@ -112,7 +112,7 @@ class ReactiveRequester {
         }
       }
       if (_errors.isNotEmpty) {
-        final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, _errors.removeLast());
+        final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, _errors.removeFirst());
         _connection.writeSingle(frame);
       }
     }

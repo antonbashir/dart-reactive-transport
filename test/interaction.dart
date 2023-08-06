@@ -82,7 +82,7 @@ void interaction() {
       12345,
       (connection) => connection.subcriber.subscribe(
         "channel",
-        communicate,
+        communicate, 
         onSubcribe: (producer) {
           producer.produce(clientPayload);
           producer.request(2);
