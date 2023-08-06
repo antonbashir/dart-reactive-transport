@@ -82,7 +82,7 @@ void interaction() {
       12345,
       (connection) => connection.subcriber.subscribe(
         "channel",
-        communicate, 
+        communicate,
         onSubcribe: (producer) {
           producer.produce(clientPayload);
           producer.request(2);
@@ -114,7 +114,6 @@ void interaction() {
 
     void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
-      producer.complete();
       latch.countDown();
     }
 
