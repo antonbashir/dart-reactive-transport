@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'producer.dart';
 
 class ReactiveConsumer {
-  final void Function(dynamic, ReactiveProducer) onPayload;
-  final void Function(dynamic, ReactiveProducer)? onError;
-  final void Function(ReactiveProducer)? onSubscribe;
-  final int initialRequestCount;
+  final FutureOr<void> Function(dynamic, ReactiveProducer) onPayload;
+  final FutureOr<void> Function(dynamic, ReactiveProducer)? onError;
+  final FutureOr<void> Function(ReactiveProducer)? onSubscribe;
 
-  ReactiveConsumer(this.onPayload, this.initialRequestCount, {this.onSubscribe, this.onError});
+  ReactiveConsumer(this.onPayload, {this.onSubscribe, this.onError});
 }

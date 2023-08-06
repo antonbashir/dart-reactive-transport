@@ -1,5 +1,4 @@
 import 'channel.dart';
-import 'constants.dart';
 import 'producer.dart';
 
 class ReactiveServerSubcriber {
@@ -31,13 +30,11 @@ class ReactiveClientSubcriber {
     void Function(dynamic payload, ReactiveProducer producer) onPayload, {
     void Function(ReactiveProducer producer)? onSubcribe,
     void Function(dynamic error, ReactiveProducer producer)? onError,
-    int initialRequestsCount = initalRequestsCount,
   }) =>
       _channel.consume(
         key,
         onPayload,
         onSubcribe: onSubcribe,
         onError: onError,
-        initialRequestsCount: initialRequestsCount,
       );
 }

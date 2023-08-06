@@ -13,8 +13,7 @@ class ReactiveTransportDefaults {
       );
 
   static ReactiveChannelConfiguration channel() => ReactiveChannelConfiguration(
-        automaticRequestCount: 1,
-        automaticRequest: false,
+        requestCount: 1,
         codecs: {
           messagePackMimeType: MessagePackReactiveCodec(),
           octetStreamMimeType: RawReactiveCodec(),

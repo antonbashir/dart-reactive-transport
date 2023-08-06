@@ -16,24 +16,20 @@ class ReactiveTransportConfiguration {
 }
 
 class ReactiveChannelConfiguration {
-  final int automaticRequestCount;
-  final bool automaticRequest;
+  final int requestCount;
   final Map<String, ReactiveCodec> codecs;
 
   const ReactiveChannelConfiguration({
-    required this.automaticRequestCount,
-    required this.automaticRequest,
+    required this.requestCount,
     required this.codecs,
   });
 
   ReactiveChannelConfiguration copyWith({
     int? requestCount,
-    bool? automaticRequest,
     Map<String, ReactiveCodec>? codecs,
   }) =>
       ReactiveChannelConfiguration(
-        automaticRequestCount: requestCount ?? this.automaticRequestCount,
-        automaticRequest: automaticRequest ?? this.automaticRequest,
+        requestCount: requestCount ?? this.requestCount,
         codecs: codecs ?? this.codecs,
       );
 }

@@ -28,11 +28,7 @@ void errors() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subcriber.subscribe(
-        "channel",
-        serve,
-        onSubcribe: (producer) => producer.request(1),
-      ),
+      (connection) => connection.subcriber.subscribe("channel", serve),
     );
 
     reactive.connect(
@@ -41,10 +37,7 @@ void errors() {
       (connection) => connection.subcriber.subscribe(
         "channel",
         communicate,
-        onSubcribe: (producer) {
-          producer.produce(clientPayload);
-          producer.request(1);
-        },
+        onSubcribe: (producer) => producer.produce(clientPayload),
         onError: (error, producer) {
           expect(error, errorPayload.toString());
           completer.complete();

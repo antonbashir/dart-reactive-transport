@@ -75,7 +75,7 @@ class ReactiveChannel {
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
       if (consumer.onSubscribe != null) _activators[_currentLocalStreamId] = ReactiveActivator(consumer.onSubscribe!, producer);
-      frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, consumer.initialRequestCount, payload));
+      frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, _configuration.requestCount, payload));
       _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
     }
     _keepAliveTimer.start(setupConfiguration.keepAliveInterval, setupConfiguration.keepAliveMaxLifetime);
@@ -101,17 +101,18 @@ class ReactiveChannel {
     final data = payload?.data ?? Uint8List.fromList([]);
     final consumer = _consumers[_streamIdMapping[remoteStreamId]];
     final producer = _producers[remoteStreamId];
-    try {
-      if (consumer != null && producer != null) consumer.onPayload(_dataCodec.decode(data), producer);
-    } catch (exception) {
-      producer?.produceError(exception.toString());
+    if (consumer != null && producer != null) {
+      Future.sync(() => consumer.onPayload(_dataCodec.decode(data), producer)).onError((error, stackTrace) => producer.produceError(error));
     }
-    if (_configuration.automaticRequest && producer != null) producer.request(_configuration.automaticRequestCount);
   }
 
   void request(int remoteStreamId, int count) {
     _activators[remoteStreamId]?.activate();
-    _requesters[remoteStreamId]?.send(count);
+    final requester = _requesters[remoteStreamId];
+    if (requester != null) {
+      requester.send(count);
+      requester.request(_configuration.requestCount);
+    }
   }
 
   void consume(
@@ -119,11 +120,9 @@ class ReactiveChannel {
     void Function(dynamic payload, ReactiveProducer producer) onPayload, {
     void Function(ReactiveProducer producer)? onSubcribe,
     void Function(dynamic error, ReactiveProducer producer)? onError,
-    int initialRequestsCount = infinityRequestsCount,
   }) {
     _consumers[method] = ReactiveConsumer(
       onPayload,
-      initialRequestsCount,
       onSubscribe: onSubcribe,
       onError: onError,
     );
@@ -133,8 +132,9 @@ class ReactiveChannel {
     if (remoteStreamId != 0) {
       final consumer = _consumers[_streamIdMapping[remoteStreamId]];
       final producer = _producers[remoteStreamId];
-      if (consumer != null && producer != null) consumer.onError?.call(_dataCodec.decode(payload), producer);
-      if (_configuration.automaticRequest && producer != null) producer.request(_configuration.automaticRequestCount);
+      if (consumer != null && producer != null && consumer.onError != null) {
+        consumer.onError!(_dataCodec.decode(payload), producer);
+      }
       return;
     }
     _onError?.call(ReactiveException(errorCode, utf8.decode(payload)));
