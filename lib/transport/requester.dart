@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:collection';
 import 'dart:typed_data';
 
@@ -39,12 +38,11 @@ class ReactiveRequester {
     _accepting = !complete;
     _payloads.addLast(PendingPayload(bytes, complete));
     if (_pending == infinityRequestsCount) {
-      scheduleMicrotask(_drainInfinity);
+      _drainInfinity();
       return;
     }
     if (_pending > 0) {
-      final count = _pending;
-      scheduleMicrotask(() => _drainCount(count));
+      _drainCount(_pending);
     }
   }
 
@@ -53,12 +51,11 @@ class ReactiveRequester {
     _accepting = false;
     _errors.addLast(bytes);
     if (_pending == infinityRequestsCount) {
-      scheduleMicrotask(_drainInfinity);
+      _drainInfinity();
       return;
     }
     if (_pending > 0) {
-      final count = _pending;
-      scheduleMicrotask(() => _drainCount(count));
+      _drainCount(_pending);
     }
   }
 
@@ -66,11 +63,11 @@ class ReactiveRequester {
     if (!_sending) return;
     if (count == infinityRequestsCount) {
       _pending = infinityRequestsCount;
-      if (_payloads.isNotEmpty || _errors.isNotEmpty) scheduleMicrotask(_drainInfinity);
+      if (_payloads.isNotEmpty || _errors.isNotEmpty) _drainInfinity();
       return;
     }
     _pending += count;
-    if (_payloads.isNotEmpty || _errors.isNotEmpty) scheduleMicrotask(() => _drainCount(count));
+    if (_payloads.isNotEmpty || _errors.isNotEmpty) _drainCount(count);
   }
 
   void close() {
