@@ -13,11 +13,11 @@ class ReactiveProducer {
 
   void produce(dynamic data, {bool complete = false}) => _requester.scheduleData(_codec.encode(data), complete);
 
-  void complete() => _requester.scheduleData(emptyBytes, true);
-
-  void request(int count) => _requester.request(count);
-
   void error(String message) => _requester.scheduleError(Uint8List.fromList(utf8.encode(message)));
 
   void cancel() => _requester.scheduleCancel();
+
+  void complete() => _requester.scheduleData(emptyBytes, true);
+
+  void request(int count) => _requester.request(count);
 }
