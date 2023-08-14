@@ -22,7 +22,7 @@ class ReactiveKeepAliveTimer {
     _pongTimer = Timer.periodic(Duration(milliseconds: keepAliveMaxLifetime), (timer) {
       if (!timer.isActive) return;
       if (DateTime.now().millisecondsSinceEpoch - _lastPong >= keepAliveMaxLifetime) {
-        //TODO: IMPLEMENT ME
+        _connection.close();
         return;
       }
     });

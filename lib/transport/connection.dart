@@ -15,6 +15,8 @@ import 'subcriber.dart';
 
 abstract interface class ReactiveConnection {
   void writeSingle(Uint8List bytes);
+
+  void close();
 }
 
 class ReactiveClientConnection implements ReactiveConnection {
@@ -26,7 +28,7 @@ class ReactiveClientConnection implements ReactiveConnection {
   final ReactiveTransportConfiguration _transportConfiguration;
   final void Function(ReactiveException exception)? _onError;
 
-  late final ReactiveBroker _channel;
+  late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
   late final ReactiveClientSubcriber _subcriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
@@ -43,7 +45,7 @@ class ReactiveClientConnection implements ReactiveConnection {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
     final supplier = ReactiveStreamIdSupplier.client();
     final streamId = supplier.next({});
-    _channel = ReactiveBroker(
+    _broker = ReactiveBroker(
       _brokerConfiguration,
       this,
       _writer,
@@ -52,8 +54,8 @@ class ReactiveClientConnection implements ReactiveConnection {
       _onError,
       supplier,
     );
-    _responder = ReactiveResponder(_channel, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
-    _subcriber = ReactiveClientSubcriber(_channel);
+    _responder = ReactiveResponder(_broker, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
+    _subcriber = ReactiveClientSubcriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
@@ -66,15 +68,17 @@ class ReactiveClientConnection implements ReactiveConnection {
       _setupConfiguration.dataMimeType,
       ReactivePayload(_setupConfiguration.initialMetaData, _setupConfiguration.initialData),
     ));
-    _channel.connect(_setupConfiguration).forEach(frames.addAll);
+    _broker.connect(_setupConfiguration).forEach(frames.addAll);
     _connection.writeSingle(Uint8List.fromList(frames), onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
   @override
   void writeSingle(Uint8List bytes) => _connection.writeSingle(bytes, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
 
-  close() {
-    _channel.close();
+  @override
+  void close() {
+    _connection.close();
+    _broker.close();
   }
 }
 
@@ -119,7 +123,9 @@ class ReactiveServerConnection implements ReactiveConnection {
   @override
   void writeSingle(Uint8List bytes) => _connection.writeSingle(bytes, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
 
-  close() {
+  @override
+  void close() {
+    _connection.close();
     _broker.close();
   }
 }
