@@ -1,5 +1,4 @@
-import 'package:reactive_transport/transport/channel.dart';
-
+import 'channel.dart';
 import 'producer.dart';
 
 class ReactiveActivator {

@@ -17,5 +17,7 @@ class ReactiveProducer {
 
   void request(int count) => _requester.request(count);
 
-  void produceError(String message) => _requester.scheduleErors(Uint8List.fromList(utf8.encode(message)));
+  void error(String message) => _requester.scheduleError(Uint8List.fromList(utf8.encode(message)));
+
+  void cancel() => _requester.scheduleCancel();
 }
