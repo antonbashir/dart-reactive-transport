@@ -44,6 +44,10 @@ class ReactiveBroker {
   );
 
   void setup(String dataMimeType, String metadataMimeType, int keepAliveInterval, int keepAliveMaxLifetime) {
+    if (!_configuration.codecs.containsKey(dataMimeType) || !_configuration.codecs.containsKey(metadataMimeType)) {
+      _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.invalidSetup.code, ReactiveExceptions.invalidSetup.content));
+      return;
+    }
     _dataCodec = _configuration.codecs[dataMimeType]!;
     _metadataCodec = _configuration.codecs[metadataMimeType]!;
     _keepAliveTimer.start(keepAliveInterval, keepAliveMaxLifetime);
