@@ -5,6 +5,7 @@ import 'configuration.dart';
 abstract interface class ResumeState {
   ReactiveSetupConfiguration get setupConfiguration;
   bool get empty;
+  Uint8List get token;
 }
 
 class ReactiveResumeClientState implements ResumeState {
