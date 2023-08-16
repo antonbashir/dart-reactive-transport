@@ -39,6 +39,7 @@ class ReactiveTransport {
         onError,
         brokerConfiguration ?? ReactiveTransportDefaults.broker(),
         _configuration,
+        ReactiveResumeServerState(),
       );
       _serverConnections.add(reactive);
       acceptor(reactive);

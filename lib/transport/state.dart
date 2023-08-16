@@ -2,12 +2,17 @@ import 'dart:typed_data';
 
 import 'configuration.dart';
 
-class ReactiveResumeClientState {
+abstract interface class ResumeState {
+  ReactiveSetupConfiguration get setupConfiguration;
+  bool get empty;
+}
+
+class ReactiveResumeClientState implements ResumeState {
   final ReactiveSetupConfiguration setupConfiguration;
   final Uint8List token;
   final int lastReceivedServerPosition;
   final int firstAvailableClientPosition;
-  
+
   bool _empty = true;
   bool get empty => _empty;
 
@@ -19,14 +24,13 @@ class ReactiveResumeClientState {
   });
 }
 
-class ReactiveResumeServerState {
-  final ReactiveSetupConfiguration setupConfiguration;
-  final Uint8List token;
-  final int lastReceivedClientPosition;
+class ReactiveResumeServerState implements ResumeState {
+  late final ReactiveSetupConfiguration setupConfiguration;
+  late final Uint8List token;
+  late final int lastReceivedClientPosition;
 
-  ReactiveResumeServerState({
-    required this.setupConfiguration,
-    required this.token,
-    required this.lastReceivedClientPosition,
-  });
+  bool _empty = true;
+  bool get empty => _empty;
+
+  ReactiveResumeServerState();
 }

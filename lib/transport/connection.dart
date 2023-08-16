@@ -56,6 +56,7 @@ class ReactiveClientConnection implements ReactiveConnection {
       _keepAliveTimer,
       _onError,
       supplier,
+      _resumeState,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
     _subcriber = ReactiveClientSubcriber(_broker);
@@ -98,6 +99,7 @@ class ReactiveServerConnection implements ReactiveConnection {
   final void Function(ReactiveException exception)? _onError;
   final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
+  final ReactiveResumeServerState _resumeState;
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
@@ -111,6 +113,7 @@ class ReactiveServerConnection implements ReactiveConnection {
     this._onError,
     this._brokerConfiguration,
     this._transportConfiguration,
+    this._resumeState,
   ) {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
     final supplier = ReactiveStreamIdSupplier.server();
@@ -123,6 +126,7 @@ class ReactiveServerConnection implements ReactiveConnection {
       _keepAliveTimer,
       _onError,
       supplier,
+      _resumeState,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracing, this._reader, _keepAliveTimer);
     _subcriber = ReactiveServerSubcriber(_broker);

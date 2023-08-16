@@ -12,6 +12,7 @@ import 'keepalive.dart';
 import 'payload.dart';
 import 'producer.dart';
 import 'requester.dart';
+import 'state.dart';
 import 'supplier.dart';
 import 'writer.dart';
 
@@ -21,6 +22,7 @@ class ReactiveBroker {
   final ReactiveConnection _connection;
   final ReactiveKeepAliveTimer _keepAliveTimer;
   final ReactiveStreamIdSupplier streamIdSupplier;
+  final ResumeState _resumeState;
   final void Function(ReactiveException error)? _onError;
 
   final _channels = <String, ReactiveChannel>{};
@@ -41,6 +43,7 @@ class ReactiveBroker {
     this._keepAliveTimer,
     this._onError,
     this.streamIdSupplier,
+    this._resumeState,
   );
 
   void setup(String dataMimeType, String metadataMimeType, int keepAliveInterval, int keepAliveMaxLifetime) {
@@ -147,7 +150,27 @@ class ReactiveBroker {
     _channels.remove(_streamIdMapping.remove(remoteStreamId));
   }
 
-  void resume(int lastReceivedServerPosition, int firstAvailableClientPosition, Uint8List token) {}
+  void resume(int lastReceivedServerPosition, int firstAvailableClientPosition, Uint8List token) {
+    final setup = _resumeState.setupConfiguration;
+    if (_resumeState.empty) {
+      _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.invalidSetup.code, ReactiveExceptions.invalidSetup.content));
+      return;
+    }
+    _dataCodec = _configuration.codecs[setup.dataMimeType]!;
+    _metadataCodec = _configuration.codecs[setup.metadataMimeType]!;
+    _keepAliveTimer.start(setup.keepAliveInterval, setup.keepAliveMaxLifetime);
+    for (var entry in _channels.entries) {
+      final channel = entry.value;
+      final key = entry.key;
+      _streamIdMapping[_currentLocalStreamId] = key;
+      final requester = ReactiveRequester(_connection, _currentLocalStreamId);
+      _requesters[_currentLocalStreamId] = requester;
+      final producer = ReactiveProducer(requester, _dataCodec);
+      _producers[_currentLocalStreamId] = producer;
+      _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
+      _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
+    }
+  }
 
   void retransmit(int lastReceivedClientPosition) {}
 
