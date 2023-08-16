@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:typed_data';
 
+import 'state.dart';
 import 'exception.dart';
 import 'constants.dart';
 import 'connection.dart';
@@ -19,17 +20,17 @@ class PendingPayload {
 }
 
 class ReactiveRequester {
-  final _writer = ReactiveWriter();
-
   final int _streamId;
   final ReactiveConnection _connection;
+  final ReactiveWriter _writer;
+  final ResumeState _resumeState;
   final Queue<PendingPayload> _payloads = Queue();
 
   var _pending = 0;
   var _accepting = true;
   var _sending = true;
 
-  ReactiveRequester(this._connection, this._streamId);
+  ReactiveRequester(this._connection, this._streamId, this._writer, this._resumeState);
 
   void request(int count) {
     if (!_sending) throw ReactiveStateException("Channel completted. Requesting is not available");
