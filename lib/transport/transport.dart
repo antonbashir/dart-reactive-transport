@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:iouring_transport/iouring_transport.dart';
+import 'package:reactive_transport/transport/constants.dart';
 import 'defaults.dart';
 import 'exception.dart';
 
 import 'configuration.dart';
 import 'connection.dart';
+import 'state.dart';
 
 class ReactiveTransport {
   final Transport _transport;
@@ -56,16 +58,28 @@ class ReactiveTransport {
     _worker.clients.tcp(address, port, configuration: tcpConfiguration, connectRetry: connectRetry).then(
       (clients) {
         clients.forEach((connection) {
+          final setup = setupConfiguration ?? ReactiveTransportDefaults.setup();
+          final resumeState = ReactiveResumeClientState(
+            setupConfiguration: setup,
+            token: emptyBytes,
+            lastReceivedServerPosition: 0,
+            firstAvailableClientPosition: 0,
+          );
           final reactive = ReactiveClientConnection(
             connection,
             onError,
             brokerConfiguration ?? ReactiveTransportDefaults.broker(),
-            setupConfiguration ?? ReactiveTransportDefaults.setup(),
+            setup,
             _configuration,
+            resumeState,
           );
           _clientConnections.add(reactive);
           connector(reactive);
-          reactive.connect();
+          if (resumeState.empty) {
+            reactive.connect();
+            return;
+          }
+          reactive.resume();
         });
       },
       onError: (error) => onError?.call(ReactiveException.fromTransport(error)),

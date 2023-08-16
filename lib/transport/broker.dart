@@ -147,6 +147,10 @@ class ReactiveBroker {
     _channels.remove(_streamIdMapping.remove(remoteStreamId));
   }
 
+  void resume(int lastReceivedServerPosition, int firstAvailableClientPosition, Uint8List token) {}
+
+  void retransmit(int lastReceivedClientPosition) {}
+
   void close() {
     _keepAliveTimer.stop();
   }

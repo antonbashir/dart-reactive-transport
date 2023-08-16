@@ -35,7 +35,15 @@ class ReactiveResponder {
           if (_tracing) print(frame);
           continue;
         case reactiveFrameResume:
+          final frame = _reader.readResumeFrame(buffer, header);
+          if (_tracing) print(frame);
+          _broker.resume(frame.lastReceivedServerPosition, frame.firstAvailableClientPosition, frame.token);
+          continue;
         case reactiveFrameResumeOk:
+          final frame = _reader.readResumeOkFrame(buffer, header);
+          if (_tracing) print(frame);
+          _broker.retransmit(frame.lastReceivedClientPosition);
+          continue;
         case reactiveFrameKeepalive:
           final frame = _reader.readKeepAliveFrame(buffer, header);
           if (_tracing) print(frame);

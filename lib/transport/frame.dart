@@ -158,3 +158,25 @@ class PayloadFrame {
   @override
   String toString() => 'PayloadFrame(header: $header, completed: $completed, payload: $payload)';
 }
+
+class ResumeFrame {
+  final FrameHeader header;
+  final int lastReceivedServerPosition;
+  final int firstAvailableClientPosition;
+  final Uint8List token;
+
+  ResumeFrame(this.header, this.lastReceivedServerPosition, this.firstAvailableClientPosition, this.token);
+
+  @override
+  String toString() => 'ResumeFrame(header: $header, lastReceivedServerPosition: $lastReceivedServerPosition, firstAvailableClientPosition: $firstAvailableClientPosition)';
+}
+
+class ResumeOkFrame {
+  final FrameHeader header;
+  final int lastReceivedClientPosition;
+
+  ResumeOkFrame(this.header, this.lastReceivedClientPosition);
+
+  @override
+  String toString() => 'ResumeOkFrame(header: $header, lastReceivedClientPosition: $lastReceivedClientPosition)';
+}

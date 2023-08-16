@@ -124,6 +124,33 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
+  Uint8List writeResumeFrame(int lastReceivedServerPosition, int firstAvailableClientPosition, Uint8List token) {
+    final frameBuffer = ReactiveWriteBuffer();
+    frameBuffer.writeInt24(0);
+    frameBuffer.writeInt32(0);
+    frameBuffer.writeInt8(reactiveFrameResume);
+    frameBuffer.writeInt8(0);
+    frameBuffer.writeInt16(token.length);
+    frameBuffer.writeBytes(token);
+    frameBuffer.writeInt64(lastReceivedServerPosition);
+    frameBuffer.writeInt32(firstAvailableClientPosition);
+    _refillFrameLength(frameBuffer);
+    return frameBuffer.toUint8Array();
+  }
+
+  @pragma(preferInlinePragma)
+  Uint8List writeResumeOkFrame(int lastReceivedClientPosition) {
+    final frameBuffer = ReactiveWriteBuffer();
+    frameBuffer.writeInt24(0);
+    frameBuffer.writeInt32(0);
+    frameBuffer.writeInt8(reactiveFrameResumeOk);
+    frameBuffer.writeInt8(0);
+    frameBuffer.writeInt64(lastReceivedClientPosition);
+    _refillFrameLength(frameBuffer);
+    return frameBuffer.toUint8Array();
+  }
+
+  @pragma(preferInlinePragma)
   void _refillFrameLength(ReactiveWriteBuffer frameBuffer) {
     final frameLength = frameBuffer.capacity() - reactiveFrameLengthFieldSize;
     frameBuffer.resetWriterIndex();

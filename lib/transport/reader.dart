@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'constants.dart';
 import 'buffer.dart';
@@ -125,6 +126,23 @@ class ReactiveReader {
       );
     }
     return PayloadFrame(header, (header.flags & 0x40) > 0);
+  }
+
+  ResumeFrame readResumeFrame(ReactiveReadBuffer buffer, FrameHeader header) {
+    buffer.readInt16();
+    buffer.readInt16();
+    var tokenLength = buffer.readInt16() ?? 0;
+    var token = tokenLength == 0 ? emptyBytes : Uint8List.fromList(buffer.readBytes(tokenLength));
+    final lastReceivedServerPosition = buffer.readInt64() ?? 0;
+    final firstAvailableClientPosition = buffer.readInt64() ?? 0;
+    return ResumeFrame(header, lastReceivedServerPosition, firstAvailableClientPosition, token);
+  }
+
+  ResumeOkFrame readResumeOkFrame(ReactiveReadBuffer buffer, FrameHeader header) {
+    buffer.readInt16();
+    buffer.readInt16();
+    final lastReceivedClientPosition = buffer.readInt64() ?? 0;
+    return ResumeOkFrame(header, lastReceivedClientPosition);
   }
 
   ReactivePayload _readPayload(ReactiveReadBuffer buffer, bool metadataPresent, int dataLength) {

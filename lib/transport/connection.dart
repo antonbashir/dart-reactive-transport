@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:iouring_transport/iouring_transport.dart';
 
 import 'exception.dart';
+import 'state.dart';
 import 'supplier.dart';
 import 'keepalive.dart';
 import 'reader.dart';
@@ -26,6 +27,7 @@ class ReactiveClientConnection implements ReactiveConnection {
   final ReactiveSetupConfiguration _setupConfiguration;
   final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
+  final ReactiveResumeClientState _resumeState;
   final void Function(ReactiveException exception)? _onError;
 
   late final ReactiveBroker _broker;
@@ -41,6 +43,7 @@ class ReactiveClientConnection implements ReactiveConnection {
     this._brokerConfiguration,
     this._setupConfiguration,
     this._transportConfiguration,
+    this._resumeState,
   ) {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
     final supplier = ReactiveStreamIdSupplier.client();
@@ -60,16 +63,22 @@ class ReactiveClientConnection implements ReactiveConnection {
   }
 
   void connect() {
-    final frames = <int>[];
-    frames.addAll(_writer.writeSetupFrame(
-      _setupConfiguration.keepAliveInterval,
-      _setupConfiguration.keepAliveMaxLifetime,
-      _setupConfiguration.metadataMimeType,
-      _setupConfiguration.dataMimeType,
-      ReactivePayload(_setupConfiguration.initialMetaData, _setupConfiguration.initialData),
-    ));
+    final frames = <int>[
+      ..._writer.writeSetupFrame(
+        _setupConfiguration.keepAliveInterval,
+        _setupConfiguration.keepAliveMaxLifetime,
+        _setupConfiguration.metadataMimeType,
+        _setupConfiguration.dataMimeType,
+        ReactivePayload(_setupConfiguration.initialMetaData, _setupConfiguration.initialData),
+      )
+    ];
     _broker.connect(_setupConfiguration).forEach(frames.addAll);
     _connection.writeSingle(Uint8List.fromList(frames), onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
+  }
+
+  void resume() {
+    final frame = _writer.writeResumeFrame(_resumeState.lastReceivedServerPosition, _resumeState.firstAvailableClientPosition, _resumeState.token);
+    _connection.writeSingle(Uint8List.fromList(frame), onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
   @override
