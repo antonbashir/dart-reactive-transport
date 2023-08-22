@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'configuration.dart';
@@ -8,7 +9,8 @@ abstract interface class ResumeState {
   bool get empty;
   Uint8List get token;
   void save(Uint8List frame);
-  void receive(Uint8List frame);
+  Queue<Uint8List> get();
+  void onReceive(Uint8List frame);
 }
 
 class ReactiveResumeClientState implements ResumeState {
@@ -39,8 +41,13 @@ class ReactiveResumeClientState implements ResumeState {
   }
 
   @override
-  void receive(Uint8List frame) {
+  void onReceive(Uint8List frame) {
     _lastReceivedServerPosition += frame.length;
+  }
+
+  @override
+  Queue<Uint8List> get() {
+    return store.load();
   }
 }
 
@@ -65,10 +72,17 @@ class ReactiveResumeServerState implements ResumeState {
   ReactiveResumeServerState();
 
   @override
-  void save(Uint8List frame) {}
+  void save(Uint8List frame) {
+    throw UnimplementedError();
+  }
 
   @override
-  void receive(Uint8List frame) {
+  void onReceive(Uint8List frame) {
     _lastReceivedClientPosition += frame.length;
+  }
+
+  @override
+  Queue<Uint8List> get() {
+    throw UnimplementedError();
   }
 }

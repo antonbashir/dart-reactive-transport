@@ -172,7 +172,9 @@ class ReactiveBroker {
     }
   }
 
-  void retransmit(int lastReceivedClientPosition) {}
+  void retransmit(int lastReceivedClientPosition) {
+    
+  }
 
   void close() {
     _keepAliveTimer.stop();
