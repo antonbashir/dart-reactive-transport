@@ -45,8 +45,6 @@ class ReactiveResumeClientState implements ResumeState {
 }
 
 class ReactiveResumeServerState implements ResumeState {
-  final ReactiveResumeStore store;
-
   bool _empty = true;
   int _lastReceivedClientPosition = 0;
 
@@ -64,7 +62,7 @@ class ReactiveResumeServerState implements ResumeState {
 
   int get lastReceivedClientPosition => _lastReceivedClientPosition;
 
-  ReactiveResumeServerState(this.store);
+  ReactiveResumeServerState();
 
   @override
   void save(Uint8List frame) {}

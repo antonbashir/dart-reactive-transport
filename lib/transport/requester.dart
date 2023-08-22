@@ -23,14 +23,14 @@ class ReactiveRequester {
   final int _streamId;
   final ReactiveConnection _connection;
   final ReactiveWriter _writer;
-  final ResumeState? _resumeState;
+  final ResumeState? resumeState;
   final Queue<PendingPayload> _payloads = Queue();
 
   var _pending = 0;
   var _accepting = true;
   var _sending = true;
 
-  ReactiveRequester(this._connection, this._streamId, this._writer, this._resumeState);
+  ReactiveRequester(this._connection, this._streamId, this._writer, {this.resumeState});
 
   void request(int count) {
     if (!_sending) throw ReactiveStateException("Channel completted. Requesting is not available");
@@ -40,7 +40,9 @@ class ReactiveRequester {
   void schedulePayload(Uint8List bytes, bool complete) {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = !complete;
-    _payloads.addLast(PendingPayload(_writer.writePayloadFrame(_streamId, complete, ReactivePayload.ofData(bytes)), complete ? _completedFlag : 0));
+    final frame = _writer.writePayloadFrame(_streamId, complete, ReactivePayload.ofData(bytes));
+    _payloads.addLast(PendingPayload(frame, complete ? _completedFlag : 0));
+    resumeState?.save(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
       return;
@@ -53,7 +55,9 @@ class ReactiveRequester {
   void scheduleError(Uint8List bytes) {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = false;
-    _payloads.addLast(PendingPayload(_writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, bytes), _errorFlag));
+    final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, bytes);
+    _payloads.addLast(PendingPayload(frame, _errorFlag));
+    resumeState?.save(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
       return;
@@ -66,7 +70,9 @@ class ReactiveRequester {
   void scheduleCancel() {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = false;
-    _payloads.addLast(PendingPayload(_writer.writeCancelFrame(_streamId), _cancelFlag));
+    final frame = _writer.writeCancelFrame(_streamId);
+    _payloads.addLast(PendingPayload(frame, _cancelFlag));
+    resumeState?.save(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
       return;
