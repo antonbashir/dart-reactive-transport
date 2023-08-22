@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'configuration.dart';
 import 'store.dart';
 
-abstract interface class ResumeState {
+abstract interface class ReactiveResumeState {
   ReactiveSetupConfiguration get setupConfiguration;
   bool get empty;
   Uint8List get token;
@@ -13,7 +13,7 @@ abstract interface class ResumeState {
   void onReceive(Uint8List frame);
 }
 
-class ReactiveResumeClientState implements ResumeState {
+class ReactiveResumeClientState implements ReactiveResumeState {
   final ReactiveSetupConfiguration setupConfiguration;
   final Uint8List token;
   final ReactiveResumeStore store;
@@ -51,7 +51,7 @@ class ReactiveResumeClientState implements ResumeState {
   }
 }
 
-class ReactiveResumeServerState implements ResumeState {
+class ReactiveResumeServerState implements ReactiveResumeState {
   bool _empty = true;
   int _lastReceivedClientPosition = 0;
 

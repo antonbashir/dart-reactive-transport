@@ -9,12 +9,12 @@ import 'reader.dart';
 class ReactiveResponder {
   final ReactiveBroker _broker;
   final ReactiveReader _reader;
-  final bool _tracing;
+  final void Function(dynamic frame)? _tracer;
   final ReactiveKeepAliveTimer _keepAliveTimer;
 
   ReactiveResponder(
     this._broker,
-    this._tracing,
+    this._tracer,
     this._reader,
     this._keepAliveTimer,
   );
@@ -23,45 +23,45 @@ class ReactiveResponder {
     final buffer = ReactiveReadBuffer(payload.takeBytes());
     while (buffer.isReadable()) {
       final header = _reader.readFrameHeader(buffer);
-      if (_tracing) print(header);
+      _tracer?.call(header);
       switch (header.type) {
         case reactiveFrameSetup:
           final frame = _reader.readSetupFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           _broker.setup(frame.dataMimeType, frame.metadataMimeType, frame.keepAliveInterval, frame.keepAliveMaxLifetime);
           continue;
         case reactiveFrameLease:
           final frame = _reader.readLeaseFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           continue;
         case reactiveFrameResume:
           final frame = _reader.readResumeFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           _broker.resume(frame.lastReceivedServerPosition, frame.firstAvailableClientPosition, frame.token);
           continue;
         case reactiveFrameResumeOk:
           final frame = _reader.readResumeOkFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           _broker.retransmit(frame.lastReceivedClientPosition);
           continue;
         case reactiveFrameKeepalive:
           final frame = _reader.readKeepAliveFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           _keepAliveTimer.pong(frame.respond);
           continue;
         case reactiveFrameRequestN:
           final frame = _reader.readRequestNFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           _broker.request(frame.header.streamId, frame.count ?? infinityRequestsCount);
           continue;
         case reactiveFrameRequestChannel:
           final frame = _reader.readRequestChannelFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           _broker.bind(frame.header.streamId, frame.initialRequestCount ?? infinityRequestsCount, frame.payload!);
           continue;
         case reactiveFramePayload:
           final frame = _reader.readPayloadFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           _broker.receive(frame.header.streamId, frame.payload, frame.completed);
           continue;
         case reactiveFrameCancel:
@@ -69,7 +69,7 @@ class ReactiveResponder {
           continue;
         case reactiveFrameError:
           final frame = _reader.readErrorFrame(buffer, header);
-          if (_tracing) print(frame);
+          _tracer?.call(frame);
           _broker.handle(frame.header.streamId, frame.code, frame.message);
           continue;
         case reactiveFrameMetadataPush:

@@ -12,19 +12,19 @@ const _completedFlag = 1 << 1;
 const _errorFlag = 1 << 2;
 const _cancelFlag = 1 << 3;
 
-class PendingPayload {
+class _ReactivePendingPayload {
   final Uint8List frame;
   final int flags;
 
-  PendingPayload(this.frame, this.flags);
+  _ReactivePendingPayload(this.frame, this.flags);
 }
 
 class ReactiveRequester {
   final int _streamId;
   final ReactiveConnection _connection;
   final ReactiveWriter _writer;
-  final ResumeState? resumeState;
-  final Queue<PendingPayload> _payloads = Queue();
+  final ReactiveResumeState? resumeState;
+  final Queue<_ReactivePendingPayload> _payloads = Queue();
 
   var _pending = 0;
   var _accepting = true;
@@ -41,7 +41,7 @@ class ReactiveRequester {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = !complete;
     final frame = _writer.writePayloadFrame(_streamId, complete, ReactivePayload.ofData(bytes));
-    _payloads.addLast(PendingPayload(frame, complete ? _completedFlag : 0));
+    _payloads.addLast(_ReactivePendingPayload(frame, complete ? _completedFlag : 0));
     resumeState?.save(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
@@ -56,7 +56,7 @@ class ReactiveRequester {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = false;
     final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, bytes);
-    _payloads.addLast(PendingPayload(frame, _errorFlag));
+    _payloads.addLast(_ReactivePendingPayload(frame, _errorFlag));
     resumeState?.save(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
@@ -71,7 +71,7 @@ class ReactiveRequester {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = false;
     final frame = _writer.writeCancelFrame(_streamId);
-    _payloads.addLast(PendingPayload(frame, _cancelFlag));
+    _payloads.addLast(_ReactivePendingPayload(frame, _cancelFlag));
     resumeState?.save(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();

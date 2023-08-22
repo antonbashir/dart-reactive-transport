@@ -4,17 +4,17 @@ import 'codec.dart';
 import 'store.dart';
 
 class ReactiveTransportConfiguration {
-  final bool tracing;
+  final void Function(dynamic frame)? tracer;
   final ReactiveResumeStore resumeStore;
 
-  ReactiveTransportConfiguration({required this.tracing, required this.resumeStore});
+  ReactiveTransportConfiguration({required this.tracer, required this.resumeStore});
 
   ReactiveTransportConfiguration copyWith({
-    bool? tracing,
+    void Function(dynamic frame)? tracer,
     ReactiveResumeStore? resumeStore,
   }) =>
       ReactiveTransportConfiguration(
-        tracing: tracing ?? this.tracing,
+        tracer: tracer ?? this.tracer,
         resumeStore: resumeStore ?? this.resumeStore,
       );
 }

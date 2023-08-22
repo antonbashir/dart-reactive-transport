@@ -9,7 +9,7 @@ class ReactiveTransportDefaults {
   ReactiveTransportDefaults._();
 
   static ReactiveTransportConfiguration transport() => ReactiveTransportConfiguration(
-        tracing: false,
+        tracer: null,
         resumeStore: LoaclReactiveResumeStore(),
       );
 

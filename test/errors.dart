@@ -14,7 +14,7 @@ void errors() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracing: true));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
     final clientPayload = "client-payload";
     final errorPayload = Exception("error");
 
@@ -59,7 +59,7 @@ void errors() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracing: true));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
     final clientPayload = "client-payload";
     final serverPayload = "server-payload";
     final errorPayload = Exception("error");

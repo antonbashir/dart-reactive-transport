@@ -22,7 +22,7 @@ class ReactiveBroker {
   final ReactiveConnection _connection;
   final ReactiveKeepAliveTimer _keepAliveTimer;
   final ReactiveStreamIdSupplier streamIdSupplier;
-  final ResumeState _resumeState;
+  final ReactiveResumeState _resumeState;
   final void Function(ReactiveException error)? _onError;
 
   final _channels = <String, ReactiveChannel>{};
@@ -172,9 +172,7 @@ class ReactiveBroker {
     }
   }
 
-  void retransmit(int lastReceivedClientPosition) {
-    
-  }
+  void retransmit(int lastReceivedClientPosition) {}
 
   void close() {
     _keepAliveTimer.stop();
