@@ -17,8 +17,8 @@ class ReactiveClient {
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
   final ReactiveSetupConfiguration setupConfiguration;
-  TransportTcpClientConfiguration? tcpConfiguration;
-  TransportRetryConfiguration? connectRetry;
+  final TransportTcpClientConfiguration? tcpConfiguration;
+  final TransportRetryConfiguration? connectRetry;
 
   ReactiveClient({
     required this.address,

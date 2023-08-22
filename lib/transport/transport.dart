@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:iouring_transport/iouring_transport.dart';
-import 'package:reactive_transport/transport/client.dart';
+import 'client.dart';
 import 'defaults.dart';
 import 'exception.dart';
 

@@ -32,10 +32,10 @@ class ReactiveClientConnection implements ReactiveConnection {
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
-  late final ReactiveClientSubcriber _subcriber;
+  late final ReactiveSubcriber _subcriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
 
-  ReactiveClientSubcriber get subcriber => _subcriber;
+  ReactiveSubcriber get subcriber => _subcriber;
 
   ReactiveClientConnection(
     this._connection,
@@ -59,7 +59,7 @@ class ReactiveClientConnection implements ReactiveConnection {
       _resumeState,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracing, _reader, _keepAliveTimer);
-    _subcriber = ReactiveClientSubcriber(_broker);
+    _subcriber = ReactiveSubcriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
@@ -103,10 +103,10 @@ class ReactiveServerConnection implements ReactiveConnection {
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
-  late final ReactiveServerSubcriber _subcriber;
+  late final ReactiveSubcriber _subcriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
 
-  ReactiveServerSubcriber get subcriber => _subcriber;
+  ReactiveSubcriber get subcriber => _subcriber;
 
   ReactiveServerConnection(
     this._connection,
@@ -129,7 +129,7 @@ class ReactiveServerConnection implements ReactiveConnection {
       _resumeState,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracing, _reader, _keepAliveTimer);
-    _subcriber = ReactiveServerSubcriber(_broker);
+    _subcriber = ReactiveSubcriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
