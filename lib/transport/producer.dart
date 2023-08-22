@@ -11,13 +11,13 @@ class ReactiveProducer {
 
   const ReactiveProducer(this._requester, this._codec);
 
-  void produce(dynamic data, {bool complete = false}) => _requester.scheduleData(_codec.encode(data), complete);
+  void produce(dynamic data, {bool complete = false}) => _requester.schedulePayload(_codec.encode(data), complete);
 
   void error(String message) => _requester.scheduleError(Uint8List.fromList(utf8.encode(message)));
 
   void cancel() => _requester.scheduleCancel();
 
-  void complete() => _requester.scheduleData(emptyBytes, true);
+  void complete() => _requester.schedulePayload(emptyBytes, true);
 
   void request(int count) => _requester.request(count);
 }

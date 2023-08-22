@@ -37,8 +37,7 @@ class ReactiveClient {
       final resumeState = ReactiveResumeClientState(
         setupConfiguration: setupConfiguration,
         token: emptyBytes,
-        lastReceivedServerPosition: 0,
-        firstAvailableClientPosition: 0,
+        store: transportConfiguration.resumeStore,
       );
       final reactive = ReactiveClientConnection(
         connection,

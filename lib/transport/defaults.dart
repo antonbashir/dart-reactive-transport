@@ -1,15 +1,16 @@
 import 'dart:typed_data';
 
-import 'package:reactive_transport/transport/codec.dart';
-import 'package:reactive_transport/transport/constants.dart';
-
+import 'codec.dart';
 import 'configuration.dart';
+import 'constants.dart';
+import 'store.dart';
 
 class ReactiveTransportDefaults {
   ReactiveTransportDefaults._();
 
   static ReactiveTransportConfiguration transport() => ReactiveTransportConfiguration(
         tracing: false,
+        resumeStore: LoaclReactiveResumeStore(),
       );
 
   static ReactiveChannelConfiguration channel() => ReactiveChannelConfiguration(

@@ -1,17 +1,21 @@
 import 'dart:typed_data';
 
-import 'package:reactive_transport/transport/codec.dart';
+import 'codec.dart';
+import 'store.dart';
 
 class ReactiveTransportConfiguration {
   final bool tracing;
+  final ReactiveResumeStore resumeStore;
 
-  ReactiveTransportConfiguration({required this.tracing});
+  ReactiveTransportConfiguration({required this.tracing, required this.resumeStore});
 
   ReactiveTransportConfiguration copyWith({
     bool? tracing,
+    ReactiveResumeStore? resumeStore,
   }) =>
       ReactiveTransportConfiguration(
         tracing: tracing ?? this.tracing,
+        resumeStore: resumeStore ?? this.resumeStore,
       );
 }
 

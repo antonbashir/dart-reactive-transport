@@ -35,7 +35,7 @@ class ReactiveServer {
       onError,
       brokerConfiguration,
       transportConfiguration,
-      ReactiveResumeServerState(),
+      ReactiveResumeServerState(transportConfiguration.resumeStore),
     );
     _connections.add(reactive);
     acceptor(reactive);
