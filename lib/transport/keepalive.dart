@@ -19,10 +19,10 @@ class ReactiveKeepAliveTimer {
       if (!timer.isActive) return;
       _connection.writeSingle(_writer.writeKeepAliveFrame(true, 0));
     });
-    _pongTimer = Timer.periodic(Duration(milliseconds: keepAliveMaxLifetime), (timer) {
+    _pongTimer = Timer.periodic(Duration(milliseconds: keepAliveMaxLifetime), (timer) async {
       if (!timer.isActive) return;
       if (DateTime.now().millisecondsSinceEpoch - _lastPong >= keepAliveMaxLifetime) {
-        _connection.close();
+        await _connection.close();
         return;
       }
     });
