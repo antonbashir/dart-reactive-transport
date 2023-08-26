@@ -1,10 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:iouring_transport/iouring_transport.dart';
+import 'package:reactive_transport/transport/state.dart';
 
 import 'exception.dart';
-import 'state.dart';
 import 'supplier.dart';
+import 'store.dart';
 import 'keepalive.dart';
 import 'reader.dart';
 import 'payload.dart';
@@ -27,7 +28,7 @@ class ReactiveClientConnection implements ReactiveConnection {
   final ReactiveSetupConfiguration _setupConfiguration;
   final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
-  final ReactiveResumeClientState _resumeState;
+  final ReactiveFrameStore _frameStore;
   final void Function(ReactiveException exception)? _onError;
 
   late final ReactiveBroker _broker;
@@ -43,7 +44,7 @@ class ReactiveClientConnection implements ReactiveConnection {
     this._brokerConfiguration,
     this._setupConfiguration,
     this._transportConfiguration,
-    this._resumeState,
+    this._frameStore,
   ) {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
     final supplier = ReactiveStreamIdSupplier.client();
@@ -56,7 +57,7 @@ class ReactiveClientConnection implements ReactiveConnection {
       _keepAliveTimer,
       _onError,
       supplier,
-      _resumeState,
+      frameStore: _frameStore,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _reader, _keepAliveTimer);
     _subcriber = ReactiveSubcriber(_broker);
@@ -77,8 +78,8 @@ class ReactiveClientConnection implements ReactiveConnection {
     _connection.writeSingle(Uint8List.fromList(frames), onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
-  void resume() {
-    final frame = _writer.writeResumeFrame(_resumeState.lastReceivedServerPosition, _resumeState.firstAvailableClientPosition, _resumeState.token);
+  void resume(ReactiveResumeState state) {
+    final frame = _writer.writeResumeFrame(state.lastReceivedServerPosition, state.firstAvailableClientPosition, state.token);
     _connection.writeSingle(Uint8List.fromList(frame), onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
@@ -99,7 +100,7 @@ class ReactiveServerConnection implements ReactiveConnection {
   final void Function(ReactiveException exception)? _onError;
   final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
-  final ReactiveResumeServerState _resumeState;
+  final ReactiveResumeServerConfiguration _resumeConfiguration;
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
@@ -113,7 +114,7 @@ class ReactiveServerConnection implements ReactiveConnection {
     this._onError,
     this._brokerConfiguration,
     this._transportConfiguration,
-    this._resumeState,
+    this._resumeConfiguration,
   ) {
     _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
     final supplier = ReactiveStreamIdSupplier.server();
@@ -126,7 +127,6 @@ class ReactiveServerConnection implements ReactiveConnection {
       _keepAliveTimer,
       _onError,
       supplier,
-      _resumeState,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _reader, _keepAliveTimer);
     _subcriber = ReactiveSubcriber(_broker);

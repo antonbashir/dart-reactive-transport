@@ -1,12 +1,11 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:iouring_transport/iouring_transport.dart';
 
 import 'configuration.dart';
 import 'connection.dart';
-import 'constants.dart';
 import 'exception.dart';
-import 'state.dart';
 
 class ReactiveClient {
   final List<ReactiveClientConnection> _connections = [];
@@ -16,6 +15,7 @@ class ReactiveClient {
   final void Function(ReactiveException exception)? onError;
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
+  final ReactiveResumeClientConfiguration resumeConfiguration;
   final ReactiveSetupConfiguration setupConfiguration;
   final TransportTcpClientConfiguration? tcpConfiguration;
   final TransportRetryConfiguration? connectRetry;
@@ -28,32 +28,30 @@ class ReactiveClient {
     required this.brokerConfiguration,
     required this.transportConfiguration,
     required this.setupConfiguration,
+    required this.resumeConfiguration,
     this.tcpConfiguration,
     this.connectRetry,
   });
 
   void connect(TransportClientConnectionPool pool) {
+    final resumeStates = Queue.from(resumeConfiguration.resumeStateStore.list("$address:$port"));
     pool.forEach((connection) {
-      final resumeState = ReactiveResumeClientState(
-        setupConfiguration: setupConfiguration,
-        token: emptyBytes,
-        store: transportConfiguration.resumeStore,
-      );
+      final state = resumeStates.removeFirst();
       final reactive = ReactiveClientConnection(
         connection,
         onError,
         brokerConfiguration,
         setupConfiguration,
         transportConfiguration,
-        resumeState,
+        resumeConfiguration.frameStore,
       );
       _connections.add(reactive);
       connector(reactive);
-      if (resumeState.empty) {
+      if (state == null) {
         reactive.connect();
         return;
       }
-      reactive.resume();
+      reactive.resume(state);
     });
   }
 

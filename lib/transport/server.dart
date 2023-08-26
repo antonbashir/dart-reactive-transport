@@ -5,7 +5,6 @@ import 'package:iouring_transport/iouring_transport.dart';
 import 'configuration.dart';
 import 'connection.dart';
 import 'exception.dart';
-import 'state.dart';
 
 class ReactiveServer {
   final List<ReactiveServerConnection> _connections = [];
@@ -15,6 +14,7 @@ class ReactiveServer {
   final void Function(ReactiveException exception)? onError;
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
+  final ReactiveResumeServerConfiguration resumeConfiguration;
   final TransportTcpClientConfiguration? tcpConfiguration;
   final TransportRetryConfiguration? connectRetry;
 
@@ -25,6 +25,7 @@ class ReactiveServer {
     required this.onError,
     required this.brokerConfiguration,
     required this.transportConfiguration,
+    required this.resumeConfiguration,
     this.tcpConfiguration,
     this.connectRetry,
   });
@@ -35,7 +36,7 @@ class ReactiveServer {
       onError,
       brokerConfiguration,
       transportConfiguration,
-      ReactiveResumeServerState(),
+      resumeConfiguration,
     );
     _connections.add(reactive);
     acceptor(reactive);

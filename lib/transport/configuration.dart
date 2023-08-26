@@ -5,17 +5,46 @@ import 'store.dart';
 
 class ReactiveTransportConfiguration {
   final void Function(dynamic frame)? tracer;
-  final ReactiveResumeStore resumeStore;
 
-  ReactiveTransportConfiguration({required this.tracer, required this.resumeStore});
+  ReactiveTransportConfiguration({required this.tracer});
 
   ReactiveTransportConfiguration copyWith({
     void Function(dynamic frame)? tracer,
-    ReactiveResumeStore? resumeStore,
   }) =>
       ReactiveTransportConfiguration(
         tracer: tracer ?? this.tracer,
-        resumeStore: resumeStore ?? this.resumeStore,
+      );
+}
+
+class ReactiveResumeClientConfiguration {
+  final ReactiveFrameStore frameStore;
+  final ReactiveResumeClientStore resumeStateStore;
+  final Uint8List Function() tokenGenerator;
+
+  ReactiveResumeClientConfiguration({required this.frameStore, required this.resumeStateStore, required this.tokenGenerator});
+
+  ReactiveResumeClientConfiguration copyWith({
+    ReactiveFrameStore? frameStore,
+    ReactiveResumeClientStore? resumeStore,
+    Uint8List Function()? tokenGenerator,
+  }) =>
+      ReactiveResumeClientConfiguration(
+        frameStore: frameStore ?? this.frameStore,
+        resumeStateStore: resumeStore ?? this.resumeStateStore,
+        tokenGenerator: tokenGenerator ?? this.tokenGenerator,
+      );
+}
+
+class ReactiveResumeServerConfiguration {
+  final ReactiveResumeServerStore resumeStateStore;
+
+  ReactiveResumeServerConfiguration({required this.resumeStateStore});
+
+  ReactiveResumeServerConfiguration copyWith({
+    ReactiveResumeServerStore? resumeStore,
+  }) =>
+      ReactiveResumeServerConfiguration(
+        resumeStateStore: resumeStore ?? this.resumeStateStore,
       );
 }
 

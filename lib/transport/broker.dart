@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'store.dart';
 import 'channel.dart';
 import 'exception.dart';
 import 'connection.dart';
@@ -12,7 +13,6 @@ import 'keepalive.dart';
 import 'payload.dart';
 import 'producer.dart';
 import 'requester.dart';
-import 'state.dart';
 import 'supplier.dart';
 import 'writer.dart';
 
@@ -22,7 +22,7 @@ class ReactiveBroker {
   final ReactiveConnection _connection;
   final ReactiveKeepAliveTimer _keepAliveTimer;
   final ReactiveStreamIdSupplier streamIdSupplier;
-  final ReactiveResumeState _resumeState;
+  final ReactiveFrameStore? frameStore;
   final void Function(ReactiveException error)? _onError;
 
   final _channels = <String, ReactiveChannel>{};
@@ -42,9 +42,9 @@ class ReactiveBroker {
     this._currentLocalStreamId,
     this._keepAliveTimer,
     this._onError,
-    this.streamIdSupplier,
-    this._resumeState,
-  );
+    this.streamIdSupplier, {
+    this.frameStore,
+  });
 
   void setup(String dataMimeType, String metadataMimeType, int keepAliveInterval, int keepAliveMaxLifetime) {
     if (!_configuration.codecs.containsKey(dataMimeType) || !_configuration.codecs.containsKey(metadataMimeType)) {
@@ -77,7 +77,7 @@ class ReactiveBroker {
       final metadata = _metadataCodec.encode({rountingKey: key});
       final payload = ReactivePayload.ofMetadata(metadata);
       _streamIdMapping[_currentLocalStreamId] = entry.key;
-      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer, resumeState: _resumeState);
+      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer, resumeStore: frameStore);
       _requesters[_currentLocalStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
@@ -151,8 +151,8 @@ class ReactiveBroker {
   }
 
   void resume(int lastReceivedServerPosition, int firstAvailableClientPosition, Uint8List token) {
-    final setup = _resumeState.setupConfiguration;
-    if (_resumeState.empty) {
+    final setup = frameStore.setupConfiguration;
+    if (frameStore.empty) {
       _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.invalidSetup.code, ReactiveExceptions.invalidSetup.content));
       return;
     }
@@ -163,7 +163,7 @@ class ReactiveBroker {
       final channel = entry.value;
       final key = entry.key;
       _streamIdMapping[_currentLocalStreamId] = key;
-      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer, resumeState: _resumeState);
+      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer);
       _requesters[_currentLocalStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
