@@ -131,21 +131,6 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writeResumeFrame(int lastReceivedServerPosition, int firstAvailableClientPosition, Uint8List token) {
-    final frameBuffer = ReactiveWriteBuffer();
-    frameBuffer.writeInt24(0);
-    frameBuffer.writeInt32(0);
-    frameBuffer.writeInt8(reactiveFrameResume);
-    frameBuffer.writeInt8(0);
-    frameBuffer.writeInt16(token.length);
-    frameBuffer.writeBytes(token);
-    frameBuffer.writeInt64(lastReceivedServerPosition);
-    frameBuffer.writeInt32(firstAvailableClientPosition);
-    _refillFrameLength(frameBuffer);
-    return frameBuffer.toUint8Array();
-  }
-
-  @pragma(preferInlinePragma)
   Uint8List writeLeaseFrame(int timeToLive, int requests) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
@@ -154,18 +139,6 @@ class ReactiveWriter {
     frameBuffer.writeInt8(0);
     frameBuffer.writeInt32(timeToLive);
     frameBuffer.writeInt32(requests);
-    _refillFrameLength(frameBuffer);
-    return frameBuffer.toUint8Array();
-  }
-
-  @pragma(preferInlinePragma)
-  Uint8List writeResumeOkFrame(int lastReceivedClientPosition) {
-    final frameBuffer = ReactiveWriteBuffer();
-    frameBuffer.writeInt24(0);
-    frameBuffer.writeInt32(0);
-    frameBuffer.writeInt8(reactiveFrameResumeOk);
-    frameBuffer.writeInt8(0);
-    frameBuffer.writeInt64(lastReceivedClientPosition);
     _refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
   }
