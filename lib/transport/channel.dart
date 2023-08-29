@@ -7,6 +7,8 @@ abstract class ReactiveChannel {
   final String key;
   final ReactiveChannelConfiguration configuration;
 
+  late final int streamId;
+
   ReactiveChannel(this.configuration, this.key);
 
   FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer);
@@ -17,7 +19,9 @@ abstract class ReactiveChannel {
 
   FutureOr<void> onRequest(int count, ReactiveProducer producer);
 
-  bool initiate();
+  bool initiate(int streamId);
+
+  bool activate();
 }
 
 class FunctionalReactiveChannel implements ReactiveChannel {
@@ -28,7 +32,9 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   final FutureOr<void> Function(String error, ReactiveProducer producer)? errorConsumer;
   final FutureOr<void> Function(int count, ReactiveProducer producer)? requestConsumer;
 
-  bool _initiated = false;
+  late final int streamId;
+
+  bool _activated = false;
 
   FunctionalReactiveChannel(
     this.key,
@@ -52,9 +58,15 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   FutureOr<void> onSubcribe(ReactiveProducer producer) => subcribeConsumer?.call(producer);
 
   @override
-  bool initiate() {
-    if (_initiated) return false;
-    _initiated = true;
+  bool initiate(int streamId) {
+    this.streamId = streamId;
+    return true;
+  }
+
+  @override
+  bool activate() {
+    if (_activated) return false;
+    _activated = true;
     return true;
   }
 }

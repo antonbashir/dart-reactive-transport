@@ -75,13 +75,13 @@ class ReactiveBroker {
 
   void lease(int timeToLive, int requests) {
     _leaseLimitter.reconfigure(timeToLive, requests);
-    for (var entry in _channels.entries) {
+    for (var entry in _channels.entries) {k
       final channel = entry.value;
-      if (channel.initiate()) {
+      if (channel.activate()) {
         final key = entry.key;
         final metadata = _metadataCodec.encode({rountingKey: key});
         final payload = ReactivePayload.ofMetadata(metadata);
-        _connection.writeSingle(_writer.writeRequestChannelFrame(_currentLocalStreamId, channel.configuration.initialRequestCount, payload));
+        _connection.writeSingle(_writer.writeRequestChannelFrame(channel.streamId, channel.configuration.initialRequestCount, payload));
       }
     }
   }
@@ -101,8 +101,8 @@ class ReactiveBroker {
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
       _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
+      channel.initiate(_currentLocalStreamId);
       if (!setupConfiguration.lease) {
-        channel.initiate();
         frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, channel.configuration.initialRequestCount, payload));
       }
       _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
