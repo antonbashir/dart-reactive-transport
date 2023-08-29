@@ -139,6 +139,19 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
+  Uint8List writeLeaseFrame(int timeToLive, int requests) {
+    final frameBuffer = ReactiveWriteBuffer();
+    frameBuffer.writeInt24(0);
+    frameBuffer.writeInt32(0);
+    frameBuffer.writeInt8(reactiveFrameLease);
+    frameBuffer.writeInt8(0);
+    frameBuffer.writeInt32(timeToLive);
+    frameBuffer.writeInt32(requests);
+    _refillFrameLength(frameBuffer);
+    return frameBuffer.toUint8Array();
+  }
+
+  @pragma(preferInlinePragma)
   Uint8List writeResumeOkFrame(int lastReceivedClientPosition) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);

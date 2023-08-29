@@ -16,6 +16,8 @@ abstract class ReactiveChannel {
   FutureOr<void> onError(String error, ReactiveProducer producer);
 
   FutureOr<void> onRequest(int count, ReactiveProducer producer);
+
+  bool initiate();
 }
 
 class FunctionalReactiveChannel implements ReactiveChannel {
@@ -25,6 +27,8 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   final FutureOr<void> Function(ReactiveProducer producer)? subcribeConsumer;
   final FutureOr<void> Function(String error, ReactiveProducer producer)? errorConsumer;
   final FutureOr<void> Function(int count, ReactiveProducer producer)? requestConsumer;
+
+  bool _initiated = false;
 
   FunctionalReactiveChannel(
     this.key,
@@ -46,4 +50,11 @@ class FunctionalReactiveChannel implements ReactiveChannel {
 
   @override
   FutureOr<void> onSubcribe(ReactiveProducer producer) => subcribeConsumer?.call(producer);
+
+  @override
+  bool initiate() {
+    if (_initiated) return false;
+    _initiated = true;
+    return true;
+  }
 }

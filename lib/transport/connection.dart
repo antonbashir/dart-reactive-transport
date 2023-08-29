@@ -74,7 +74,10 @@ class ReactiveClientConnection implements ReactiveConnection {
   }
 
   @override
-  void writeSingle(Uint8List bytes) => _connection.writeSingle(bytes, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
+  void writeSingle(Uint8List bytes) => _connection.writeSingle(
+        bytes,
+        onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
+      );
 
   @override
   Future<void> close({Duration? gracefulDuration}) async {
@@ -122,7 +125,10 @@ class ReactiveServerConnection implements ReactiveConnection {
   }
 
   @override
-  void writeSingle(Uint8List bytes) => _connection.writeSingle(bytes, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
+  void writeSingle(Uint8List bytes) => _connection.writeSingle(
+        bytes,
+        onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
+      );
 
   @override
   Future<void> close({Duration? gracefulDuration}) async {

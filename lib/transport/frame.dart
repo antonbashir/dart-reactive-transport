@@ -53,12 +53,12 @@ class SetupFrame {
 class LeaseFrame {
   final FrameHeader header;
   final int timeToLive;
-  final int numberOfRequests;
+  final int requests;
 
-  LeaseFrame(this.header, this.timeToLive, this.numberOfRequests);
+  LeaseFrame(this.header, this.timeToLive, this.requests);
 
   @override
-  String toString() => 'LeaseFrame(header: $header, timeToLive: $timeToLive, numberOfRequests: $numberOfRequests)';
+  String toString() => 'LeaseFrame(header: $header, timeToLive: $timeToLive, requests;: $requests)';
 }
 
 class KeepAliveFrame {

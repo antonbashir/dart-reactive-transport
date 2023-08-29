@@ -28,11 +28,18 @@ class ReactiveResponder {
         case reactiveFrameSetup:
           final frame = _reader.readSetupFrame(buffer, header);
           _tracer?.call(frame);
-          _broker.setup(frame.dataMimeType, frame.metadataMimeType, frame.keepAliveInterval, frame.keepAliveMaxLifetime);
+          _broker.setup(
+            frame.dataMimeType,
+            frame.metadataMimeType,
+            frame.keepAliveInterval,
+            frame.keepAliveMaxLifetime,
+            frame.leaseEnable,
+          );
           continue;
         case reactiveFrameLease:
           final frame = _reader.readLeaseFrame(buffer, header);
           _tracer?.call(frame);
+          _broker.lease(frame.timeToLive, frame.requests);
           continue;
         case reactiveFrameKeepalive:
           final frame = _reader.readKeepAliveFrame(buffer, header);

@@ -32,16 +32,36 @@ class ReactiveChannelConfiguration {
 
 class ReactiveBrokerConfiguration {
   final Map<String, ReactiveCodec> codecs;
+  final ReactiveLeaseConfiguration? lease;
 
   const ReactiveBrokerConfiguration({
     required this.codecs,
+    this.lease,
   });
 
   ReactiveBrokerConfiguration copyWith({
     Map<String, ReactiveCodec>? codecs,
+    ReactiveLeaseConfiguration? lease,
   }) =>
       ReactiveBrokerConfiguration(
         codecs: codecs ?? this.codecs,
+        lease: lease ?? this.lease,
+      );
+}
+
+class ReactiveLeaseConfiguration {
+  final int timeToLive;
+  final int requests;
+
+  ReactiveLeaseConfiguration({required this.timeToLive, required this.requests});
+
+  ReactiveLeaseConfiguration copyWith({
+    int? timeToLive,
+    int? requests,
+  }) =>
+      ReactiveLeaseConfiguration(
+        timeToLive: timeToLive ?? this.timeToLive,
+        requests: requests ?? this.requests,
       );
 }
 
@@ -53,6 +73,7 @@ class ReactiveSetupConfiguration {
   final int flags;
   final Uint8List initialData;
   final Uint8List initialMetaData;
+  final bool lease;
 
   ReactiveSetupConfiguration({
     required this.metadataMimeType,
@@ -62,6 +83,7 @@ class ReactiveSetupConfiguration {
     required this.flags,
     required this.initialData,
     required this.initialMetaData,
+    required this.lease,
   });
 
   ReactiveSetupConfiguration copyWith({
@@ -72,6 +94,7 @@ class ReactiveSetupConfiguration {
     int? flags,
     Uint8List? initialData,
     Uint8List? initialMetaData,
+    bool? lease,
   }) =>
       ReactiveSetupConfiguration(
         metadataMimeType: metadataMimeType ?? this.metadataMimeType,
@@ -81,5 +104,6 @@ class ReactiveSetupConfiguration {
         flags: flags ?? this.flags,
         initialData: initialData ?? this.initialData,
         initialMetaData: initialMetaData ?? this.initialMetaData,
+        lease: lease ?? this.lease,
       );
 }

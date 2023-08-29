@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'lease.dart';
 import 'channel.dart';
 import 'exception.dart';
 import 'connection.dart';
@@ -28,6 +29,7 @@ class ReactiveBroker {
   final _producers = <int, ReactiveProducer>{};
   final _requesters = <int, ReactiveRequester>{};
   final _streamIdMapping = <int, String>{};
+  final _lease = ReactiveLease();
   int _currentLocalStreamId;
 
   late final ReactiveCodec _dataCodec;
@@ -43,14 +45,13 @@ class ReactiveBroker {
     this.streamIdSupplier,
   );
 
-  void setup(String dataMimeType, String metadataMimeType, int keepAliveInterval, int keepAliveMaxLifetime) {
-    if (!_configuration.codecs.containsKey(dataMimeType) || !_configuration.codecs.containsKey(metadataMimeType)) {
+  void setup(String dataMimeType, String metadataMimeType, int keepAliveInterval, int keepAliveMaxLifetime, bool lease) {
+    if (!_configuration.codecs.containsKey(dataMimeType) || !_configuration.codecs.containsKey(metadataMimeType) || _configuration.lease == null) {
       _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.invalidSetup.code, ReactiveExceptions.invalidSetup.content));
       return;
     }
     _dataCodec = _configuration.codecs[dataMimeType]!;
     _metadataCodec = _configuration.codecs[metadataMimeType]!;
-    _keepAliveTimer.start(keepAliveInterval, keepAliveMaxLifetime);
     for (var entry in _channels.entries) {
       final channel = entry.value;
       final key = entry.key;
@@ -61,6 +62,24 @@ class ReactiveBroker {
       _producers[_currentLocalStreamId] = producer;
       _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
       _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
+    }
+    if (lease) {
+      _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLive, _configuration.lease!.requests));
+      _lease.reconfigure(_configuration.lease!.timeToLive, _configuration.lease!.requests);
+    }
+    _keepAliveTimer.start(keepAliveInterval, keepAliveMaxLifetime);
+  }
+
+  void lease(int timeToLive, int requests) {
+    _lease.reconfigure(timeToLive, requests);
+    for (var entry in _channels.entries) {
+      final channel = entry.value;
+      if (channel.initiate()) {
+        final key = entry.key;
+        final metadata = _metadataCodec.encode({rountingKey: key});
+        final payload = ReactivePayload.ofMetadata(metadata);
+        _connection.writeSingle(_writer.writeRequestChannelFrame(_currentLocalStreamId, channel.configuration.initialRequestCount, payload));
+      }
     }
   }
 
@@ -79,7 +98,10 @@ class ReactiveBroker {
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
       _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
-      frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, channel.configuration.initialRequestCount, payload));
+      if (!setupConfiguration.lease) {
+        channel.initiate();
+        frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, channel.configuration.initialRequestCount, payload));
+      }
       _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
     }
     _keepAliveTimer.start(setupConfiguration.keepAliveInterval, setupConfiguration.keepAliveMaxLifetime);
@@ -116,6 +138,10 @@ class ReactiveBroker {
   }
 
   void request(int remoteStreamId, int count) {
+    if (_lease.restricted) {
+      _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.rejected.code, ReactiveExceptions.rejected.content));
+      return;
+    }
     _activators[remoteStreamId]?.activate();
     final producer = _producers[remoteStreamId];
     final requester = _requesters[remoteStreamId];
@@ -123,6 +149,7 @@ class ReactiveBroker {
     if (channel != null && producer != null && requester != null) {
       channel.onRequest(count, producer);
       if (requester.drain(count) == false) cancel(remoteStreamId);
+      if (_lease.enabled) _lease.notify(count);
     }
   }
 
