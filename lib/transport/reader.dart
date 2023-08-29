@@ -23,7 +23,7 @@ class ReactiveReader {
 
   SetupFrame readSetupFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     var delta = buffer.readerIndex - reactiveFrameHeaderSize;
-    var resumeEnable = (header.flags & 0x80) > 0;
+    final resumeEnable = (header.flags & 0x80) > 0;
     final leaseEnable = (header.flags & 0x40) > 0;
     buffer.readInt16();
     buffer.readInt16();

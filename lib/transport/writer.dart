@@ -6,12 +6,19 @@ import 'payload.dart';
 
 class ReactiveWriter {
   @pragma(preferInlinePragma)
-  Uint8List writeSetupFrame(int keepAliveInterval, int keepAliveMaxLifetime, String metadataMimeType, String dataMimeType, ReactivePayload setupPayload) {
+  Uint8List writeSetupFrame(
+    int keepAliveInterval,
+    int keepAliveMaxLifetime,
+    String metadataMimeType,
+    String dataMimeType,
+    bool lease,
+    ReactivePayload setupPayload,
+  ) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(0);
     frameBuffer.writeInt8(setupPayload.metadata.isEmpty ? reactiveFrameSetup << 2 : reactiveFrameSetup << 2 | 1);
-    frameBuffer.writeInt8(0);
+    frameBuffer.writeInt8(lease ? 0x40 : 0);
     frameBuffer.writeInt16(reactiveProtocolMajorVersion);
     frameBuffer.writeInt16(reactiveProtocolMinorVersion);
     frameBuffer.writeInt32(keepAliveInterval);

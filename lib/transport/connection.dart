@@ -66,6 +66,7 @@ class ReactiveClientConnection implements ReactiveConnection {
         _setupConfiguration.keepAliveMaxLifetime,
         _setupConfiguration.metadataMimeType,
         _setupConfiguration.dataMimeType,
+        _setupConfiguration.lease,
         ReactivePayload(_setupConfiguration.initialMetaData, _setupConfiguration.initialData),
       )
     ];
