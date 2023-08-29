@@ -75,7 +75,7 @@ class ReactiveBroker {
 
   void lease(int timeToLive, int requests) {
     _leaseLimitter.reconfigure(timeToLive, requests);
-    for (var entry in _channels.entries) {k
+    for (var entry in _channels.entries) {
       final channel = entry.value;
       if (channel.activate()) {
         final key = entry.key;
@@ -178,6 +178,7 @@ class ReactiveBroker {
   }
 
   void close() {
+    _leaseScheduler.stop();
     _keepAliveTimer.stop();
   }
 }

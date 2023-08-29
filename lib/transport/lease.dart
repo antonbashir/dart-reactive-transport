@@ -27,15 +27,18 @@ class ReactiveLeaseLimitter {
 }
 
 class ReactiveLeaseScheduler {
+  bool _active = false;
+
   late Timer _timer;
 
   void schedule(int timeToLive, void Function() action) {
     _timer = Timer.periodic(Duration(milliseconds: timeToLive), (Timer timer) {
       if (timer.isActive == true) action();
     });
+    _active = true;
   }
 
   void stop() {
-    _timer.cancel();
+    if (_active) _timer.cancel();
   }
 }
