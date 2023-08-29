@@ -135,7 +135,7 @@ class ReactiveWriter {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(0);
-    frameBuffer.writeInt8(reactiveFrameLease);
+    frameBuffer.writeInt8(reactiveFrameLease << 2);
     frameBuffer.writeInt8(0);
     frameBuffer.writeInt32(timeToLive);
     frameBuffer.writeInt32(requests);
