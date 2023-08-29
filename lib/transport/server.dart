@@ -14,7 +14,6 @@ class ReactiveServer {
   final void Function(ReactiveException exception)? onError;
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
-  final ReactiveResumeServerConfiguration resumeConfiguration;
   final TransportTcpClientConfiguration? tcpConfiguration;
   final TransportRetryConfiguration? connectRetry;
 
@@ -25,7 +24,6 @@ class ReactiveServer {
     required this.onError,
     required this.brokerConfiguration,
     required this.transportConfiguration,
-    required this.resumeConfiguration,
     this.tcpConfiguration,
     this.connectRetry,
   });
@@ -36,7 +34,6 @@ class ReactiveServer {
       onError,
       brokerConfiguration,
       transportConfiguration,
-      resumeConfiguration,
     );
     _connections.add(reactive);
     acceptor(reactive);

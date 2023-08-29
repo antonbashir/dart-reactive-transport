@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'codec.dart';
-import 'store.dart';
 
 class ReactiveTransportConfiguration {
   final void Function(dynamic frame)? tracer;
@@ -13,38 +12,6 @@ class ReactiveTransportConfiguration {
   }) =>
       ReactiveTransportConfiguration(
         tracer: tracer ?? this.tracer,
-      );
-}
-
-class ReactiveResumeClientConfiguration {
-  final ReactiveFrameStore frameStore;
-  final ReactiveResumeClientStore resumeStateStore;
-  final Uint8List Function() tokenGenerator;
-
-  ReactiveResumeClientConfiguration({required this.frameStore, required this.resumeStateStore, required this.tokenGenerator});
-
-  ReactiveResumeClientConfiguration copyWith({
-    ReactiveFrameStore? frameStore,
-    ReactiveResumeClientStore? resumeStore,
-    Uint8List Function()? tokenGenerator,
-  }) =>
-      ReactiveResumeClientConfiguration(
-        frameStore: frameStore ?? this.frameStore,
-        resumeStateStore: resumeStore ?? this.resumeStateStore,
-        tokenGenerator: tokenGenerator ?? this.tokenGenerator,
-      );
-}
-
-class ReactiveResumeServerConfiguration {
-  final ReactiveResumeServerStore resumeStateStore;
-
-  ReactiveResumeServerConfiguration({required this.resumeStateStore});
-
-  ReactiveResumeServerConfiguration copyWith({
-    ReactiveResumeServerStore? resumeStore,
-  }) =>
-      ReactiveResumeServerConfiguration(
-        resumeStateStore: resumeStore ?? this.resumeStateStore,
       );
 }
 

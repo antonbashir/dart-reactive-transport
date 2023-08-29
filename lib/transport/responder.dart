@@ -34,16 +34,6 @@ class ReactiveResponder {
           final frame = _reader.readLeaseFrame(buffer, header);
           _tracer?.call(frame);
           continue;
-        case reactiveFrameResume:
-          final frame = _reader.readResumeFrame(buffer, header);
-          _tracer?.call(frame);
-          _broker.resume(frame.lastReceivedServerPosition, frame.firstAvailableClientPosition, frame.token);
-          continue;
-        case reactiveFrameResumeOk:
-          final frame = _reader.readResumeOkFrame(buffer, header);
-          _tracer?.call(frame);
-          _broker.retransmit(frame.lastReceivedClientPosition);
-          continue;
         case reactiveFrameKeepalive:
           final frame = _reader.readKeepAliveFrame(buffer, header);
           _tracer?.call(frame);
@@ -76,6 +66,8 @@ class ReactiveResponder {
         case reactiveFrameRequestResponse:
         case reactiveFrameRequestStream:
         case reactiveFrameRequestFnf:
+        case reactiveFrameResume:
+        case reactiveFrameResumeOk:
         case reactiveFrameExt:
           continue;
         default:

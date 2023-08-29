@@ -5,7 +5,6 @@ import 'exception.dart';
 import 'constants.dart';
 import 'connection.dart';
 import 'payload.dart';
-import 'store.dart';
 import 'writer.dart';
 
 const _completedFlag = 1 << 1;
@@ -23,14 +22,13 @@ class ReactiveRequester {
   final int _streamId;
   final ReactiveConnection _connection;
   final ReactiveWriter _writer;
-  final ReactiveFrameStore? resumeStore;
   final Queue<_ReactivePendingPayload> _payloads = Queue();
 
   var _pending = 0;
   var _accepting = true;
   var _sending = true;
 
-  ReactiveRequester(this._connection, this._streamId, this._writer, {this.resumeStore});
+  ReactiveRequester(this._connection, this._streamId, this._writer);
 
   void request(int count) {
     if (!_sending) throw ReactiveStateException("Channel completted. Requesting is not available");
@@ -42,7 +40,6 @@ class ReactiveRequester {
     _accepting = !complete;
     final frame = _writer.writePayloadFrame(_streamId, complete, ReactivePayload.ofData(bytes));
     _payloads.addLast(_ReactivePendingPayload(frame, complete ? _completedFlag : 0));
-    resumeStore?.add(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
       return;
@@ -57,7 +54,6 @@ class ReactiveRequester {
     _accepting = false;
     final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, bytes);
     _payloads.addLast(_ReactivePendingPayload(frame, _errorFlag));
-    resumeStore?.add(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
       return;
@@ -72,7 +68,6 @@ class ReactiveRequester {
     _accepting = false;
     final frame = _writer.writeCancelFrame(_streamId);
     _payloads.addLast(_ReactivePendingPayload(frame, _cancelFlag));
-    resumeStore?.add(frame);
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
       return;

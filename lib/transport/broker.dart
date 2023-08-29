@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'store.dart';
 import 'channel.dart';
 import 'exception.dart';
 import 'connection.dart';
@@ -22,7 +21,6 @@ class ReactiveBroker {
   final ReactiveConnection _connection;
   final ReactiveKeepAliveTimer _keepAliveTimer;
   final ReactiveStreamIdSupplier streamIdSupplier;
-  final ReactiveFrameStore? frameStore;
   final void Function(ReactiveException error)? _onError;
 
   final _channels = <String, ReactiveChannel>{};
@@ -42,9 +40,8 @@ class ReactiveBroker {
     this._currentLocalStreamId,
     this._keepAliveTimer,
     this._onError,
-    this.streamIdSupplier, {
-    this.frameStore,
-  });
+    this.streamIdSupplier,
+  );
 
   void setup(String dataMimeType, String metadataMimeType, int keepAliveInterval, int keepAliveMaxLifetime) {
     if (!_configuration.codecs.containsKey(dataMimeType) || !_configuration.codecs.containsKey(metadataMimeType)) {
@@ -77,7 +74,7 @@ class ReactiveBroker {
       final metadata = _metadataCodec.encode({rountingKey: key});
       final payload = ReactivePayload.ofMetadata(metadata);
       _streamIdMapping[_currentLocalStreamId] = entry.key;
-      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer, resumeStore: frameStore);
+      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer);
       _requesters[_currentLocalStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
@@ -149,30 +146,6 @@ class ReactiveBroker {
     _producers.remove(remoteStreamId);
     _channels.remove(_streamIdMapping.remove(remoteStreamId));
   }
-
-  void resume(int lastReceivedServerPosition, int firstAvailableClientPosition, Uint8List token) {
-    final setup = frameStore.setupConfiguration;
-    if (frameStore.empty) {
-      _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.invalidSetup.code, ReactiveExceptions.invalidSetup.content));
-      return;
-    }
-    _dataCodec = _configuration.codecs[setup.dataMimeType]!;
-    _metadataCodec = _configuration.codecs[setup.metadataMimeType]!;
-    _keepAliveTimer.start(setup.keepAliveInterval, setup.keepAliveMaxLifetime);
-    for (var entry in _channels.entries) {
-      final channel = entry.value;
-      final key = entry.key;
-      _streamIdMapping[_currentLocalStreamId] = key;
-      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer);
-      _requesters[_currentLocalStreamId] = requester;
-      final producer = ReactiveProducer(requester, _dataCodec);
-      _producers[_currentLocalStreamId] = producer;
-      _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
-      _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
-    }
-  }
-
-  void retransmit(int lastReceivedClientPosition) {}
 
   void close() {
     _keepAliveTimer.stop();

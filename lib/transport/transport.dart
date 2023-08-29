@@ -32,7 +32,6 @@ class ReactiveTransport {
     TransportTcpClientConfiguration? tcpConfiguration,
     TransportRetryConfiguration? connectRetry,
     ReactiveBrokerConfiguration? brokerConfiguration,
-    ReactiveResumeServerConfiguration? resumeConfiguration,
   }) {
     final server = ReactiveServer(
       address: address,
@@ -43,7 +42,6 @@ class ReactiveTransport {
       connectRetry: connectRetry,
       transportConfiguration: _configuration,
       brokerConfiguration: brokerConfiguration ?? ReactiveTransportDefaults.broker(),
-      resumeConfiguration: resumeConfiguration ?? ReactiveTransportDefaults.resumeServer(),
     );
     _servers.add(server);
     _worker.servers.tcp(address, port, server.accept);
@@ -58,7 +56,6 @@ class ReactiveTransport {
     TransportRetryConfiguration? connectRetry,
     ReactiveSetupConfiguration? setupConfiguration,
     ReactiveBrokerConfiguration? brokerConfiguration,
-    ReactiveResumeClientConfiguration? resumeConfiguration,
   }) {
     final client = ReactiveClient(
       address: address,
@@ -66,9 +63,10 @@ class ReactiveTransport {
       connector: connector,
       onError: onError,
       transportConfiguration: _configuration,
+      connectRetry: connectRetry,
+      tcpConfiguration: tcpConfiguration,
       brokerConfiguration: brokerConfiguration ?? ReactiveTransportDefaults.broker(),
       setupConfiguration: setupConfiguration ?? ReactiveTransportDefaults.setup(),
-      resumeConfiguration: resumeConfiguration ?? ReactiveTransportDefaults.resumeClient(),
     );
     _clients.add(client);
     _worker.clients

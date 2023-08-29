@@ -1,11 +1,7 @@
 import 'dart:typed_data';
-
-import 'package:uuid/uuid.dart';
-
 import 'codec.dart';
 import 'configuration.dart';
 import 'constants.dart';
-import 'store.dart';
 
 class ReactiveTransportDefaults {
   ReactiveTransportDefaults._();
@@ -13,21 +9,6 @@ class ReactiveTransportDefaults {
   static ReactiveTransportConfiguration transport() => ReactiveTransportConfiguration(
         tracer: null,
       );
-
-  static ReactiveResumeClientConfiguration resumeClient() {
-    final uuid = Uuid();
-    return ReactiveResumeClientConfiguration(
-      frameStore: LocalReactiveFrameStore(),
-      resumeStateStore: LocalReactiveResumeClientStore(),
-      tokenGenerator: () => uuid.v4obj().toBytes(),
-    );
-  }
-
-  static ReactiveResumeServerConfiguration resumeServer() {
-    return ReactiveResumeServerConfiguration(
-      resumeStateStore: LocalReactiveResumeServerStore(),
-    );
-  }
 
   static ReactiveChannelConfiguration channel() => ReactiveChannelConfiguration(
         initialRequestCount: 1,
