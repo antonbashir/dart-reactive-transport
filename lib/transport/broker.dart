@@ -29,7 +29,8 @@ class ReactiveBroker {
   final _producers = <int, ReactiveProducer>{};
   final _requesters = <int, ReactiveRequester>{};
   final _streamIdMapping = <int, String>{};
-  final _lease = ReactiveLease();
+  final _leaseLimitter = ReactiveLeaseLimitter();
+  final _leaseScheduler = ReactiveLeaseScheduler();
   int _currentLocalStreamId;
 
   late final ReactiveCodec _dataCodec;
@@ -65,13 +66,15 @@ class ReactiveBroker {
     }
     if (lease) {
       _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLive, _configuration.lease!.requests));
-      _lease.reconfigure(_configuration.lease!.timeToLive, _configuration.lease!.requests);
+      _leaseScheduler.schedule(_configuration.lease!.timeToLive, () {
+        _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLive, _configuration.lease!.requests));
+      });
     }
     _keepAliveTimer.start(keepAliveInterval, keepAliveMaxLifetime);
   }
 
   void lease(int timeToLive, int requests) {
-    _lease.reconfigure(timeToLive, requests);
+    _leaseLimitter.reconfigure(timeToLive, requests);
     for (var entry in _channels.entries) {
       final channel = entry.value;
       if (channel.initiate()) {
@@ -138,8 +141,8 @@ class ReactiveBroker {
   }
 
   void request(int remoteStreamId, int count) {
-    if (_lease.restricted) {
-      _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.rejected.code, ReactiveExceptions.rejected.content));
+    if (_leaseLimitter.restricted) {
+      _connection.writeSingle(_writer.writeErrorFrame(remoteStreamId, ReactiveExceptions.rejected.code, ReactiveExceptions.rejected.content));
       return;
     }
     _activators[remoteStreamId]?.activate();
@@ -149,7 +152,7 @@ class ReactiveBroker {
     if (channel != null && producer != null && requester != null) {
       channel.onRequest(count, producer);
       if (requester.drain(count) == false) cancel(remoteStreamId);
-      if (_lease.enabled) _lease.notify(count);
+      if (_leaseLimitter.enabled) _leaseLimitter.notify(count);
     }
   }
 
