@@ -15,7 +15,6 @@ class ReactiveServer {
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
   final TransportTcpClientConfiguration? tcpConfiguration;
-  final TransportRetryConfiguration? connectRetry;
 
   ReactiveServer({
     required this.address,
@@ -25,7 +24,6 @@ class ReactiveServer {
     required this.brokerConfiguration,
     required this.transportConfiguration,
     this.tcpConfiguration,
-    this.connectRetry,
   });
 
   void accept(TransportServerConnection connection) {

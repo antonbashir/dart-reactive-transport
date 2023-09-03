@@ -30,7 +30,6 @@ class ReactiveTransport {
     void Function(ReactiveServerConnection connection) acceptor, {
     void onError(ReactiveException exception)?,
     TransportTcpClientConfiguration? tcpConfiguration,
-    TransportRetryConfiguration? connectRetry,
     ReactiveBrokerConfiguration? brokerConfiguration,
   }) {
     final server = ReactiveServer(
@@ -39,7 +38,6 @@ class ReactiveTransport {
       acceptor: acceptor,
       onError: onError,
       tcpConfiguration: tcpConfiguration,
-      connectRetry: connectRetry,
       transportConfiguration: _configuration,
       brokerConfiguration: brokerConfiguration ?? ReactiveTransportDefaults.broker(),
     );
@@ -53,7 +51,6 @@ class ReactiveTransport {
     void Function(ReactiveClientConnection connection) connector, {
     void onError(ReactiveException exception)?,
     TransportTcpClientConfiguration? tcpConfiguration,
-    TransportRetryConfiguration? connectRetry,
     ReactiveSetupConfiguration? setupConfiguration,
     ReactiveBrokerConfiguration? brokerConfiguration,
   }) {
@@ -63,7 +60,6 @@ class ReactiveTransport {
       connector: connector,
       onError: onError,
       transportConfiguration: _configuration,
-      connectRetry: connectRetry,
       tcpConfiguration: tcpConfiguration,
       brokerConfiguration: brokerConfiguration ?? ReactiveTransportDefaults.broker(),
       setupConfiguration: setupConfiguration ?? ReactiveTransportDefaults.setup(),
@@ -74,7 +70,6 @@ class ReactiveTransport {
           address,
           port,
           configuration: tcpConfiguration,
-          connectRetry: connectRetry,
         )
         .then(client.connect, onError: (error) => onError?.call(ReactiveException.fromTransport(error)));
   }

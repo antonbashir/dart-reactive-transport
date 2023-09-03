@@ -15,7 +15,6 @@ class ReactiveClient {
   final ReactiveTransportConfiguration transportConfiguration;
   final ReactiveSetupConfiguration setupConfiguration;
   final TransportTcpClientConfiguration? tcpConfiguration;
-  final TransportRetryConfiguration? connectRetry;
 
   ReactiveClient({
     required this.address,
@@ -26,7 +25,6 @@ class ReactiveClient {
     required this.transportConfiguration,
     required this.setupConfiguration,
     this.tcpConfiguration,
-    this.connectRetry,
   });
 
   void connect(TransportClientConnectionPool pool) {
