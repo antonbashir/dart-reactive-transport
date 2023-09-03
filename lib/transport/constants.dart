@@ -20,6 +20,17 @@ const reactiveFrameResume = 0x0D;
 const reactiveFrameResumeOk = 0x0E;
 const reactiveFrameExt = 0x3F;
 
+const reactiveFrameHeaderFlagIgnore = 0x200;
+const reactiveFrameHeaderFlagMetadata = 0x100;
+const reactiveFrameHeaderFlagFollow = 0x80;
+const reactiveFrameHeaderFlagComplete = 0x40;
+const reactiveFrameHeaderFlagNext = 0x20;
+
+const reavtiveFrameSetupFlagResume = 0x80;
+const reavtiveFrameSetupFlagLease = 0x40;
+
+const reavtiveFrameKeepAaliveFlagRespond = 0x80;
+
 String frame(int id) {
   switch (id) {
     case reactiveFrameReserved:

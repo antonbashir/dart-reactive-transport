@@ -31,7 +31,6 @@ class SetupFrame {
   final int keepAliveMaxLifetime;
   final bool leaseEnable;
   final ReactivePayload? payload;
-  final String? resumeToken;
 
   SetupFrame(
     this.header,
@@ -41,12 +40,11 @@ class SetupFrame {
     this.keepAliveMaxLifetime,
     this.leaseEnable, {
     this.payload,
-    this.resumeToken,
   });
 
   @override
   String toString() {
-    return 'SetupFrame(header: $header, metadataMimeType: $metadataMimeType, dataMimeType: $dataMimeType, keepAliveInterval: $keepAliveInterval, keepAliveMaxLifetime: $keepAliveMaxLifetime, leaseEnable: $leaseEnable, resumeToken: $resumeToken)';
+    return 'SetupFrame(header: $header, metadataMimeType: $metadataMimeType, dataMimeType: $dataMimeType, keepAliveInterval: $keepAliveInterval, keepAliveMaxLifetime: $keepAliveMaxLifetime, leaseEnable: $leaseEnable)';
   }
 }
 
@@ -151,9 +149,10 @@ class MetadataPushFrame {
 class PayloadFrame {
   final FrameHeader header;
   final bool completed;
+  final bool follow;
   final ReactivePayload? payload;
 
-  PayloadFrame(this.header, this.completed, {this.payload});
+  PayloadFrame(this.header, this.completed, this.follow, {this.payload});
 
   @override
   String toString() => 'PayloadFrame(header: $header, completed: $completed, payload: $payload)';

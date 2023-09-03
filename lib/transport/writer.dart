@@ -18,7 +18,7 @@ class ReactiveWriter {
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(0);
     frameBuffer.writeInt8(setupPayload.metadata.isEmpty ? reactiveFrameSetup << 2 : reactiveFrameSetup << 2 | 1);
-    frameBuffer.writeInt8(lease ? 0x40 : 0);
+    frameBuffer.writeInt8(lease ? reavtiveFrameSetupFlagLease : 0);
     frameBuffer.writeInt16(reactiveProtocolMajorVersion);
     frameBuffer.writeInt16(reactiveProtocolMinorVersion);
     frameBuffer.writeInt32(keepAliveInterval);
@@ -44,7 +44,7 @@ class ReactiveWriter {
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(0);
     frameBuffer.writeInt8(reactiveFrameKeepalive << 2);
-    frameBuffer.writeInt8(respond ? 0x80 : 0);
+    frameBuffer.writeInt8(respond ? reavtiveFrameKeepAaliveFlagRespond : 0);
     frameBuffer.writeInt64(lastPosition);
     _refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
@@ -82,11 +82,11 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writePayloadFrame(int streamId, bool completed, ReactivePayload? payload) {
+  Uint8List writePayloadFrame(int streamId, bool completed, bool follow, ReactivePayload? payload) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(streamId);
-    var flags = completed ? 0x40 : 0x20;
+    var flags = completed ? reactiveFrameHeaderFlagComplete : reactiveFrameHeaderFlagNext | (follow ? reactiveFrameHeaderFlagFollow : 0);
     if (payload != null) {
       frameBuffer.writeInt8(payload.metadata.isEmpty ? reactiveFramePayload << 2 : reactiveFramePayload << 2 | 1);
       frameBuffer.writeInt8(flags);

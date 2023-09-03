@@ -78,8 +78,8 @@ class ReactiveResponder {
         case reactiveFrameExt:
           continue;
         default:
-          if (header.frameLength > 9) {
-            buffer.readBytes(header.frameLength - 9);
+          if (header.frameLength > reactiveFrameHeaderSize) {
+            buffer.readBytes(header.frameLength - reactiveFrameHeaderSize);
           }
           continue;
       }

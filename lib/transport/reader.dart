@@ -21,22 +21,11 @@ class ReactiveReader {
 
   SetupFrame readSetupFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     var delta = buffer.readerIndex - reactiveFrameHeaderSize;
-    final resumeEnable = (header.flags & 0x80) > 0;
-    final leaseEnable = (header.flags & 0x40) > 0;
+    final leaseEnable = (header.flags & reavtiveFrameSetupFlagLease) > 0;
     buffer.readInt16();
     buffer.readInt16();
     var keepAliveInterval = buffer.readInt32() ?? 0;
     var keepAliveMaxLifetime = buffer.readInt32() ?? 0;
-    var resumeToken;
-    if (resumeEnable) {
-      var resumeTokenLength = buffer.readInt16();
-      if (resumeTokenLength != null) {
-        var tokenU8Array = buffer.readBytes(resumeTokenLength);
-        if (tokenU8Array.isNotEmpty) {
-          resumeToken = utf8.decode(tokenU8Array);
-        }
-      }
-    }
     var metadataMimeTypeLength = buffer.readInt8();
     var metadataMimeType;
     if (metadataMimeTypeLength != null) {
@@ -63,7 +52,6 @@ class ReactiveReader {
       keepAliveMaxLifetime,
       leaseEnable,
       payload: payload,
-      resumeToken: resumeToken,
     );
   }
 
@@ -82,7 +70,7 @@ class ReactiveReader {
     if (dataLength > 0) {
       payload = _readPayload(buffer, header.metaPresent, dataLength);
     }
-    return KeepAliveFrame(header, lastReceivedPosition, (header.flags & 0x80) > 0, payload: payload);
+    return KeepAliveFrame(header, lastReceivedPosition, (header.flags & reavtiveFrameKeepAaliveFlagRespond) > 0, payload: payload);
   }
 
   ErrorFrame readErrorFrame(ReactiveReadBuffer buffer, FrameHeader header) {
@@ -119,11 +107,12 @@ class ReactiveReader {
     if (header.frameLength > 0) {
       return PayloadFrame(
         header,
-        (header.flags & 0x40) > 0,
+        (header.flags & reactiveFrameHeaderFlagComplete) > 0,
+        (header.flags & reactiveFrameHeaderFlagFollow) > 0,
         payload: _readPayload(buffer, header.metaPresent, header.frameLength + reactiveFrameLengthFieldSize - reactiveFrameHeaderSize),
       );
     }
-    return PayloadFrame(header, (header.flags & 0x40) > 0);
+    return PayloadFrame(header, (header.flags & reactiveFrameHeaderFlagComplete) > 0, (header.flags & reactiveFrameHeaderFlagFollow) > 0);
   }
 
   ReactivePayload _readPayload(ReactiveReadBuffer buffer, bool metadataPresent, int dataLength) {

@@ -38,7 +38,7 @@ class ReactiveRequester {
   void schedulePayload(Uint8List bytes, bool complete) {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = !complete;
-    final frame = _writer.writePayloadFrame(_streamId, complete, ReactivePayload.ofData(bytes));
+    final frame = _writer.writePayloadFrame(_streamId, complete, false, ReactivePayload.ofData(bytes));
     _payloads.addLast(_ReactivePendingPayload(frame, complete ? _completedFlag : 0));
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
