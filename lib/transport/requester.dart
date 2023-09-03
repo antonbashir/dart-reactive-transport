@@ -112,20 +112,41 @@ class ReactiveRequester {
   bool _drainCount(int count) {
     if (!_sending) return false;
     while (count-- > 0 && _payloads.isNotEmpty) {
-      final payload = _payloads.removeFirst();
+      var payload = _payloads.removeFirst();
+      if (payload.flags & _fragmentFlag > 0) {
+        while (_payloads.isNotEmpty) {
+          if (payload.flags & _cancelFlag > 0) {
+            _connection.writeSingle(payload.frame);
+            _sending = false;
+            return false;
+          }
+          if (payload.flags & _errorFlag > 0) {
+            _connection.writeSingle(payload.frame);
+            _sending = false;
+            return false;
+          }
+          _connection.writeSingle(payload.frame);
+          if (payload.flags & _completFlag > 0) {
+            _sending = false;
+            return true;
+          }
+          payload = _payloads.removeFirst();
+        }
+      }
+      if (payload.flags & _fragmentFlag > 0) return true;
       _pending--;
-      if (payload.flags == _cancelFlag) {
+      if (payload.flags & _cancelFlag > 0) {
         _connection.writeSingle(payload.frame);
         _sending = false;
         return false;
       }
-      if (payload.flags == _errorFlag) {
+      if (payload.flags & _errorFlag > 0) {
         _connection.writeSingle(payload.frame);
         _sending = false;
         return false;
       }
       _connection.writeSingle(payload.frame);
-      if (payload.flags == _completFlag) {
+      if (payload.flags & _completFlag > 0) {
         _sending = false;
         return true;
       }
@@ -138,18 +159,18 @@ class ReactiveRequester {
     while (_payloads.isNotEmpty) {
       if (_payloads.isNotEmpty) {
         final payload = _payloads.removeFirst();
-        if (payload.flags == _cancelFlag) {
+        if (payload.flags & _cancelFlag > 0) {
           _connection.writeSingle(payload.frame);
           _sending = false;
           return false;
         }
-        if (payload.flags == _errorFlag) {
+        if (payload.flags & _errorFlag > 0) {
           _connection.writeSingle(payload.frame);
           _sending = false;
           return false;
         }
         _connection.writeSingle(payload.frame);
-        if (payload.flags == _completFlag) {
+        if (payload.flags & _completFlag > 0) {
           _sending = false;
           return true;
         }
