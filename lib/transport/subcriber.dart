@@ -13,10 +13,11 @@ class ReactiveSubcriber {
 
   void subscribe(
     String key,
-    void Function(dynamic payload, ReactiveProducer producer) onPayload, {
+    void Function(dynamic payload, bool fragment, ReactiveProducer producer) onPayload, {
     void Function(ReactiveProducer producer)? onSubcribe,
     void Function(dynamic error, ReactiveProducer producer)? onError,
     void Function(int count, ReactiveProducer producer)? onRequest,
+    void Function(ReactiveProducer producer)? onComplete,
     ReactiveChannelConfiguration? configuration,
   }) =>
       _broker.consume(
@@ -27,6 +28,7 @@ class ReactiveSubcriber {
           subcribeConsumer: onSubcribe,
           errorConsumer: onError,
           requestConsumer: onRequest,
+          completeConsumer: onComplete,
         ),
       );
 }

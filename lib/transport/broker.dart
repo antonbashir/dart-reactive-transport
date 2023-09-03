@@ -126,17 +126,18 @@ class ReactiveBroker {
     }
   }
 
-  void receive(int remoteStreamId, ReactivePayload? payload, bool completed) {
+  void receive(int remoteStreamId, ReactivePayload? payload, bool completed, bool follow) {
     final data = payload?.data ?? Uint8List.fromList([]);
     final channel = _channels[_streamIdMapping[remoteStreamId]];
     final producer = _producers[remoteStreamId];
     if (channel != null && producer != null) {
       if (completed) {
         cancel(remoteStreamId);
-        channel.onPayload(_dataCodec.decode(data), producer);
+        channel.onPayload(_dataCodec.decode(data), follow, producer);
+        channel.onComplete(producer);
         return;
       }
-      Future.sync(() => channel.onPayload(_dataCodec.decode(data), producer)).onError((error, stackTrace) => producer.error(error.toString()));
+      Future.sync(() => channel.onPayload(_dataCodec.decode(data), follow, producer)).onError((error, stackTrace) => producer.error(error.toString()));
     }
   }
 

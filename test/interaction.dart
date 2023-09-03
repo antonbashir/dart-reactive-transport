@@ -19,13 +19,13 @@ void interaction() {
 
     final latch = Latch(1);
 
-    void serve(dynamic payload, ReactiveProducer producer) {
+    void serve(dynamic payload, bool fragment, ReactiveProducer producer) {
       expect(payload, clientPayload);
-      producer.produce(serverPayload, complete: true);
+      producer.payload(serverPayload, complete: true);
       latch.countDown();
     }
 
-    void communicate(dynamic payload, ReactiveProducer producer) {
+    void communicate(dynamic payload, bool fragment, ReactiveProducer producer) {
       expect(payload, serverPayload);
       latch.countDown();
     }
@@ -39,7 +39,7 @@ void interaction() {
         "channel",
         communicate,
         onSubcribe: (producer) {
-          producer.produce(clientPayload);
+          producer.payload(clientPayload);
           producer.request(1);
         },
       ),
@@ -59,14 +59,14 @@ void interaction() {
 
     final latch = Latch(3);
 
-    void serve(dynamic payload, ReactiveProducer producer) {
+    void serve(dynamic payload, bool fragment, ReactiveProducer producer) {
       expect(payload, clientPayload);
-      producer.produce(serverPayload);
-      producer.produce(serverPayload, complete: true);
+      producer.payload(serverPayload);
+      producer.payload(serverPayload, complete: true);
       latch.countDown();
     }
 
-    void communicate(dynamic payload, ReactiveProducer producer) {
+    void communicate(dynamic payload, bool fragment, ReactiveProducer producer) {
       expect(payload, serverPayload);
       latch.countDown();
     }
@@ -84,7 +84,7 @@ void interaction() {
         "channel",
         communicate,
         onSubcribe: (producer) {
-          producer.produce(clientPayload);
+          producer.payload(clientPayload);
           producer.request(2);
         },
       ),
@@ -104,15 +104,15 @@ void interaction() {
 
     final latch = Latch(6);
 
-    void serve(dynamic payload, ReactiveProducer producer) {
+    void serve(dynamic payload, bool fragment, ReactiveProducer producer) {
       expect(payload, clientPayload);
       producer.request(1);
-      producer.produce(serverPayload);
-      producer.produce(serverPayload);
+      producer.payload(serverPayload);
+      producer.payload(serverPayload);
       latch.countDown();
     }
 
-    void communicate(dynamic payload, ReactiveProducer producer) {
+    void communicate(dynamic payload, bool fragment, ReactiveProducer producer) {
       expect(payload, serverPayload);
       latch.countDown();
     }
@@ -130,8 +130,8 @@ void interaction() {
         "channel",
         communicate,
         onSubcribe: (producer) {
-          producer.produce(clientPayload);
-          producer.produce(clientPayload);
+          producer.payload(clientPayload);
+          producer.payload(clientPayload);
           producer.request(4);
         },
       ),

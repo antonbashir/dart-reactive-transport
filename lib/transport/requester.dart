@@ -7,9 +7,10 @@ import 'connection.dart';
 import 'payload.dart';
 import 'writer.dart';
 
-const _completedFlag = 1 << 1;
+const _completFlag = 1 << 1;
 const _errorFlag = 1 << 2;
 const _cancelFlag = 1 << 3;
+const _fragmentFlag = 1 << 4;
 
 class _ReactivePendingPayload {
   final Uint8List frame;
@@ -39,7 +40,21 @@ class ReactiveRequester {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = !complete;
     final frame = _writer.writePayloadFrame(_streamId, complete, false, ReactivePayload.ofData(bytes));
-    _payloads.addLast(_ReactivePendingPayload(frame, complete ? _completedFlag : 0));
+    _payloads.addLast(_ReactivePendingPayload(frame, complete ? _completFlag : 0));
+    if (_pending == infinityRequestsCount) {
+      _drainInfinity();
+      return;
+    }
+    if (_pending > 0) {
+      _drainCount(_pending);
+    }
+  }
+
+  void scheduleFragment(Uint8List bytes, bool last, bool complete) {
+    if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
+    _accepting = !last;
+    final frame = _writer.writePayloadFrame(_streamId, complete, !last, ReactivePayload.ofData(bytes));
+    _payloads.addLast(_ReactivePendingPayload(frame, _fragmentFlag | (complete ? _completFlag : 0)));
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
       return;
@@ -110,7 +125,7 @@ class ReactiveRequester {
         return false;
       }
       _connection.writeSingle(payload.frame);
-      if (payload.flags == _completedFlag) {
+      if (payload.flags == _completFlag) {
         _sending = false;
         return true;
       }
@@ -134,7 +149,7 @@ class ReactiveRequester {
           return false;
         }
         _connection.writeSingle(payload.frame);
-        if (payload.flags == _completedFlag) {
+        if (payload.flags == _completFlag) {
           _sending = false;
           return true;
         }

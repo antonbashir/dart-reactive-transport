@@ -16,6 +16,8 @@ import 'subcriber.dart';
 abstract interface class ReactiveConnection {
   void writeSingle(Uint8List bytes);
 
+  void writeMany(List<Uint8List> bytes);
+
   Future<void> close({Duration? gracefulDuration});
 }
 
@@ -81,6 +83,12 @@ class ReactiveClientConnection implements ReactiveConnection {
       );
 
   @override
+  void writeMany(List<Uint8List> bytes) => _connection.writeMany(
+        bytes,
+        onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
+      );
+
+  @override
   Future<void> close({Duration? gracefulDuration}) async {
     await _connection.close(gracefulDuration: gracefulDuration);
     _broker.close();
@@ -127,6 +135,12 @@ class ReactiveServerConnection implements ReactiveConnection {
 
   @override
   void writeSingle(Uint8List bytes) => _connection.writeSingle(
+        bytes,
+        onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
+      );
+
+  @override
+  void writeMany(List<Uint8List> bytes) => _connection.writeMany(
         bytes,
         onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
       );

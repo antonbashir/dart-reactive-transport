@@ -11,7 +11,9 @@ class ReactiveProducer {
 
   const ReactiveProducer(this._requester, this._codec);
 
-  void produce(dynamic data, {bool complete = false}) => _requester.schedulePayload(_codec.encode(data), complete);
+  void payload(dynamic data, {bool complete = false}) => _requester.schedulePayload(_codec.encode(data), complete);
+
+  void fragment(dynamic data, {bool complete = false, bool last = false}) => _requester.scheduleFragment(_codec.encode(data), last, complete);
 
   void error(String message) => _requester.scheduleError(Uint8List.fromList(utf8.encode(message)));
 
