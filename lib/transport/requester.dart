@@ -153,6 +153,7 @@ class ReactiveRequester {
         chunks = [];
       }
     }
+    if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
     return true;
   }
 

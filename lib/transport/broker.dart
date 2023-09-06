@@ -57,7 +57,15 @@ class ReactiveBroker {
       final channel = entry.value;
       final key = entry.key;
       _streamIdMapping[_currentLocalStreamId] = key;
-      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer);
+      final requester = ReactiveRequester(
+        _connection,
+        _currentLocalStreamId,
+        _writer,
+        channel.configuration.chunksLimit,
+        channel.configuration.fragmentationMtu,
+        channel.configuration.fragmentSize,
+        channel.configuration.fragmentGroupLimit,
+      );
       _requesters[_currentLocalStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
@@ -96,7 +104,15 @@ class ReactiveBroker {
       final metadata = _metadataCodec.encode({rountingKey: key});
       final payload = ReactivePayload.ofMetadata(metadata);
       _streamIdMapping[_currentLocalStreamId] = entry.key;
-      final requester = ReactiveRequester(_connection, _currentLocalStreamId, _writer);
+      final requester = ReactiveRequester(
+        _connection,
+        _currentLocalStreamId,
+        _writer,
+        channel.configuration.chunksLimit,
+        channel.configuration.fragmentationMtu,
+        channel.configuration.fragmentSize,
+        channel.configuration.fragmentGroupLimit,
+      );
       _requesters[_currentLocalStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
@@ -117,7 +133,15 @@ class ReactiveBroker {
     final channel = _channels[method];
     if (channel != null) {
       _streamIdMapping[remoteStreamId] = method;
-      final requester = ReactiveRequester(_connection, remoteStreamId, _writer);
+      final requester = ReactiveRequester(
+        _connection,
+        remoteStreamId,
+        _writer,
+        channel.configuration.chunksLimit,
+        channel.configuration.fragmentationMtu,
+        channel.configuration.fragmentSize,
+        channel.configuration.fragmentGroupLimit,
+      );
       _requesters[remoteStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[remoteStreamId] = producer;
