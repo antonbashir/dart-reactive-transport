@@ -184,9 +184,17 @@ class ReactiveRequester {
           return;
         }
         _paused = false;
+        if (_pending == infinityRequestsCount) {
+          _drainInfinity();
+          return;
+        }
+        if (_pending > 0) {
+          _drainCount(_pending);
+        }
       },
       onCancel: () {
         _paused = false;
+        close();
       },
     );
     return fragmentId <= fragmentsCount;
