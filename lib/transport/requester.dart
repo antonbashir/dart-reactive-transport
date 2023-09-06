@@ -24,7 +24,8 @@ class ReactiveRequester {
   final ReactiveConnection _connection;
   final ReactiveWriter _writer;
   final Queue<_ReactivePendingPayload> _payloads = Queue();
-  final int _mtu;
+  final int _chunksLimit;
+  final int _fragmentationMtu;
   final int _fragmentSize;
   final int _fragmentGroupLimit;
 
@@ -37,7 +38,8 @@ class ReactiveRequester {
     this._connection,
     this._streamId,
     this._writer,
-    this._mtu,
+    this._chunksLimit,
+    this._fragmentationMtu,
     this._fragmentSize,
     this._fragmentGroupLimit,
   );
@@ -109,27 +111,46 @@ class ReactiveRequester {
   bool _drainCount(int count) {
     if (!_sending) return false;
     if (_paused) return true;
+    var chunks = <Uint8List>[];
     while (count-- > 0 && _payloads.isNotEmpty) {
       final payload = _payloads.removeFirst();
-      if (payload.frame.length > _mtu) {
-        final fragments = payload.frame.chunks(_fragmentSize);
+      if (payload.frame.length > _fragmentationMtu) {
         _paused = true;
-        _fragmentate(fragments, 0, 0, fragments.length);
+        _connection.writeMany(
+          chunks,
+          false,
+          onDone: () {
+            final fragments = payload.frame.chunks(_fragmentSize);
+            _fragmentate(fragments, 0, 0, fragments.length);
+          },
+        );
         return true;
       }
-      _connection.writeSingle(payload.frame);
-      _pending--;
       if (payload.flags & _cancelFlag > 0) {
+        _connection.writeMany(chunks, false);
+        _connection.writeSingle(payload.frame);
+        _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _errorFlag > 0) {
+        _connection.writeMany(chunks, false);
+        _connection.writeSingle(payload.frame);
+        _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _completFlag > 0) {
+        _connection.writeMany(chunks, false);
+        _connection.writeSingle(payload.frame);
+        _pending--;
         _sending = false;
         return true;
+      }
+      chunks.add(payload.frame);
+      if (chunks.length >= _chunksLimit) {
+        _connection.writeMany(chunks, false);
+        chunks = [];
       }
     }
     return true;
@@ -140,7 +161,7 @@ class ReactiveRequester {
     if (_paused) return true;
     while (_payloads.isNotEmpty) {
       final payload = _payloads.removeFirst();
-      if (payload.frame.length > _mtu) {
+      if (payload.frame.length > _fragmentationMtu) {
         final fragments = payload.frame.chunks(_fragmentSize);
         _paused = true;
         _fragmentate(fragments, 0, 0, fragments.length);
