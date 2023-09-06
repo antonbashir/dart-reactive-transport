@@ -113,10 +113,9 @@ class ReactiveRequester {
       final payload = _payloads.removeFirst();
       if (payload.frame.length > _mtu) {
         final fragments = payload.frame.chunks(_fragmentSize);
-        if (!_fragmentate(fragments, 0, 0, fragments.length)) {
-          _paused = true;
-          return true;
-        }
+        _paused = true;
+        _fragmentate(fragments, 0, 0, fragments.length);
+        return true;
       }
       _connection.writeSingle(payload.frame);
       _pending--;
@@ -143,10 +142,9 @@ class ReactiveRequester {
       final payload = _payloads.removeFirst();
       if (payload.frame.length > _mtu) {
         final fragments = payload.frame.chunks(_fragmentSize);
-        if (!_fragmentate(fragments, 0, 0, fragments.length)) {
-          _paused = true;
-          return true;
-        }
+        _paused = true;
+        _fragmentate(fragments, 0, 0, fragments.length);
+        return true;
       }
       _connection.writeSingle(payload.frame);
       if (payload.flags & _cancelFlag > 0) {
@@ -166,8 +164,8 @@ class ReactiveRequester {
     return true;
   }
 
-  bool _fragmentate(List<Uint8List> fragments, int fragmentGroup, int fragmentId, int fragmentsCount) {
-    fragments = fragments.sublist(fragmentGroup, _fragmentGroupLimit);
+  void _fragmentate(List<Uint8List> fragments, int fragmentGroup, int fragmentId, int fragmentsCount) {
+    fragments = fragments.sublist(fragmentGroup, fragmentGroup + _fragmentGroupLimit);
     fragmentGroup = fragments.length;
     fragmentId += fragments.length;
     _connection.writeMany(
@@ -197,6 +195,5 @@ class ReactiveRequester {
         close();
       },
     );
-    return fragmentId <= fragmentsCount;
   }
 }
