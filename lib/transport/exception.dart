@@ -1,7 +1,7 @@
 import 'package:iouring_transport/transport/exception.dart';
 import 'package:reactive_transport/transport/constants.dart';
 
-class ReactiveException {
+class ReactiveException implements Exception {
   final int code;
   final dynamic content;
 
@@ -13,7 +13,7 @@ class ReactiveException {
   }
 }
 
-class ReactiveStateException {
+class ReactiveStateException implements Exception {
   final String message;
 
   const ReactiveStateException(this.message);

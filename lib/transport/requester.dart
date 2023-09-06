@@ -8,7 +8,7 @@ import 'connection.dart';
 import 'payload.dart';
 import 'writer.dart';
 
-const _completFlag = 1 << 1;
+const _completeFlag = 1 << 1;
 const _errorFlag = 1 << 2;
 const _cancelFlag = 1 << 3;
 
@@ -32,7 +32,7 @@ class ReactiveRequester {
   var _pending = 0;
   var _accepting = true;
   var _sending = true;
-  var _paused = true;
+  var _paused = false;
 
   ReactiveRequester(
     this._connection,
@@ -53,7 +53,7 @@ class ReactiveRequester {
     if (!_accepting) throw ReactiveStateException("Channel completted. Producing is not available");
     _accepting = !complete;
     final frame = _writer.writePayloadFrame(_streamId, complete, false, ReactivePayload.ofData(bytes));
-    _payloads.addLast(_ReactivePendingPayload(frame, complete ? _completFlag : 0));
+    _payloads.addLast(_ReactivePendingPayload(frame, complete ? _completeFlag : 0));
     if (_pending == infinityRequestsCount) {
       _drainInfinity();
       return;
@@ -140,7 +140,7 @@ class ReactiveRequester {
         _sending = false;
         return false;
       }
-      if (payload.flags & _completFlag > 0) {
+      if (payload.flags & _completeFlag > 0) {
         _connection.writeMany(chunks, false);
         _connection.writeSingle(payload.frame);
         _pending--;
@@ -178,7 +178,7 @@ class ReactiveRequester {
         return false;
       }
       _connection.writeSingle(payload.frame);
-      if (payload.flags & _completFlag > 0) {
+      if (payload.flags & _completeFlag > 0) {
         _sending = false;
         return true;
       }
