@@ -133,11 +133,11 @@ class ReactiveBroker {
     if (channel != null && producer != null) {
       if (completed) {
         cancel(remoteStreamId);
-        channel.onPayload(_dataCodec.decode(data), follow, producer);
+        channel.onPayload(_dataCodec.decode(data), producer);
         channel.onComplete(producer);
         return;
       }
-      Future.sync(() => channel.onPayload(_dataCodec.decode(data), follow, producer)).onError((error, stackTrace) => producer.error(error.toString()));
+      Future.sync(() => channel.onPayload(_dataCodec.decode(data), producer)).onError((error, stackTrace) => producer.error(error.toString()));
     }
   }
 

@@ -20,12 +20,12 @@ void errors() {
 
     final completer = Completer();
 
-    void serve(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
       throw errorPayload;
     }
 
-    void communicate(dynamic payload, bool fragment, ReactiveProducer producer) {}
+    void communicate(dynamic payload, ReactiveProducer producer) {}
 
     reactive.serve(
       InternetAddress.anyIPv4,
@@ -66,14 +66,14 @@ void errors() {
 
     final latch = Latch(3);
 
-    void serve(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
       producer.payload(serverPayload);
       producer.request(1);
       latch.countDown();
     }
 
-    void communicate(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
       latch.countDown();
       throw errorPayload;

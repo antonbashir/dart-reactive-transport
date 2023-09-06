@@ -13,8 +13,6 @@ class ReactiveProducer {
 
   void payload(dynamic data, {bool complete = false}) => _requester.schedulePayload(_codec.encode(data), complete);
 
-  void fragment(dynamic data, {bool complete = false, bool last = false}) => _requester.scheduleFragment(_codec.encode(data), last, complete);
-
   void error(String message) => _requester.scheduleError(Uint8List.fromList(utf8.encode(message)));
 
   void cancel() => _requester.scheduleCancel();

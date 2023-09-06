@@ -14,9 +14,9 @@ import 'responder.dart';
 import 'subcriber.dart';
 
 abstract interface class ReactiveConnection {
-  void writeSingle(Uint8List bytes);
+  void writeSingle(Uint8List bytes, {void Function()? onCancel, void Function()? onDone});
 
-  void writeMany(List<Uint8List> bytes);
+  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onCancel, void Function()? onDone});
 
   Future<void> close({Duration? gracefulDuration});
 }
@@ -77,15 +77,24 @@ class ReactiveClientConnection implements ReactiveConnection {
   }
 
   @override
-  void writeSingle(Uint8List bytes) => _connection.writeSingle(
+  void writeSingle(Uint8List bytes, {void Function()? onCancel, void Function()? onDone}) => _connection.writeSingle(
         bytes,
-        onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
+        onError: (error) {
+          _onError?.call(ReactiveException.fromTransport(error));
+          onCancel?.call();
+        },
+        onDone: onDone,
       );
 
   @override
-  void writeMany(List<Uint8List> bytes) => _connection.writeMany(
+  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onCancel, void Function()? onDone}) => _connection.writeMany(
         bytes,
-        onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
+        onError: (error) {
+          _onError?.call(ReactiveException.fromTransport(error));
+          onCancel?.call();
+        },
+        onDone: onDone,
+        linked: linked,
       );
 
   @override
@@ -134,15 +143,24 @@ class ReactiveServerConnection implements ReactiveConnection {
   }
 
   @override
-  void writeSingle(Uint8List bytes) => _connection.writeSingle(
+  void writeSingle(Uint8List bytes, {void Function()? onCancel, void Function()? onDone}) => _connection.writeSingle(
         bytes,
-        onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
+        onError: (error) {
+          _onError?.call(ReactiveException.fromTransport(error));
+          onCancel?.call();
+        },
+        onDone: onDone,
       );
 
   @override
-  void writeMany(List<Uint8List> bytes) => _connection.writeMany(
+  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onCancel, void Function()? onDone}) => _connection.writeMany(
         bytes,
-        onError: (error) => _onError?.call(ReactiveException.fromTransport(error)),
+        onError: (error) {
+          _onError?.call(ReactiveException.fromTransport(error));
+          onCancel?.call();
+        },
+        onDone: onDone,
+        linked: linked,
       );
 
   @override

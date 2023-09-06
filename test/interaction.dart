@@ -19,13 +19,13 @@ void interaction() {
 
     final latch = Latch(1);
 
-    void serve(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
       producer.payload(serverPayload, complete: true);
       latch.countDown();
     }
 
-    void communicate(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
       latch.countDown();
     }
@@ -59,14 +59,14 @@ void interaction() {
 
     final latch = Latch(3);
 
-    void serve(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
       producer.payload(serverPayload);
       producer.payload(serverPayload, complete: true);
       latch.countDown();
     }
 
-    void communicate(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
       latch.countDown();
     }
@@ -104,7 +104,7 @@ void interaction() {
 
     final latch = Latch(6);
 
-    void serve(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
       producer.request(1);
       producer.payload(serverPayload);
@@ -112,7 +112,7 @@ void interaction() {
       latch.countDown();
     }
 
-    void communicate(dynamic payload, bool fragment, ReactiveProducer producer) {
+    void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
       latch.countDown();
     }
