@@ -4,17 +4,17 @@ import 'broker.dart';
 import 'channel.dart';
 import 'producer.dart';
 
-class ReactiveSubcriber {
+class ReactiveSubscriber {
   final ReactiveBroker _broker;
 
-  ReactiveSubcriber(this._broker);
+  ReactiveSubscriber(this._broker);
 
   void subscribeCustom(ReactiveChannel channel) => _broker.consume(channel);
 
   void subscribe(
     String key,
     void Function(dynamic payload, ReactiveProducer producer) onPayload, {
-    void Function(ReactiveProducer producer)? onSubcribe,
+    void Function(ReactiveProducer producer)? onSubscribe,
     void Function(dynamic error, ReactiveProducer producer)? onError,
     void Function(int count, ReactiveProducer producer)? onRequest,
     void Function(ReactiveProducer producer)? onComplete,
@@ -25,7 +25,7 @@ class ReactiveSubcriber {
           key,
           configuration ?? ReactiveTransportDefaults.channel(),
           payloadConsumer: onPayload,
-          subcribeConsumer: onSubcribe,
+          subscribeConsumer: onSubscribe,
           errorConsumer: onError,
           requestConsumer: onRequest,
           completeConsumer: onComplete,

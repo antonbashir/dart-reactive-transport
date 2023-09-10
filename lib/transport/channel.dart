@@ -30,7 +30,7 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   final String key;
   final ReactiveChannelConfiguration configuration;
   final FutureOr<void> Function(dynamic payload, ReactiveProducer producer) payloadConsumer;
-  final FutureOr<void> Function(ReactiveProducer producer)? subcribeConsumer;
+  final FutureOr<void> Function(ReactiveProducer producer)? subscribeConsumer;
   final FutureOr<void> Function(String error, ReactiveProducer producer)? errorConsumer;
   final FutureOr<void> Function(int count, ReactiveProducer producer)? requestConsumer;
   final FutureOr<void> Function(ReactiveProducer producer)? completeConsumer;
@@ -43,7 +43,7 @@ class FunctionalReactiveChannel implements ReactiveChannel {
     this.key,
     this.configuration, {
     required this.payloadConsumer,
-    required this.subcribeConsumer,
+    required this.subscribeConsumer,
     required this.errorConsumer,
     required this.requestConsumer,
     required this.completeConsumer,
@@ -59,7 +59,7 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   FutureOr<void> onRequest(int count, ReactiveProducer producer) => requestConsumer?.call(count, producer);
 
   @override
-  FutureOr<void> onSubcribe(ReactiveProducer producer) => subcribeConsumer?.call(producer);
+  FutureOr<void> onSubcribe(ReactiveProducer producer) => subscribeConsumer?.call(producer);
 
   @override
   FutureOr<void> onComplete(ReactiveProducer producer) => completeConsumer?.call(producer);

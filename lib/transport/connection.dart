@@ -11,7 +11,7 @@ import 'writer.dart';
 import 'broker.dart';
 import 'configuration.dart';
 import 'responder.dart';
-import 'subcriber.dart';
+import 'subscriber.dart';
 
 abstract interface class ReactiveConnection {
   void writeSingle(Uint8List bytes, {void Function()? onCancel, void Function()? onDone});
@@ -32,10 +32,10 @@ class ReactiveClientConnection implements ReactiveConnection {
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
-  late final ReactiveSubcriber _subcriber;
+  late final ReactiveSubscriber _subscriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
 
-  ReactiveSubcriber get subcriber => _subcriber;
+  ReactiveSubscriber get subscriber => _subscriber;
 
   ReactiveClientConnection(
     this._connection,
@@ -57,7 +57,7 @@ class ReactiveClientConnection implements ReactiveConnection {
       supplier,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _reader, _keepAliveTimer);
-    _subcriber = ReactiveSubcriber(_broker);
+    _subscriber = ReactiveSubscriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 
@@ -114,10 +114,10 @@ class ReactiveServerConnection implements ReactiveConnection {
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
-  late final ReactiveSubcriber _subcriber;
+  late final ReactiveSubscriber _subcriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
 
-  ReactiveSubcriber get subcriber => _subcriber;
+  ReactiveSubscriber get subcriber => _subcriber;
 
   ReactiveServerConnection(
     this._connection,
@@ -138,7 +138,7 @@ class ReactiveServerConnection implements ReactiveConnection {
       supplier,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _reader, _keepAliveTimer);
-    _subcriber = ReactiveSubcriber(_broker);
+    _subcriber = ReactiveSubscriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 

@@ -35,10 +35,10 @@ void interaction() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subcriber.subscribe(
+      (connection) => connection.subscriber.subscribe(
         "channel",
         communicate,
-        onSubcribe: (producer) {
+        onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.request(1);
         },
@@ -80,10 +80,10 @@ void interaction() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subcriber.subscribe(
+      (connection) => connection.subscriber.subscribe(
         "channel",
         communicate,
-        onSubcribe: (producer) {
+        onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.request(2);
         },
@@ -126,10 +126,10 @@ void interaction() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subcriber.subscribe(
+      (connection) => connection.subscriber.subscribe(
         "channel",
         communicate,
-        onSubcribe: (producer) {
+        onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.payload(clientPayload);
           producer.request(4);
