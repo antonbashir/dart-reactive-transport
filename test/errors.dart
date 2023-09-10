@@ -30,7 +30,7 @@ void errors() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subcriber.subscribe("channel", serve),
+      (connection) => connection.subscriber.subscribe("channel", serve),
     );
 
     reactive.connect(
@@ -82,7 +82,7 @@ void errors() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subcriber.subscribe("channel", serve, onError: (error, producer) {
+      (connection) => connection.subscriber.subscribe("channel", serve, onError: (error, producer) {
         expect(error, errorPayload.toString());
         latch.countDown();
       }),

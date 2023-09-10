@@ -114,10 +114,10 @@ class ReactiveServerConnection implements ReactiveConnection {
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
-  late final ReactiveSubscriber _subcriber;
+  late final ReactiveSubscriber _subscriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
 
-  ReactiveSubscriber get subcriber => _subcriber;
+  ReactiveSubscriber get subscriber => _subscriber;
 
   ReactiveServerConnection(
     this._connection,
@@ -138,7 +138,7 @@ class ReactiveServerConnection implements ReactiveConnection {
       supplier,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _reader, _keepAliveTimer);
-    _subcriber = ReactiveSubscriber(_broker);
+    _subscriber = ReactiveSubscriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }
 

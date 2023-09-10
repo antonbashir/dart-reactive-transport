@@ -30,7 +30,7 @@ void interaction() {
       latch.countDown();
     }
 
-    reactive.serve(InternetAddress.anyIPv4, 12345, (connection) => connection.subcriber.subscribe("channel", serve));
+    reactive.serve(InternetAddress.anyIPv4, 12345, (connection) => connection.subscriber.subscribe("channel", serve));
 
     reactive.connect(
       InternetAddress.loopbackIPv4,
@@ -74,7 +74,7 @@ void interaction() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subcriber.subscribe("channel", serve),
+      (connection) => connection.subscriber.subscribe("channel", serve),
     );
 
     reactive.connect(
@@ -120,7 +120,7 @@ void interaction() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subcriber.subscribe("channel", serve),
+      (connection) => connection.subscriber.subscribe("channel", serve),
     );
 
     reactive.connect(
