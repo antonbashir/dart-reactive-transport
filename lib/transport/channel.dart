@@ -3,13 +3,12 @@ import 'dart:async';
 import 'configuration.dart';
 import 'producer.dart';
 
-abstract class ReactiveChannel {
-  final String key;
-  final ReactiveChannelConfiguration configuration;
-
+abstract mixin class ReactiveChannel {
   late final int streamId;
+  var _activated = false;
 
-  ReactiveChannel(this.configuration, this.key);
+  String get key;
+  ReactiveChannelConfiguration get configuration;
 
   FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer);
 
@@ -21,12 +20,16 @@ abstract class ReactiveChannel {
 
   FutureOr<void> onRequest(int count, ReactiveProducer producer);
 
-  bool initiate(int streamId);
+  void initiate(int streamId) => this.streamId = streamId;
 
-  bool activate();
+  bool activate() {
+    if (_activated) return false;
+    _activated = true;
+    return true;
+  }
 }
 
-class FunctionalReactiveChannel implements ReactiveChannel {
+class FunctionalReactiveChannel with ReactiveChannel {
   final String key;
   final ReactiveChannelConfiguration configuration;
   final FutureOr<void> Function(dynamic payload, ReactiveProducer producer) payloadConsumer;
@@ -34,10 +37,6 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   final FutureOr<void> Function(String error, ReactiveProducer producer)? errorConsumer;
   final FutureOr<void> Function(int count, ReactiveProducer producer)? requestConsumer;
   final FutureOr<void> Function(ReactiveProducer producer)? completeConsumer;
-
-  late final int streamId;
-
-  bool _activated = false;
 
   FunctionalReactiveChannel(
     this.key,
@@ -63,17 +62,4 @@ class FunctionalReactiveChannel implements ReactiveChannel {
 
   @override
   FutureOr<void> onComplete(ReactiveProducer producer) => completeConsumer?.call(producer);
-
-  @override
-  bool initiate(int streamId) {
-    this.streamId = streamId;
-    return true;
-  }
-
-  @override
-  bool activate() {
-    if (_activated) return false;
-    _activated = true;
-    return true;
-  }
 }

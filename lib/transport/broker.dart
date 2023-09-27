@@ -47,12 +47,14 @@ class ReactiveBroker {
   );
 
   void setup(String dataMimeType, String metadataMimeType, int keepAliveInterval, int keepAliveMaxLifetime, bool lease) {
-    if (!_configuration.codecs.containsKey(dataMimeType) || !_configuration.codecs.containsKey(metadataMimeType) || _configuration.lease == null) {
+    final dataCodec = _configuration.codecs[dataMimeType];
+    final metadataCodec = _configuration.codecs[metadataMimeType];
+    if (dataCodec == null || metadataCodec == null || (lease && _configuration.lease == null)) {
       _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.invalidSetup.code, ReactiveExceptions.invalidSetup.content));
       return;
     }
-    _dataCodec = _configuration.codecs[dataMimeType]!;
-    _metadataCodec = _configuration.codecs[metadataMimeType]!;
+    _dataCodec = dataCodec;
+    _metadataCodec = metadataCodec;
     for (var entry in _channels.entries) {
       final channel = entry.value;
       final key = entry.key;
@@ -117,7 +119,6 @@ class ReactiveBroker {
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
       _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
-      channel.initiate(_currentLocalStreamId);
       if (!setupConfiguration.lease) {
         frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, channel.configuration.initialRequestCount, payload));
       }

@@ -27,7 +27,7 @@ class ReactiveLeaseLimiter {
 }
 
 class ReactiveLeaseScheduler {
-  bool _active = false;
+  var _active = false;
 
   late Timer _timer;
 
