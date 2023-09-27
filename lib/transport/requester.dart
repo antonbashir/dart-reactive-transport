@@ -116,6 +116,11 @@ class ReactiveRequester {
       final payload = _payloads.removeFirst();
       if (payload.frame.length > _fragmentationMtu) {
         _paused = true;
+        if (chunks.isEmpty) {
+          final fragments = payload.frame.chunks(_fragmentSize);
+          _fragmentate(fragments, 0, 0, fragments.length);
+          return true;
+        }
         _connection.writeMany(
           chunks,
           false,
@@ -127,21 +132,21 @@ class ReactiveRequester {
         return true;
       }
       if (payload.flags & _cancelFlag > 0) {
-        _connection.writeMany(chunks, false);
+        if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
         _connection.writeSingle(payload.frame);
         _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _errorFlag > 0) {
-        _connection.writeMany(chunks, false);
+        if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
         _connection.writeSingle(payload.frame);
         _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _completeFlag > 0) {
-        _connection.writeMany(chunks, false);
+        if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
         _connection.writeSingle(payload.frame);
         _pending--;
         _sending = false;
@@ -163,8 +168,8 @@ class ReactiveRequester {
     while (_payloads.isNotEmpty) {
       final payload = _payloads.removeFirst();
       if (payload.frame.length > _fragmentationMtu) {
-        final fragments = payload.frame.chunks(_fragmentSize);
         _paused = true;
+        final fragments = payload.frame.chunks(_fragmentSize);
         _fragmentate(fragments, 0, 0, fragments.length);
         return true;
       }

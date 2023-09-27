@@ -119,6 +119,7 @@ class ReactiveBroker {
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[_currentLocalStreamId] = producer;
       _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
+      channel.initiate(_currentLocalStreamId);
       if (!setupConfiguration.lease) {
         frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, channel.configuration.initialRequestCount, payload));
       }
