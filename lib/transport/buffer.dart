@@ -88,7 +88,7 @@ class ReactiveWriteBuffer {
   void writeInt8(int value) {
     if (_writerIndex == _data.length) {
       _data.add(value);
-      _updatCapacity();
+      _updateCapacity();
       _writerIndex += 1;
       return;
     }
@@ -117,12 +117,12 @@ class ReactiveWriteBuffer {
     if (_writerIndex == _data.length) {
       _data.addAll(bytes);
       _writerIndex = end;
-      _updatCapacity();
+      _updateCapacity();
       return;
     }
     _data.replaceRange(_writerIndex, end, bytes);
     _writerIndex = end;
-    _updatCapacity();
+    _updateCapacity();
   }
 
   @pragma(preferInlinePragma)
@@ -130,7 +130,7 @@ class ReactiveWriteBuffer {
     var end = _writerIndex + bytes.length;
     _data.insertAll(_writerIndex, bytes);
     _writerIndex = end;
-    _updatCapacity();
+    _updateCapacity();
   }
 
   @pragma(preferInlinePragma)
@@ -149,7 +149,7 @@ class ReactiveWriteBuffer {
   Uint8List toUint8Array() => Uint8List.fromList(_data);
 
   @pragma(preferInlinePragma)
-  void _updatCapacity() {
+  void _updateCapacity() {
     if (_capacity < _data.length) {
       _capacity = _data.length;
     }

@@ -29,7 +29,7 @@ class ReactiveBroker {
   final _producers = <int, ReactiveProducer>{};
   final _requesters = <int, ReactiveRequester>{};
   final _streamIdMapping = <int, String>{};
-  final _leaseLimitter = ReactiveLeaseLimitter();
+  final _leaseLimiter = ReactiveLeaseLimiter();
   final _leaseScheduler = ReactiveLeaseScheduler();
   int _currentLocalStreamId;
 
@@ -82,12 +82,12 @@ class ReactiveBroker {
   }
 
   void lease(int timeToLive, int requests) {
-    _leaseLimitter.reconfigure(timeToLive, requests);
+    _leaseLimiter.reconfigure(timeToLive, requests);
     for (var entry in _channels.entries) {
       final channel = entry.value;
       if (channel.activate()) {
         final key = entry.key;
-        final metadata = _metadataCodec.encode({rountingKey: key});
+        final metadata = _metadataCodec.encode({routingKey: key});
         final payload = ReactivePayload.ofMetadata(metadata);
         _connection.writeSingle(_writer.writeRequestChannelFrame(channel.streamId, channel.configuration.initialRequestCount, payload));
       }
@@ -101,7 +101,7 @@ class ReactiveBroker {
     for (var entry in _channels.entries) {
       final channel = entry.value;
       final key = entry.key;
-      final metadata = _metadataCodec.encode({rountingKey: key});
+      final metadata = _metadataCodec.encode({routingKey: key});
       final payload = ReactivePayload.ofMetadata(metadata);
       _streamIdMapping[_currentLocalStreamId] = entry.key;
       final requester = ReactiveRequester(
@@ -129,7 +129,7 @@ class ReactiveBroker {
 
   void bind(int remoteStreamId, int initialRequestCount, ReactivePayload initialPayload) {
     final metadata = _metadataCodec.decode(initialPayload.metadata);
-    String method = metadata[rountingKey];
+    String method = metadata[routingKey];
     final channel = _channels[method];
     if (channel != null) {
       _streamIdMapping[remoteStreamId] = method;
@@ -166,7 +166,7 @@ class ReactiveBroker {
   }
 
   void request(int remoteStreamId, int count) {
-    if (_leaseLimitter.restricted) {
+    if (_leaseLimiter.restricted) {
       _connection.writeSingle(_writer.writeErrorFrame(remoteStreamId, ReactiveExceptions.rejected.code, ReactiveExceptions.rejected.content));
       return;
     }
@@ -177,7 +177,7 @@ class ReactiveBroker {
     if (channel != null && producer != null && requester != null) {
       channel.onRequest(count, producer);
       if (requester.drain(count) == false) cancel(remoteStreamId);
-      if (_leaseLimitter.enabled) _leaseLimitter.notify(count);
+      if (_leaseLimiter.enabled) _leaseLimiter.notify(count);
     }
   }
 

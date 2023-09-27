@@ -18,7 +18,7 @@ class ReactiveWriter {
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(0);
     frameBuffer.writeInt8(setupPayload.metadata.isEmpty ? reactiveFrameSetup << 2 : reactiveFrameSetup << 2 | 1);
-    frameBuffer.writeInt8(lease ? reavtiveFrameSetupFlagLease : 0);
+    frameBuffer.writeInt8(lease ? reactiveFrameSetupFlagLease : 0);
     frameBuffer.writeInt16(reactiveProtocolMajorVersion);
     frameBuffer.writeInt16(reactiveProtocolMinorVersion);
     frameBuffer.writeInt32(keepAliveInterval);
@@ -44,7 +44,7 @@ class ReactiveWriter {
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(0);
     frameBuffer.writeInt8(reactiveFrameKeepalive << 2);
-    frameBuffer.writeInt8(respond ? reavtiveFrameKeepAaliveFlagRespond : 0);
+    frameBuffer.writeInt8(respond ? reactiveFrameKeepAliveFlagRespond : 0);
     frameBuffer.writeInt64(lastPosition);
     _refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();

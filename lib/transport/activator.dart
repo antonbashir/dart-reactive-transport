@@ -10,7 +10,7 @@ class ReactiveActivator {
 
   void activate() {
     if (_activated) return;
-    _channel.onSubcribe(_producer);
+    _channel.onSubscribe(_producer);
     _activated = true;
   }
 }

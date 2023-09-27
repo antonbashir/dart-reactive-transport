@@ -21,7 +21,7 @@ class ReactiveReader {
 
   SetupFrame readSetupFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     var delta = buffer.readerIndex - reactiveFrameHeaderSize;
-    final leaseEnable = (header.flags & reavtiveFrameSetupFlagLease) > 0;
+    final leaseEnable = (header.flags & reactiveFrameSetupFlagLease) > 0;
     buffer.readInt16();
     buffer.readInt16();
     var keepAliveInterval = buffer.readInt32() ?? 0;
@@ -70,7 +70,7 @@ class ReactiveReader {
     if (dataLength > 0) {
       payload = _readPayload(buffer, header.metaPresent, dataLength);
     }
-    return KeepAliveFrame(header, lastReceivedPosition, (header.flags & reavtiveFrameKeepAaliveFlagRespond) > 0, payload: payload);
+    return KeepAliveFrame(header, lastReceivedPosition, (header.flags & reactiveFrameKeepAliveFlagRespond) > 0, payload: payload);
   }
 
   ErrorFrame readErrorFrame(ReactiveReadBuffer buffer, FrameHeader header) {
@@ -121,7 +121,7 @@ class ReactiveReader {
     if (metadataPresent) {
       final metadataLength = buffer.readInt24();
       if (metadataLength != null) {
-        dataLength = dataLength - reactiveMetadatLengthFieldSize - metadataLength;
+        dataLength = dataLength - reactiveMetadataLengthFieldSize - metadataLength;
         if (metadataLength > 0) {
           metadata = buffer.readUint8List(metadataLength);
         }

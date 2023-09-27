@@ -15,7 +15,7 @@ abstract class ReactiveChannel {
 
   FutureOr<void> onComplete(ReactiveProducer producer);
 
-  FutureOr<void> onSubcribe(ReactiveProducer producer);
+  FutureOr<void> onSubscribe(ReactiveProducer producer);
 
   FutureOr<void> onError(String error, ReactiveProducer producer);
 
@@ -59,7 +59,7 @@ class FunctionalReactiveChannel implements ReactiveChannel {
   FutureOr<void> onRequest(int count, ReactiveProducer producer) => requestConsumer?.call(count, producer);
 
   @override
-  FutureOr<void> onSubcribe(ReactiveProducer producer) => subscribeConsumer?.call(producer);
+  FutureOr<void> onSubscribe(ReactiveProducer producer) => subscribeConsumer?.call(producer);
 
   @override
   FutureOr<void> onComplete(ReactiveProducer producer) => completeConsumer?.call(producer);

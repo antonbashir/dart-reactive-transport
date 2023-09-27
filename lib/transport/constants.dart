@@ -26,10 +26,10 @@ const reactiveFrameHeaderFlagFollow = 0x80;
 const reactiveFrameHeaderFlagComplete = 0x40;
 const reactiveFrameHeaderFlagNext = 0x20;
 
-const reavtiveFrameSetupFlagResume = 0x80;
-const reavtiveFrameSetupFlagLease = 0x40;
+const reactiveFrameSetupFlagResume = 0x80;
+const reactiveFrameSetupFlagLease = 0x40;
 
-const reavtiveFrameKeepAaliveFlagRespond = 0x80;
+const reactiveFrameKeepAliveFlagRespond = 0x80;
 
 String frame(int id) {
   switch (id) {
@@ -72,7 +72,7 @@ String frame(int id) {
 const reactiveProtocolMajorVersion = 1;
 const reactiveProtocolMinorVersion = 0;
 
-const initalRequestsCount = 1;
+const initialRequestsCount = 1;
 const infinityRequestsCount = 2147483647;
 
 const reactiveStreamIdMask = 0x7FFFFFFF;
@@ -133,10 +133,10 @@ const messagePackMimeType = 'application/message-pack';
 const octetStreamMimeType = 'application/octet-stream';
 const textMimeType = 'application/text';
 
-const rountingKey = "method";
+const routingKey = "method";
 
 final emptyBytes = Uint8List.fromList([]);
 
 const reactiveFrameLengthFieldSize = 3;
-const reactiveMetadatLengthFieldSize = 3;
+const reactiveMetadataLengthFieldSize = 3;
 const reactiveFrameHeaderSize = 9;

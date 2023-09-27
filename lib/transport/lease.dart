@@ -1,6 +1,6 @@
 import 'dart:async';
 
-class ReactiveLeaseLimitter {
+class ReactiveLeaseLimiter {
   var _available = 0;
   var _requests = 0;
   var _enabled = false;
