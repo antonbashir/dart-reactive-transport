@@ -14,7 +14,7 @@ class ReactiveServer {
   final void Function(ReactiveException exception)? onError;
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
-  final TransportTcpClientConfiguration? tcpConfiguration;
+  final TransportTcpServerConfiguration? tcpConfiguration;
 
   ReactiveServer({
     required this.address,

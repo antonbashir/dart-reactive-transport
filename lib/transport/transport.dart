@@ -29,7 +29,7 @@ class ReactiveTransport {
     int port,
     void Function(ReactiveServerConnection connection) acceptor, {
     void onError(ReactiveException exception)?,
-    TransportTcpClientConfiguration? tcpConfiguration,
+    TransportTcpServerConfiguration? tcpConfiguration,
     ReactiveBrokerConfiguration? brokerConfiguration,
   }) {
     final server = ReactiveServer(
@@ -42,7 +42,7 @@ class ReactiveTransport {
       brokerConfiguration: brokerConfiguration ?? ReactiveTransportDefaults.broker(),
     );
     _servers.add(server);
-    _worker.servers.tcp(address, port, server.accept);
+    _worker.servers.tcp(address, port, server.accept, configuration: tcpConfiguration);
   }
 
   void connect(

@@ -165,29 +165,54 @@ class ReactiveRequester {
   bool _drainInfinity() {
     if (!_sending) return false;
     if (_paused) return true;
+    var chunks = <Uint8List>[];
     while (_payloads.isNotEmpty) {
       final payload = _payloads.removeFirst();
       if (payload.frame.length > _fragmentationMtu) {
         _paused = true;
-        final fragments = payload.frame.chunks(_fragmentSize);
-        _fragmentate(fragments, 0, 0, fragments.length);
+        if (chunks.isEmpty) {
+          final fragments = payload.frame.chunks(_fragmentSize);
+          _fragmentate(fragments, 0, 0, fragments.length);
+          return true;
+        }
+        _connection.writeMany(
+          chunks,
+          false,
+          onDone: () {
+            final fragments = payload.frame.chunks(_fragmentSize);
+            _fragmentate(fragments, 0, 0, fragments.length);
+          },
+        );
         return true;
       }
-      _connection.writeSingle(payload.frame);
       if (payload.flags & _cancelFlag > 0) {
+        chunks.add(payload.frame);
+        _connection.writeMany(chunks, true);
+        _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _errorFlag > 0) {
+        chunks.add(payload.frame);
+        _connection.writeMany(chunks, true);
+        _pending--;
         _sending = false;
         return false;
       }
-      _connection.writeSingle(payload.frame);
       if (payload.flags & _completeFlag > 0) {
+        chunks.add(payload.frame);
+        _connection.writeMany(chunks, true);
+        _pending--;
         _sending = false;
         return true;
       }
+      chunks.add(payload.frame);
+      if (chunks.length >= _chunksLimit) {
+        _connection.writeMany(chunks, false);
+        chunks = [];
+      }
     }
+    if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
     return true;
   }
 
