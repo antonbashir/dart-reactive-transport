@@ -23,14 +23,6 @@ abstract mixin class ReactiveChannel {
 
   FutureOr<void> onRequest(int count, ReactiveProducer producer);
 
-  void initiate(int streamId) => this.streamId = streamId;
-
-  bool activate() {
-    if (_activated) return false;
-    _activated = true;
-    return true;
-  }
-
   FutureOr<void> onPayloadFragment(ReactiveCodec codec, Uint8List payload, ReactiveProducer producer, bool follow, bool complete) async {
     if (follow) {
       _fragments.add(payload);
@@ -58,6 +50,14 @@ abstract mixin class ReactiveChannel {
       offset += fragment.length;
     }
     return onPayload(codec.decode(assemble), producer);
+  }
+
+  void initiate(int streamId) => this.streamId = streamId;
+
+  bool activate() {
+    if (_activated) return false;
+    _activated = true;
+    return true;
   }
 }
 

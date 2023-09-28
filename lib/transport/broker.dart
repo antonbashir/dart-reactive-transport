@@ -163,7 +163,15 @@ class ReactiveBroker {
         channel.onComplete(producer);
         return;
       }
-      Future.sync(() => channel.onPayloadFragment(_dataCodec, data, producer, follow, false)).onError((error, stackTrace) => producer.error(error.toString()));
+      Future.sync(
+        () => channel.onPayloadFragment(
+          _dataCodec,
+          data,
+          producer,
+          follow,
+          false,
+        ),
+      ).onError((error, stackTrace) => producer.error(error.toString()));
     }
   }
 
