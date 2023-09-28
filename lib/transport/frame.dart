@@ -56,7 +56,7 @@ class LeaseFrame {
   LeaseFrame(this.header, this.timeToLive, this.requests);
 
   @override
-  String toString() => 'LeaseFrame(header: $header, timeToLive: $timeToLive, requests;: $requests)';
+  String toString() => 'LeaseFrame(header: $header, timeToLive: $timeToLive, requests: $requests)';
 }
 
 class KeepAliveFrame {

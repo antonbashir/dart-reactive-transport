@@ -132,22 +132,22 @@ class ReactiveRequester {
         return true;
       }
       if (payload.flags & _cancelFlag > 0) {
-        if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
-        _connection.writeSingle(payload.frame);
+        chunks.add(payload.frame);
+        _connection.writeMany(chunks, true);
         _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _errorFlag > 0) {
-        if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
-        _connection.writeSingle(payload.frame);
+        chunks.add(payload.frame);
+        _connection.writeMany(chunks, true);
         _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _completeFlag > 0) {
-        if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
-        _connection.writeSingle(payload.frame);
+        chunks.add(payload.frame);
+        _connection.writeMany(chunks, true);
         _pending--;
         _sending = false;
         return true;
