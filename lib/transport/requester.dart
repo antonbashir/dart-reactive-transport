@@ -129,26 +129,27 @@ class ReactiveRequester {
             _fragmentate(fragments, 0, 0, fragments.length);
           },
         );
+        _pending -= chunks.length;
         return true;
       }
       if (payload.flags & _cancelFlag > 0) {
         chunks.add(payload.frame);
         _connection.writeMany(chunks, true);
-        _pending--;
+        _pending -= chunks.length;
         _sending = false;
         return false;
       }
       if (payload.flags & _errorFlag > 0) {
         chunks.add(payload.frame);
         _connection.writeMany(chunks, true);
-        _pending--;
+        _pending -= chunks.length;
         _sending = false;
         return false;
       }
       if (payload.flags & _completeFlag > 0) {
         chunks.add(payload.frame);
         _connection.writeMany(chunks, true);
-        _pending--;
+        _pending -= chunks.length;
         _sending = false;
         return true;
       }
@@ -156,9 +157,11 @@ class ReactiveRequester {
       if (chunks.length >= _chunksLimit) {
         _connection.writeMany(chunks, false);
         chunks = [];
+        _pending -= chunks.length;
       }
     }
     if (chunks.isNotEmpty) _connection.writeMany(chunks, false);
+    _pending -= chunks.length;
     return true;
   }
 
@@ -188,21 +191,18 @@ class ReactiveRequester {
       if (payload.flags & _cancelFlag > 0) {
         chunks.add(payload.frame);
         _connection.writeMany(chunks, true);
-        _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _errorFlag > 0) {
         chunks.add(payload.frame);
         _connection.writeMany(chunks, true);
-        _pending--;
         _sending = false;
         return false;
       }
       if (payload.flags & _completeFlag > 0) {
         chunks.add(payload.frame);
         _connection.writeMany(chunks, true);
-        _pending--;
         _sending = false;
         return true;
       }
@@ -238,6 +238,7 @@ class ReactiveRequester {
           _drainInfinity();
           return;
         }
+        _pending--;
         if (_pending > 0) {
           _drainCount(_pending);
         }
