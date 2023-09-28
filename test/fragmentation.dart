@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 
 import 'latch.dart';
 
-void interaction() {
+void fragmentation() {
   test('1 request - 1 response', timeout: Timeout.none, () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
