@@ -140,3 +140,5 @@ final emptyBytes = Uint8List.fromList([]);
 const reactiveFrameLengthFieldSize = 3;
 const reactiveMetadataLengthFieldSize = 3;
 const reactiveFrameHeaderSize = 9;
+
+const reactiveChannelClosedException = "Channel closed. Requesting is not available";

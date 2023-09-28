@@ -45,12 +45,12 @@ class ReactiveRequester {
   );
 
   void request(int count) {
-    if (!_sending) throw ReactiveStateException("Channel closed. Requesting is not available");
+    if (!_sending) throw ReactiveStateException(reactiveChannelClosedException);
     _connection.writeSingle(_writer.writeRequestNFrame(_streamId, count));
   }
 
   void schedulePayload(Uint8List bytes, bool complete) {
-    if (!_accepting) throw ReactiveStateException("Channel closed. Producing is not available");
+    if (!_accepting) throw ReactiveStateException(reactiveChannelClosedException);
     _accepting = !complete;
     final frame = _writer.writePayloadFrame(_streamId, complete, false, ReactivePayload.ofData(bytes));
     _payloads.addLast(_ReactivePendingPayload(frame, complete ? _completeFlag : 0));
@@ -64,7 +64,7 @@ class ReactiveRequester {
   }
 
   void scheduleError(Uint8List bytes) {
-    if (!_accepting) throw ReactiveStateException("Channel closed. Producing is not available");
+    if (!_accepting) throw ReactiveStateException(reactiveChannelClosedException);
     _accepting = false;
     final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, bytes);
     _payloads.addLast(_ReactivePendingPayload(frame, _errorFlag));
@@ -78,7 +78,7 @@ class ReactiveRequester {
   }
 
   void scheduleCancel() {
-    if (!_accepting) throw ReactiveStateException("Channel closed. Producing is not available");
+    if (!_accepting) throw ReactiveStateException(reactiveChannelClosedException);
     _accepting = false;
     final frame = _writer.writeCancelFrame(_streamId);
     _payloads.addLast(_ReactivePendingPayload(frame, _cancelFlag));
