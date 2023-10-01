@@ -95,10 +95,7 @@ class ReactiveBroker {
         _connection,
         streamId,
         _writer,
-        channel.configuration.chunksLimit,
-        channel.configuration.fragmentationMtu,
-        channel.configuration.fragmentSize,
-        channel.configuration.fragmentGroupLimit,
+        channel.configuration,
         () => _terminate(streamId),
         () => cancel(streamId),
       );
@@ -126,10 +123,7 @@ class ReactiveBroker {
         _connection,
         remoteStreamId,
         _writer,
-        channel.configuration.chunksLimit,
-        channel.configuration.fragmentationMtu,
-        channel.configuration.fragmentSize,
-        channel.configuration.fragmentGroupLimit,
+        channel.configuration,
         () => _terminate(remoteStreamId),
         () => cancel(remoteStreamId),
       );

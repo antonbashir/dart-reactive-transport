@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:reactive_transport/transport/configuration.dart';
+
 import 'connection.dart';
 import 'constants.dart';
 import 'extensions.dart';
@@ -21,10 +23,7 @@ class ReactiveRequester {
   final ReactiveWriter _writer;
   final StreamController<_ReactivePendingPayload> _input = StreamController();
   final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
-  final int _chunksLimit;
-  final int _fragmentationMtu;
-  final int _fragmentSize;
-  final int _fragmentGroupLimit;
+  final ReactiveChannelConfiguration _channelConfiguration;
   final void Function() _terminator;
   final void Function() _closer;
 
@@ -41,10 +40,7 @@ class ReactiveRequester {
     this._connection,
     this._streamId,
     this._writer,
-    this._chunksLimit,
-    this._fragmentationMtu,
-    this._fragmentSize,
-    this._fragmentGroupLimit,
+    this._channelConfiguration,
     this._terminator,
     this._closer,
   ) {
@@ -112,11 +108,11 @@ class ReactiveRequester {
       _subscription.pause();
       return;
     }
-    if (payload.bytes.length > _fragmentationMtu) {
+    if (payload.bytes.length > _channelConfiguration.fragmentationMtu) {
       _paused = true;
       _subscription.pause();
       if (_chunks.isEmpty) {
-        final fragments = payload.bytes.chunks(_fragmentSize);
+        final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
         _fragmentate(fragments, 0, 0, fragments.length);
         return;
       }
@@ -125,7 +121,7 @@ class ReactiveRequester {
         false,
         onCancel: _terminate,
         onDone: () {
-          final fragments = payload.bytes.chunks(_fragmentSize);
+          final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
           _fragmentate(fragments, 0, 0, fragments.length);
         },
       );
@@ -144,7 +140,7 @@ class ReactiveRequester {
       return;
     }
     _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
-    if (_chunks.length >= _chunksLimit || _pending - _chunks.length == 0) {
+    if (_chunks.length >= _channelConfiguration.chunksLimit || _pending - _chunks.length == 0) {
       _connection.writeMany(_chunks, false, onCancel: _terminate);
       _pending -= _chunks.length;
       _chunks = [];
@@ -153,7 +149,7 @@ class ReactiveRequester {
   }
 
   void _fragmentate(List<Uint8List> fragments, int fragmentGroup, int fragmentId, int fragmentsCount) {
-    fragments = fragments.sublist(fragmentGroup, fragmentGroup + _fragmentGroupLimit);
+    fragments = fragments.sublist(fragmentGroup, fragmentGroup + _channelConfiguration.fragmentGroupLimit);
     fragmentGroup = fragments.length;
     fragmentId += fragments.length;
     final frames = <Uint8List>[];
