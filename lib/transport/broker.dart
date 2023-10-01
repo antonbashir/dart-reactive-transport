@@ -59,6 +59,7 @@ class ReactiveBroker {
       final channel = entry.value;
       final key = entry.key;
       _streamIdMapping[_currentLocalStreamId] = key;
+      final streamId = _currentLocalStreamId;
       final requester = ReactiveRequester(
         _connection,
         _currentLocalStreamId,
@@ -67,6 +68,7 @@ class ReactiveBroker {
         channel.configuration.fragmentationMtu,
         channel.configuration.fragmentSize,
         channel.configuration.fragmentGroupLimit,
+        () => cancel(streamId),
       );
       _requesters[_currentLocalStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
@@ -105,6 +107,7 @@ class ReactiveBroker {
       final key = entry.key;
       final metadata = _metadataCodec.encode({routingKey: key});
       final payload = ReactivePayload.ofMetadata(metadata);
+      final streamId = _currentLocalStreamId;
       _streamIdMapping[_currentLocalStreamId] = entry.key;
       final requester = ReactiveRequester(
         _connection,
@@ -114,6 +117,7 @@ class ReactiveBroker {
         channel.configuration.fragmentationMtu,
         channel.configuration.fragmentSize,
         channel.configuration.fragmentGroupLimit,
+        () => cancel(streamId),
       );
       _requesters[_currentLocalStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
@@ -143,6 +147,7 @@ class ReactiveBroker {
         channel.configuration.fragmentationMtu,
         channel.configuration.fragmentSize,
         channel.configuration.fragmentGroupLimit,
+        () => cancel(remoteStreamId),
       );
       _requesters[remoteStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
@@ -188,10 +193,7 @@ class ReactiveBroker {
     final channel = _channels[_streamIdMapping[remoteStreamId]];
     if (channel != null && producer != null && requester != null) {
       channel.onRequest(count, producer);
-      if (requester.drain(count) == false) {
-        cancel(remoteStreamId);
-        return;
-      }
+      requester.drain(count);
       if (_leaseLimiter.enabled) _leaseLimiter.notify(count);
     }
   }
