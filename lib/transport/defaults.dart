@@ -8,6 +8,7 @@ class ReactiveTransportDefaults {
 
   static ReactiveTransportConfiguration transport() => ReactiveTransportConfiguration(
         tracer: null,
+        gracefulDuration: null,
       );
 
   static ReactiveChannelConfiguration channel() => ReactiveChannelConfiguration(
