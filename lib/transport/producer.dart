@@ -10,15 +10,21 @@ class ReactiveProducer {
 
   bool get active => _requester.active;
 
+  @pragma(preferInlinePragma)
   void payload(dynamic data, {bool complete = false}) => _requester.schedulePayload(_codec.encode(data), complete);
 
+  @pragma(preferInlinePragma)
   void error(String message) => _requester.scheduleError(message);
 
+  @pragma(preferInlinePragma)
   void cancel() => _requester.scheduleCancel();
 
+  @pragma(preferInlinePragma)
   void complete() => _requester.schedulePayload(emptyBytes, true);
 
+  @pragma(preferInlinePragma)
   void request(int count) => _requester.request(count);
 
+  @pragma(preferInlinePragma)
   void unbound() => _requester.request(infinityRequestsCount);
 }
