@@ -48,8 +48,6 @@ class ReactiveRequester {
     _output.stream.listen(_send);
   }
 
-  bool get active => _accepting && _sending;
-
   void request(int count) {
     if (!_accepting) return;
     _connection.writeSingle(_writer.writeRequestNFrame(_streamId, count));
@@ -94,12 +92,13 @@ class ReactiveRequester {
   }
 
   Future<void> close() async {
-    if (!active) return;
-    _accepting = false;
-    _sending = false;
-    await _subscription.cancel();
-    await _input.close();
-    await _output.close();
+    if (_accepting || _sending) {
+      _accepting = false;
+      _sending = false;
+      await _subscription.cancel();
+      await _input.close();
+      await _output.close();
+    }
   }
 
   void _send(_ReactivePendingPayload payload) {

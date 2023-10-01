@@ -8,8 +8,6 @@ class ReactiveProducer {
 
   const ReactiveProducer(this._requester, this._codec);
 
-  bool get active => _requester.active;
-
   @pragma(preferInlinePragma)
   void payload(dynamic data, {bool complete = false}) => _requester.schedulePayload(_codec.encode(data), complete);
 
