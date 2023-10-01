@@ -75,7 +75,7 @@ class ReactiveReader {
 
   ErrorFrame readErrorFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     var delta = buffer.readerIndex - reactiveFrameHeaderSize;
-    final code = buffer.readInt32()!;
+    final code = buffer.readInt32() ?? 0;
     delta = buffer.readerIndex - delta;
     final dataLength = header.frameLength + reactiveFrameLengthFieldSize - delta;
     var message = emptyBytes;
