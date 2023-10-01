@@ -1,7 +1,7 @@
-import 'package:reactive_transport/transport/channel.dart';
-import 'package:reactive_transport/transport/constants.dart';
-import 'package:reactive_transport/transport/producer.dart';
-import 'package:reactive_transport/transport/requester.dart';
+import 'channel.dart';
+import 'constants.dart';
+import 'producer.dart';
+import 'requester.dart';
 
 class ReactiveStream {
   final int streamId;
