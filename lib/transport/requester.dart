@@ -20,7 +20,7 @@ class ReactiveRequester {
   final ReactiveConnection _connection;
   final ReactiveWriter _writer;
   final StreamController<_ReactivePendingPayload> _input = StreamController();
-  final StreamController<_ReactivePendingPayload> _output = StreamController();
+  final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
   final int _chunksLimit;
   final int _fragmentationMtu;
   final int _fragmentSize;
