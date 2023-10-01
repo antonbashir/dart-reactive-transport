@@ -107,14 +107,14 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writeErrorFrame(int streamId, int code, Uint8List message) {
+  Uint8List writeErrorFrame(int streamId, int code, String message) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(streamId);
     frameBuffer.writeInt8(reactiveFrameError << 2);
     frameBuffer.writeInt8(0);
     frameBuffer.writeInt32(code);
-    frameBuffer.writeBytes(message);
+    frameBuffer.writeBytes(utf8.encode(message));
     _refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
   }

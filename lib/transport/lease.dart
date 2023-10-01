@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 class ReactiveLeaseLimiter {
   var _available = 0;
@@ -21,8 +22,7 @@ class ReactiveLeaseLimiter {
   }
 
   void notify(int count) {
-    _available -= count;
-    _available = _available < 0 ? 0 : _available;
+    _available = max(_available - count, 0);
   }
 }
 

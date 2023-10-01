@@ -44,6 +44,8 @@ class ReactiveRequester {
     this._fragmentGroupLimit,
   );
 
+  bool get active => _accepting && _sending;
+
   void request(int count) {
     if (!_sending) throw ReactiveStateException(reactiveChannelClosedException);
     _connection.writeSingle(_writer.writeRequestNFrame(_streamId, count));
@@ -63,10 +65,10 @@ class ReactiveRequester {
     }
   }
 
-  void scheduleError(Uint8List bytes) {
+  void scheduleError(String message) {
     if (!_accepting) throw ReactiveStateException(reactiveChannelClosedException);
     _accepting = false;
-    final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, bytes);
+    final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, message);
     _payloads.addLast(_ReactivePendingPayload(frame, _errorFlag));
     if (_pending == infinityRequestsCount) {
       _drainInfinity();

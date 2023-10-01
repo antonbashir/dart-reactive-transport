@@ -13,6 +13,14 @@ abstract mixin class ReactiveChannel {
   String get key;
   ReactiveChannelConfiguration get configuration;
 
+  void initiate(int streamId) => this.streamId = streamId;
+
+  bool activate() {
+    if (_activated) return false;
+    _activated = true;
+    return true;
+  }
+
   FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer);
 
   FutureOr<void> onComplete(ReactiveProducer producer);
@@ -50,14 +58,6 @@ abstract mixin class ReactiveChannel {
       offset += fragment.length;
     }
     return onPayload(codec.decode(assemble), producer);
-  }
-
-  void initiate(int streamId) => this.streamId = streamId;
-
-  bool activate() {
-    if (_activated) return false;
-    _activated = true;
-    return true;
   }
 }
 

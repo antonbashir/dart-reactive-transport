@@ -1,8 +1,5 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'constants.dart';
 import 'codec.dart';
+import 'constants.dart';
 import 'requester.dart';
 
 class ReactiveProducer {
@@ -11,9 +8,11 @@ class ReactiveProducer {
 
   const ReactiveProducer(this._requester, this._codec);
 
+  bool get active => _requester.active;
+
   void payload(dynamic data, {bool complete = false}) => _requester.schedulePayload(_codec.encode(data), complete);
 
-  void error(String message) => _requester.scheduleError(Uint8List.fromList(utf8.encode(message)));
+  void error(String message) => _requester.scheduleError(message);
 
   void cancel() => _requester.scheduleCancel();
 

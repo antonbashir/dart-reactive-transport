@@ -1,15 +1,11 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:iouring_transport/transport/exception.dart';
 import 'package:reactive_transport/transport/constants.dart';
 
 class ReactiveException implements Exception {
   final int code;
-  final String _content;
-  Uint8List get content => Uint8List.fromList(utf8.encode(_content));
+  final String content;
 
-  const ReactiveException(this.code, this._content);
+  const ReactiveException(this.code, this.content);
 
   factory ReactiveException.fromTransport(Exception exception) {
     if (exception is TransportClosedException) return ReactiveExceptions.connectionClose;
@@ -17,7 +13,7 @@ class ReactiveException implements Exception {
   }
 
   @override
-  String toString() => "code = $code, content = $_content";
+  String toString() => "code = $code, content = $content";
 }
 
 class ReactiveStateException implements Exception {

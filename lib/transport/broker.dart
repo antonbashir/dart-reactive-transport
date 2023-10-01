@@ -172,8 +172,7 @@ class ReactiveBroker {
           false,
         ),
       ).onError((error, stackTrace) {
-        print(stackTrace);
-        producer.error(error.toString());
+        if (producer.active) producer.error(error.toString());
       });
     }
   }
@@ -189,7 +188,10 @@ class ReactiveBroker {
     final channel = _channels[_streamIdMapping[remoteStreamId]];
     if (channel != null && producer != null && requester != null) {
       channel.onRequest(count, producer);
-      if (requester.drain(count) == false) cancel(remoteStreamId);
+      if (requester.drain(count) == false) {
+        cancel(remoteStreamId);
+        return;
+      }
       if (_leaseLimiter.enabled) _leaseLimiter.notify(count);
     }
   }
