@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:reactive_transport/transport/configuration.dart';
-
+import 'configuration.dart';
 import 'connection.dart';
 import 'constants.dart';
 import 'extensions.dart';
