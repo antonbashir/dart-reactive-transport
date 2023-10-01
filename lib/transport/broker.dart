@@ -55,27 +55,6 @@ class ReactiveBroker {
     }
     _dataCodec = dataCodec;
     _metadataCodec = metadataCodec;
-    for (var entry in _channels.entries) {
-      final channel = entry.value;
-      final key = entry.key;
-      _streamIdMapping[_currentLocalStreamId] = key;
-      final streamId = _currentLocalStreamId;
-      final requester = ReactiveRequester(
-        _connection,
-        _currentLocalStreamId,
-        _writer,
-        channel.configuration.chunksLimit,
-        channel.configuration.fragmentationMtu,
-        channel.configuration.fragmentSize,
-        channel.configuration.fragmentGroupLimit,
-        () => cancel(streamId),
-      );
-      _requesters[_currentLocalStreamId] = requester;
-      final producer = ReactiveProducer(requester, _dataCodec);
-      _producers[_currentLocalStreamId] = producer;
-      _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
-      _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
-    }
     if (lease) {
       _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLive, _configuration.lease!.requests));
       _leaseScheduler.schedule(_configuration.lease!.timeToLive, () {
@@ -108,10 +87,10 @@ class ReactiveBroker {
       final metadata = _metadataCodec.encode({routingKey: key});
       final payload = ReactivePayload.ofMetadata(metadata);
       final streamId = _currentLocalStreamId;
-      _streamIdMapping[_currentLocalStreamId] = entry.key;
+      _streamIdMapping[streamId] = entry.key;
       final requester = ReactiveRequester(
         _connection,
-        _currentLocalStreamId,
+        streamId,
         _writer,
         channel.configuration.chunksLimit,
         channel.configuration.fragmentationMtu,
@@ -119,13 +98,13 @@ class ReactiveBroker {
         channel.configuration.fragmentGroupLimit,
         () => cancel(streamId),
       );
-      _requesters[_currentLocalStreamId] = requester;
+      _requesters[streamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
-      _producers[_currentLocalStreamId] = producer;
-      _activators[_currentLocalStreamId] = ReactiveActivator(channel, producer);
-      channel.initiate(_currentLocalStreamId);
+      _producers[streamId] = producer;
+      _activators[streamId] = ReactiveActivator(channel, producer);
+      channel.initiate(streamId);
       if (!setupConfiguration.lease) {
-        frames.add(_writer.writeRequestChannelFrame(_currentLocalStreamId, channel.configuration.initialRequestCount, payload));
+        frames.add(_writer.writeRequestChannelFrame(streamId, channel.configuration.initialRequestCount, payload));
       }
       _currentLocalStreamId = streamIdSupplier.next(_streamIdMapping);
     }

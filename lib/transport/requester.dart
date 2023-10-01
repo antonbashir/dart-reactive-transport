@@ -101,6 +101,7 @@ class ReactiveRequester {
   }
 
   void close() {
+    if (!active) return;
     _accepting = false;
     _sending = false;
     unawaited(_subscription.cancel());
