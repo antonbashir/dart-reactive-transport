@@ -72,7 +72,6 @@ String frame(int id) {
 const reactiveProtocolMajorVersion = 1;
 const reactiveProtocolMinorVersion = 0;
 
-const initialRequestsCount = 1;
 const infinityRequestsCount = 2147483647;
 
 const reactiveStreamIdMask = 0x7FFFFFFF;

@@ -15,12 +15,3 @@ class ReactiveException implements Exception {
   @override
   String toString() => "code = $code, content = $content";
 }
-
-class ReactiveStateException implements Exception {
-  final String message;
-
-  const ReactiveStateException(this.message);
-
-  @override
-  String toString() => message;
-}

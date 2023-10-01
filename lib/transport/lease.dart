@@ -3,18 +3,15 @@ import 'dart:math';
 
 class ReactiveLeaseLimiter {
   var _available = 0;
-  var _requests = 0;
   var _enabled = false;
   Timer? _timer;
 
   bool get enabled => _enabled;
-
   bool get restricted => _enabled && _available == 0;
 
   void reconfigure(int timeToLive, int requests) {
     _enabled = true;
-    _requests = requests;
-    _available = _requests;
+    _available = requests;
     _timer?.cancel();
     _timer = Timer(Duration(milliseconds: timeToLive), () {
       if (_timer?.isActive == true) _available = 0;
@@ -42,6 +39,7 @@ class ReactiveLeaseScheduler {
   void stop() {
     if (_active) {
       _timer.cancel();
+      _active = false;
     }
   }
 }
