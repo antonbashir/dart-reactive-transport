@@ -12,17 +12,32 @@ Future<void> main() async {
   final transport = Transport();
   final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
   await worker.initialize();
-  final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+  final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
   final clientPayload = "client-payload";
   final serverPayload = "server-payload";
 
   var counter = 0;
 
-  void serve(dynamic payload, ReactiveProducer producer) {
+  void serve1(dynamic payload, ReactiveProducer producer) {
     producer.payload(serverPayload, complete: false);
+    producer.payload(serverPayload, complete: false);
+    counter++;
   }
 
-  void communicate(dynamic payload, ReactiveProducer producer) {
+  void communicate1(dynamic payload, ReactiveProducer producer) {
+    producer.payload(clientPayload, complete: false);
+    producer.payload(clientPayload, complete: false);
+    counter++;
+  }
+
+  void serve2(dynamic payload, ReactiveProducer producer) {
+    producer.payload(serverPayload, complete: false);
+    producer.payload(serverPayload, complete: false);
+    counter++;
+  }
+
+  void communicate2(dynamic payload, ReactiveProducer producer) {
+    producer.payload(clientPayload, complete: false);
     producer.payload(clientPayload, complete: false);
     counter++;
   }
@@ -30,31 +45,48 @@ Future<void> main() async {
   reactive.serve(
     InternetAddress.anyIPv4,
     12345,
-    (connection) => connection.subscriber.subscribe(
-      "channel",
-      serve,
-      onSubscribe: (producer) {
-        producer.request(infinityRequestsCount);
-      },
-    ),
+    (connection) => connection.subscriber
+      ..subscribe(
+        "channel1",
+        serve1,
+        onSubscribe: (producer) {
+          producer.request(infinityRequestsCount);
+        },
+      )
+      ..subscribe(
+        "channel2",
+        serve2,
+        onSubscribe: (producer) {
+          producer.request(infinityRequestsCount);
+        },
+      ),
   );
 
   reactive.connect(
     InternetAddress.loopbackIPv4,
     12345,
-    (connection) => connection.subscriber.subscribe(
-      "channel",
-      communicate,
-      onSubscribe: (producer) {
-        producer.payload(clientPayload);
-        producer.request(infinityRequestsCount);
-      },
-    ),
+    (connection) => connection.subscriber
+      ..subscribe(
+        "channel1",
+        communicate1,
+        onSubscribe: (producer) {
+          producer.payload(clientPayload);
+          producer.request(infinityRequestsCount);
+        },
+      )
+      ..subscribe(
+        "channel2",
+        communicate2,
+        onSubscribe: (producer) {
+          producer.payload(clientPayload);
+          producer.request(infinityRequestsCount);
+        },
+      ),
   );
 
   await Future.delayed(Duration(seconds: 10));
 
-  print(counter);
+  print(counter / 10);
 
   await reactive.shutdown();
 }
