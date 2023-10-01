@@ -37,5 +37,5 @@ class ReactiveServer {
     acceptor(reactive);
   }
 
-  Future<void> shutdown({Duration? gracefulDuration}) => Future.wait(_connections.map((connection) => connection.close()));
+  Future<void> shutdown() => Future.wait(_connections.map((connection) => connection.close()));
 }

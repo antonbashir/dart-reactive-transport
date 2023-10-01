@@ -4,14 +4,17 @@ import 'codec.dart';
 
 class ReactiveTransportConfiguration {
   final void Function(dynamic frame)? tracer;
+  final Duration? gracefulDuration;
 
-  ReactiveTransportConfiguration({required this.tracer});
+  ReactiveTransportConfiguration({required this.tracer, required this.gracefulDuration});
 
   ReactiveTransportConfiguration copyWith({
     void Function(dynamic frame)? tracer,
+    Duration? gracefulDuration,
   }) =>
       ReactiveTransportConfiguration(
         tracer: tracer ?? this.tracer,
+        gracefulDuration: gracefulDuration ?? this.gracefulDuration,
       );
 }
 
