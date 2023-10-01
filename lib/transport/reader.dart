@@ -5,6 +5,7 @@ import 'frame.dart';
 import 'payload.dart';
 
 class ReactiveReader {
+  @pragma(preferInlinePragma)
   FrameHeader readFrameHeader(ReactiveReadBuffer buffer) {
     final frameLength = buffer.readInt24() ?? 0;
     final streamId = buffer.readInt32() ?? 0;
@@ -55,12 +56,14 @@ class ReactiveReader {
     );
   }
 
+  @pragma(preferInlinePragma)
   LeaseFrame readLeaseFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     final timeToLive = buffer.readInt32() ?? 0;
     final numberOfRequests = buffer.readInt32() ?? 0;
     return LeaseFrame(header, timeToLive, numberOfRequests);
   }
 
+  @pragma(preferInlinePragma)
   KeepAliveFrame readKeepAliveFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     var delta = buffer.readerIndex - reactiveFrameHeaderSize;
     var lastReceivedPosition = buffer.readInt32() ?? 0;
@@ -73,6 +76,7 @@ class ReactiveReader {
     return KeepAliveFrame(header, lastReceivedPosition, (header.flags & reactiveFrameKeepAliveFlagRespond) > 0, payload: payload);
   }
 
+  @pragma(preferInlinePragma)
   ErrorFrame readErrorFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     var delta = buffer.readerIndex - reactiveFrameHeaderSize;
     final code = buffer.readInt32() ?? 0;
@@ -85,6 +89,7 @@ class ReactiveReader {
     return ErrorFrame(header, message, code);
   }
 
+  @pragma(preferInlinePragma)
   RequestChannelFrame readRequestChannelFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     var delta = buffer.readerIndex - reactiveFrameHeaderSize;
     final initialRequestN = buffer.readInt32();
@@ -99,10 +104,10 @@ class ReactiveReader {
     return RequestChannelFrame(header, initialRequestCount: initialRequestN);
   }
 
-  RequestNFrame readRequestNFrame(ReactiveReadBuffer buffer, FrameHeader header) {
-    return RequestNFrame(header, count: buffer.readInt32());
-  }
+  @pragma(preferInlinePragma)
+  RequestNFrame readRequestNFrame(ReactiveReadBuffer buffer, FrameHeader header) => RequestNFrame(header, count: buffer.readInt32());
 
+  @pragma(preferInlinePragma)
   PayloadFrame readPayloadFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     if (header.frameLength > 0) {
       return PayloadFrame(
@@ -115,6 +120,7 @@ class ReactiveReader {
     return PayloadFrame(header, (header.flags & reactiveFrameHeaderFlagComplete) > 0, (header.flags & reactiveFrameHeaderFlagFollow) > 0);
   }
 
+  @pragma(preferInlinePragma)
   ReactivePayload _readPayload(ReactiveReadBuffer buffer, bool metadataPresent, int dataLength) {
     var metadata = emptyBytes;
     var data = emptyBytes;
