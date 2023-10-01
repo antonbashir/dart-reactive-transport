@@ -6,7 +6,6 @@ import 'defaults.dart';
 import 'exception.dart';
 
 import 'configuration.dart';
-import 'connection.dart';
 import 'server.dart';
 
 class ReactiveTransport {
