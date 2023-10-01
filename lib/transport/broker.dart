@@ -72,7 +72,7 @@ class ReactiveBroker {
       final channel = entry.value;
       if (channel.activate()) {
         final key = entry.key;
-        final metadata = _metadataCodec.encode({routingKey: key});
+        final metadata = _metadataCodec.encode({reactiveRoutingKey: key});
         final payload = ReactivePayload.ofMetadata(metadata);
         _connection.writeSingle(_writer.writeRequestChannelFrame(channel.streamId, channel.configuration.initialRequestCount, payload));
       }
@@ -86,7 +86,7 @@ class ReactiveBroker {
     for (var entry in _channels.entries) {
       final channel = entry.value;
       final key = entry.key;
-      final metadata = _metadataCodec.encode({routingKey: key});
+      final metadata = _metadataCodec.encode({reactiveRoutingKey: key});
       final payload = ReactivePayload.ofMetadata(metadata);
       final streamId = _currentLocalStreamId;
       final requester = ReactiveRequester(
@@ -110,7 +110,7 @@ class ReactiveBroker {
 
   void initiate(int remoteStreamId, int initialRequestCount, ReactivePayload initialPayload) {
     final metadata = _metadataCodec.decode(initialPayload.metadata);
-    String method = metadata[routingKey];
+    String method = metadata[reactiveRoutingKey];
     final channel = _channels[method];
     if (channel != null) {
       final requester = ReactiveRequester(

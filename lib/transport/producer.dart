@@ -24,5 +24,5 @@ class ReactiveProducer {
   void request(int count) => _requester.request(count);
 
   @pragma(preferInlinePragma)
-  void unbound() => _requester.request(infinityRequestsCount);
+  void unbound() => _requester.request(reactiveInfinityRequestsCount);
 }

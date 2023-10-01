@@ -79,9 +79,9 @@ class ReactiveRequester {
 
   void resume(int count) {
     if (!_sending || _paused) return;
-    if (_requested == infinityRequestsCount) return;
-    if (count == infinityRequestsCount) {
-      _requested = infinityRequestsCount;
+    if (_requested == reactiveInfinityRequestsCount) return;
+    if (count == reactiveInfinityRequestsCount) {
+      _requested = reactiveInfinityRequestsCount;
       _subscription.resume();
       return;
     }
@@ -121,7 +121,7 @@ class ReactiveRequester {
         },
       );
       _pending -= _chunks.length;
-      if (_requested != infinityRequestsCount) _requested -= _chunks.length;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= _chunks.length;
       _chunks = [];
       return;
     }
@@ -129,7 +129,7 @@ class ReactiveRequester {
       _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
       _connection.writeMany(_chunks, true);
       _pending -= _chunks.length;
-      if (_requested != infinityRequestsCount) _requested -= _chunks.length;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= _chunks.length;
       unawaited(close());
       _completer();
       return;
@@ -138,7 +138,7 @@ class ReactiveRequester {
     if (_chunks.length >= _channelConfiguration.chunksLimit || _pending - _chunks.length == 0) {
       _connection.writeMany(_chunks, false);
       _pending -= _chunks.length;
-      if (_requested != infinityRequestsCount) _requested -= _chunks.length;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= _chunks.length;
       _chunks = [];
     }
   }
@@ -168,7 +168,7 @@ class ReactiveRequester {
         }
         _pending--;
         _paused = false;
-        if (_requested == infinityRequestsCount || --_requested > 0) _subscription.resume();
+        if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();
       },
     );
   }

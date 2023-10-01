@@ -50,12 +50,12 @@ class ReactiveResponder {
         case reactiveFrameRequestN:
           final frame = _reader.readRequestNFrame(buffer, header);
           _tracer?.call(frame);
-          _broker.request(frame.header.streamId, frame.count ?? infinityRequestsCount);
+          _broker.request(frame.header.streamId, frame.count ?? reactiveInfinityRequestsCount);
           continue;
         case reactiveFrameRequestChannel:
           final frame = _reader.readRequestChannelFrame(buffer, header);
           _tracer?.call(frame);
-          _broker.initiate(frame.header.streamId, frame.initialRequestCount ?? infinityRequestsCount, frame.payload!);
+          _broker.initiate(frame.header.streamId, frame.initialRequestCount ?? reactiveInfinityRequestsCount, frame.payload!);
           continue;
         case reactiveFramePayload:
           final frame = _reader.readPayloadFrame(buffer, header);
