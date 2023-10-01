@@ -13,5 +13,5 @@ class ReactiveException implements Exception {
   }
 
   @override
-  String toString() => "code = $code, content = $content";
+  String toString() => "$code: $content";
 }
