@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:iouring_transport/transport/defaults.dart';
 import 'package:iouring_transport/transport/transport.dart';
 import 'package:iouring_transport/transport/worker.dart';
-import 'package:reactive_transport/transport/constants.dart';
 import 'package:reactive_transport/transport/defaults.dart';
 import 'package:reactive_transport/transport/producer.dart';
 import 'package:reactive_transport/transport/transport.dart';

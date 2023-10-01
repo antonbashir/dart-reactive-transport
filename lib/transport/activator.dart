@@ -1,3 +1,5 @@
+import 'package:reactive_transport/transport/constants.dart';
+
 import 'channel.dart';
 import 'producer.dart';
 
@@ -8,6 +10,7 @@ class ReactiveActivator {
 
   ReactiveActivator(this._channel, this._producer);
 
+  @pragma(preferInlinePragma)
   void activate() {
     if (_activated) return;
     _channel.onSubscribe(_producer);
