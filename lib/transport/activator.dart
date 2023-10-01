@@ -1,5 +1,4 @@
-import 'package:reactive_transport/transport/constants.dart';
-
+import 'constants.dart';
 import 'channel.dart';
 import 'producer.dart';
 
