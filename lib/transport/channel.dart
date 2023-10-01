@@ -39,7 +39,7 @@ abstract mixin class ReactiveChannel {
       return;
     }
     if (_fragments.isEmpty) {
-      return onPayload(codec.decode(payload), producer);
+      return onPayload(payload.isEmpty ? null : codec.decode(payload), producer);
     }
     _fragments.add(payload);
     final totalLength = _fragments.fold(0, (current, list) => current + list.length);

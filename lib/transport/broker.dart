@@ -171,7 +171,10 @@ class ReactiveBroker {
           follow,
           false,
         ),
-      ).onError((error, stackTrace) => producer.error(error.toString()));
+      ).onError((error, stackTrace) {
+        print(stackTrace);
+        producer.error(error.toString());
+      });
     }
   }
 
