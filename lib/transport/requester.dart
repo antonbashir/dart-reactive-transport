@@ -126,8 +126,8 @@ class ReactiveRequester {
         },
       );
       _pending -= _chunks.length;
-      _chunks = [];
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
+      _chunks = [];
       return;
     }
     if (payload.last) {
@@ -143,8 +143,8 @@ class ReactiveRequester {
     if (_chunks.length >= _channelConfiguration.chunksLimit || _pending - _chunks.length == 0) {
       _connection.writeMany(_chunks, false, onCancel: _terminate);
       _pending -= _chunks.length;
-      _chunks = [];
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
+      _chunks = [];
     }
   }
 
