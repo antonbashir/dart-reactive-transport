@@ -7,7 +7,7 @@ import 'configuration.dart';
 import 'producer.dart';
 
 abstract mixin class ReactiveChannel {
-  var _activated = false;
+  var _active = false;
   var _fragments = <Uint8List>[];
 
   String get key;
@@ -17,8 +17,8 @@ abstract mixin class ReactiveChannel {
   void bind(int streamId) => this.streamId = streamId;
 
   bool activate() {
-    if (_activated) return false;
-    _activated = true;
+    if (_active) return false;
+    _active = true;
     return true;
   }
 

@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'stream.dart';
 import 'lease.dart';
 import 'channel.dart';
 import 'exception.dart';
 import 'connection.dart';
-import 'activator.dart';
 import 'codec.dart';
 import 'configuration.dart';
 import 'constants.dart';
@@ -26,10 +26,7 @@ class ReactiveBroker {
   final void Function(ReactiveException error)? _onError;
 
   final _channels = <String, ReactiveChannel>{};
-  final _activators = <int, ReactiveActivator>{};
-  final _producers = <int, ReactiveProducer>{};
-  final _requesters = <int, ReactiveRequester>{};
-  final _streams = <int, ReactiveChannel>{};
+  final _streams = <int, ReactiveStream>{};
   final _leaseLimiter = ReactiveLeaseLimiter();
   final _leaseScheduler = ReactiveLeaseScheduler();
   int _currentLocalStreamId;
@@ -92,7 +89,6 @@ class ReactiveBroker {
       final metadata = _metadataCodec.encode({routingKey: key});
       final payload = ReactivePayload.ofMetadata(metadata);
       final streamId = _currentLocalStreamId;
-      _streams[streamId] = channel;
       final requester = ReactiveRequester(
         _connection,
         streamId,
@@ -100,12 +96,10 @@ class ReactiveBroker {
         channel.configuration,
         () => cancel(streamId),
       );
-      _requesters[streamId] = requester;
-      final producer = ReactiveProducer(requester, _dataCodec);
-      _producers[streamId] = producer;
-      _activators[streamId] = ReactiveActivator(channel, producer);
+      _streams[streamId] = ReactiveStream(streamId, requester, ReactiveProducer(requester, _dataCodec), channel);
       channel.bind(streamId);
       if (!setupConfiguration.lease) {
+        channel.activate();
         frames.add(_writer.writeRequestChannelFrame(streamId, channel.configuration.initialRequestCount, payload));
       }
       _currentLocalStreamId = streamIdSupplier.next(_streams);
@@ -119,7 +113,6 @@ class ReactiveBroker {
     String method = metadata[routingKey];
     final channel = _channels[method];
     if (channel != null) {
-      _streams[remoteStreamId] = channel;
       final requester = ReactiveRequester(
         _connection,
         remoteStreamId,
@@ -127,11 +120,10 @@ class ReactiveBroker {
         channel.configuration,
         () => cancel(remoteStreamId),
       );
-      _requesters[remoteStreamId] = requester;
-      final producer = ReactiveProducer(requester, _dataCodec);
-      _producers[remoteStreamId] = producer;
-      _activators[remoteStreamId] = ReactiveActivator(channel, producer);
-      _activators[remoteStreamId]?.activate();
+      final stream = ReactiveStream(remoteStreamId, requester, ReactiveProducer(requester, _dataCodec), channel);
+      _streams[remoteStreamId] = stream;
+      stream.activate();
+      channel.activate();
       channel.bind(remoteStreamId);
       requester.request(initialRequestCount);
     }
@@ -139,24 +131,23 @@ class ReactiveBroker {
 
   void receive(int remoteStreamId, ReactivePayload? payload, bool completed, bool follow) {
     final data = payload?.data ?? Uint8List.fromList([]);
-    final channel = _streams[remoteStreamId];
-    final producer = _producers[remoteStreamId];
-    if (channel != null && producer != null) {
+    final stream = _streams[remoteStreamId];
+    if (stream != null) {
       if (completed) {
         cancel(remoteStreamId);
-        channel.onPayloadFragment(_dataCodec, data, producer, follow, true);
-        channel.onComplete(producer);
+        stream.channel.onPayloadFragment(_dataCodec, data, stream.producer, follow, true);
+        stream.channel.onComplete(stream.producer);
         return;
       }
       Future.sync(
-        () => channel.onPayloadFragment(
+        () => stream.channel.onPayloadFragment(
           _dataCodec,
           data,
-          producer,
+          stream.producer,
           follow,
           false,
         ),
-      ).onError((error, _) => producer.error(error.toString()));
+      ).onError((error, _) => stream.producer.error(error.toString()));
     }
   }
 
@@ -165,13 +156,11 @@ class ReactiveBroker {
       _connection.writeSingle(_writer.writeErrorFrame(remoteStreamId, ReactiveExceptions.rejected.code, ReactiveExceptions.rejected.content));
       return;
     }
-    _activators[remoteStreamId]?.activate();
-    final producer = _producers[remoteStreamId];
-    final requester = _requesters[remoteStreamId];
-    final channel = _streams[remoteStreamId];
-    if (channel != null && producer != null && requester != null) {
-      channel.onRequest(count, producer);
-      requester.resume(count);
+    final stream = _streams[remoteStreamId];
+    if (stream != null) {
+      stream.activate();
+      stream.channel.onRequest(count, stream.producer);
+      stream.requester.resume(count);
       if (_leaseLimiter.enabled) _leaseLimiter.notify(count);
     }
   }
@@ -182,11 +171,10 @@ class ReactiveBroker {
 
   void handle(int remoteStreamId, int errorCode, Uint8List payload) {
     if (remoteStreamId != 0) {
-      final channel = _streams[remoteStreamId];
-      final producer = _producers[remoteStreamId];
+      final stream = _streams[remoteStreamId];
       cancel(remoteStreamId);
-      if (channel != null && producer != null) {
-        channel.onError(utf8.decode(payload), producer);
+      if (stream != null) {
+        stream.channel.onError(utf8.decode(payload), stream.producer);
       }
       return;
     }
@@ -194,10 +182,9 @@ class ReactiveBroker {
   }
 
   void cancel(int streamId) {
-    unawaited(_requesters.remove(streamId)?.close());
-    _producers.remove(streamId);
-    _activators.remove(streamId);
-    _channels.remove(_streams.remove(streamId));
+    final stream = _streams.remove(streamId);
+    if (stream == null) return;
+    unawaited(stream.requester.close());
   }
 
   void close() {
@@ -206,5 +193,6 @@ class ReactiveBroker {
     _leaseScheduler.stop();
     _keepAliveTimer.stop();
     _streams.keys.toList().forEach(cancel);
+    _channels.clear();
   }
 }
