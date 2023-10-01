@@ -19,4 +19,6 @@ class ReactiveProducer {
   void complete() => _requester.schedulePayload(emptyBytes, true);
 
   void request(int count) => _requester.request(count);
+
+  void unbound() => _requester.request(infinityRequestsCount);
 }

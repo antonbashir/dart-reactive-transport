@@ -49,16 +49,12 @@ Future<void> main() async {
       ..subscribe(
         "channel1",
         serve1,
-        onSubscribe: (producer) {
-          producer.request(infinityRequestsCount);
-        },
+        onSubscribe: (producer) => producer.unbound(),
       )
       ..subscribe(
         "channel2",
         serve2,
-        onSubscribe: (producer) {
-          producer.request(infinityRequestsCount);
-        },
+        onSubscribe: (producer) => producer.unbound(),
       ),
   );
 
@@ -71,7 +67,7 @@ Future<void> main() async {
         communicate1,
         onSubscribe: (producer) {
           producer.payload(clientPayload);
-          producer.request(infinityRequestsCount);
+          producer.unbound();
         },
       )
       ..subscribe(
@@ -79,7 +75,7 @@ Future<void> main() async {
         communicate2,
         onSubscribe: (producer) {
           producer.payload(clientPayload);
-          producer.request(infinityRequestsCount);
+          producer.unbound();
         },
       ),
   );
