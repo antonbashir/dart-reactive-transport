@@ -28,15 +28,16 @@ class ReactiveRequester {
   final int _fragmentationMtu;
   final int _fragmentSize;
   final int _fragmentGroupLimit;
-  var _chunks = <Uint8List>[];
   final void Function() _closer;
 
   late final StreamSubscription _subscription;
 
   var _pending = 0;
   var _requested = 0;
-  var _active = true;
+  var _accepting = true;
+  var _sending = true;
   var _paused = false;
+  var _chunks = <Uint8List>[];
 
   ReactiveRequester(
     this._connection,
@@ -53,42 +54,42 @@ class ReactiveRequester {
     _output.stream.listen(_send);
   }
 
-  bool get active => _active;
+  bool get active => _accepting && _sending;
 
   void request(int count) {
-    if (!_active) return;
+    if (!_accepting) return;
     _connection.writeSingle(_writer.writeRequestNFrame(_streamId, count));
   }
 
   void schedulePayload(Uint8List bytes, bool complete) {
-    if (!_active) return;
-    _active = !complete;
+    if (!_accepting) return;
+    _accepting = !complete;
     final frame = _writer.writePayloadFrame(_streamId, complete, false, ReactivePayload.ofData(bytes));
     _input.add(_ReactivePendingPayload(frame, complete ? _completeFlag : 0));
     _pending++;
-    if (_requested > 0 && !_paused) _subscription.resume();
+    if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
 
   void scheduleError(String message) {
-    if (!_active) return;
-    _active = false;
+    if (!_accepting) return;
+    _accepting = false;
     final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, message);
     _input.add(_ReactivePendingPayload(frame, _errorFlag));
     _pending++;
-    if (_requested > 0 && !_paused) _subscription.resume();
+    if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
 
   void scheduleCancel() {
-    if (!_active) return;
-    _active = false;
+    if (!_accepting) return;
+    _accepting = false;
     final frame = _writer.writeCancelFrame(_streamId);
     _input.add(_ReactivePendingPayload(frame, _cancelFlag));
     _pending++;
-    if (_requested > 0 && !_paused) _subscription.resume();
+    if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
 
   void drain(int count) {
-    if (!_active && _paused) return;
+    if (!_sending && _paused) return;
     if (_requested == infinityRequestsCount) return;
     if (count == infinityRequestsCount) {
       _requested = infinityRequestsCount;
@@ -100,12 +101,13 @@ class ReactiveRequester {
   }
 
   void close() {
-    _active = false;
+    _accepting = false;
+    _sending = false;
     unawaited(_subscription.cancel());
   }
 
   void _send(_ReactivePendingPayload payload) {
-    if (!_active || _paused) return;
+    if (!_sending || _paused) return;
     if (_requested == 0) {
       _subscription.pause();
       return;
