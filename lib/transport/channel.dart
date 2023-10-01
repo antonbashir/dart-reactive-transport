@@ -7,30 +7,20 @@ import 'configuration.dart';
 import 'producer.dart';
 
 abstract mixin class ReactiveChannel {
-  late final int streamId;
   var _activated = false;
   var _fragments = <Uint8List>[];
 
   String get key;
   ReactiveChannelConfiguration get configuration;
+  late final int streamId;
 
-  void initiate(int streamId) => this.streamId = streamId;
+  void bind(int streamId) => this.streamId = streamId;
 
   bool activate() {
     if (_activated) return false;
     _activated = true;
     return true;
   }
-
-  FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer);
-
-  FutureOr<void> onComplete(ReactiveProducer producer);
-
-  FutureOr<void> onSubscribe(ReactiveProducer producer);
-
-  FutureOr<void> onError(String error, ReactiveProducer producer);
-
-  FutureOr<void> onRequest(int count, ReactiveProducer producer);
 
   FutureOr<void> onPayloadFragment(ReactiveCodec codec, Uint8List payload, ReactiveProducer producer, bool follow, bool complete) async {
     if (follow) {
@@ -42,6 +32,16 @@ abstract mixin class ReactiveChannel {
     _fragments.add(payload);
     return onPayload(codec.decode(ReactiveAssembler.reassemble(_fragments)), producer);
   }
+
+  FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer);
+
+  FutureOr<void> onComplete(ReactiveProducer producer);
+
+  FutureOr<void> onSubscribe(ReactiveProducer producer);
+
+  FutureOr<void> onError(String error, ReactiveProducer producer);
+
+  FutureOr<void> onRequest(int count, ReactiveProducer producer);
 }
 
 class FunctionalReactiveChannel with ReactiveChannel {

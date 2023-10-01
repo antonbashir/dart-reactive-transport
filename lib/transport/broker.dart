@@ -105,7 +105,7 @@ class ReactiveBroker {
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[streamId] = producer;
       _activators[streamId] = ReactiveActivator(channel, producer);
-      channel.initiate(streamId);
+      channel.bind(streamId);
       if (!setupConfiguration.lease) {
         frames.add(_writer.writeRequestChannelFrame(streamId, channel.configuration.initialRequestCount, payload));
       }
@@ -115,7 +115,7 @@ class ReactiveBroker {
     return frames;
   }
 
-  void bind(int remoteStreamId, int initialRequestCount, ReactivePayload initialPayload) {
+  void initiate(int remoteStreamId, int initialRequestCount, ReactivePayload initialPayload) {
     final metadata = _metadataCodec.decode(initialPayload.metadata);
     String method = metadata[routingKey];
     final channel = _channels[method];
@@ -135,6 +135,7 @@ class ReactiveBroker {
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[remoteStreamId] = producer;
       _activators[remoteStreamId]?.activate();
+      channel.bind(remoteStreamId);
       requester.request(initialRequestCount);
     }
   }
@@ -180,7 +181,9 @@ class ReactiveBroker {
     }
   }
 
-  void consume(ReactiveChannel channel) => _channels[channel.key] = channel;
+  void consume(ReactiveChannel channel) {
+    _channels[channel.key] = channel;
+  }
 
   void handle(int remoteStreamId, int errorCode, Uint8List payload) {
     if (remoteStreamId != 0) {
