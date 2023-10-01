@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'assembler.dart';
 import 'codec.dart';
 import 'configuration.dart';
 import 'producer.dart';
@@ -34,30 +35,12 @@ abstract mixin class ReactiveChannel {
   FutureOr<void> onPayloadFragment(ReactiveCodec codec, Uint8List payload, ReactiveProducer producer, bool follow, bool complete) async {
     if (follow) {
       _fragments.add(payload);
-      if (complete) {
-        final totalLength = _fragments.fold(0, (current, list) => current + list.length);
-        final assemble = Uint8List(totalLength);
-        var offset = 0;
-        for (var fragment in _fragments) {
-          assemble.setRange(offset, offset + fragment.length, fragment);
-          offset += fragment.length;
-        }
-        return onPayload(codec.decode(assemble), producer);
-      }
+      if (complete) return onPayload(codec.decode(ReactiveAssembler.reassemble(_fragments)), producer);
       return;
     }
-    if (_fragments.isEmpty) {
-      return onPayload(payload.isEmpty ? null : codec.decode(payload), producer);
-    }
+    if (_fragments.isEmpty) return onPayload(payload.isEmpty ? null : codec.decode(payload), producer);
     _fragments.add(payload);
-    final totalLength = _fragments.fold(0, (current, list) => current + list.length);
-    final assemble = Uint8List(totalLength);
-    var offset = 0;
-    for (var fragment in _fragments) {
-      assemble.setRange(offset, offset + fragment.length, fragment);
-      offset += fragment.length;
-    }
-    return onPayload(codec.decode(assemble), producer);
+    return onPayload(codec.decode(ReactiveAssembler.reassemble(_fragments)), producer);
   }
 }
 

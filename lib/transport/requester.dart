@@ -1,21 +1,18 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'extensions.dart';
-import 'constants.dart';
 import 'connection.dart';
+import 'constants.dart';
+import 'extensions.dart';
 import 'payload.dart';
 import 'writer.dart';
 
-const _completeFlag = 1 << 1;
-const _errorFlag = 1 << 2;
-const _cancelFlag = 1 << 3;
-
 class _ReactivePendingPayload {
-  final Uint8List frame;
-  final int flags;
+  final Uint8List bytes;
+  final bool last;
+  final bool frame;
 
-  _ReactivePendingPayload(this.frame, this.flags);
+  _ReactivePendingPayload(this.bytes, this.last, this.frame);
 }
 
 class ReactiveRequester {
@@ -64,8 +61,7 @@ class ReactiveRequester {
   void schedulePayload(Uint8List bytes, bool complete) {
     if (!_accepting) return;
     _accepting = !complete;
-    final frame = _writer.writePayloadFrame(_streamId, complete, false, ReactivePayload.ofData(bytes));
-    _input.add(_ReactivePendingPayload(frame, complete ? _completeFlag : 0));
+    _input.add(_ReactivePendingPayload(bytes, complete, false));
     _pending++;
     if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
@@ -74,7 +70,7 @@ class ReactiveRequester {
     if (!_accepting) return;
     _accepting = false;
     final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, message);
-    _input.add(_ReactivePendingPayload(frame, _errorFlag));
+    _input.add(_ReactivePendingPayload(frame, true, true));
     _pending++;
     if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
@@ -83,7 +79,7 @@ class ReactiveRequester {
     if (!_accepting) return;
     _accepting = false;
     final frame = _writer.writeCancelFrame(_streamId);
-    _input.add(_ReactivePendingPayload(frame, _cancelFlag));
+    _input.add(_ReactivePendingPayload(frame, true, true));
     _pending++;
     if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
@@ -112,24 +108,21 @@ class ReactiveRequester {
       _subscription.pause();
       return;
     }
-    if (payload.frame.length > _fragmentationMtu) {
+    if (payload.bytes.length > _fragmentationMtu) {
       _paused = true;
       _subscription.pause();
       if (_chunks.isEmpty) {
-        final fragments = payload.frame.chunks(_fragmentSize);
+        final fragments = payload.bytes.chunks(_fragmentSize);
         _fragmentate(fragments, 0, 0, fragments.length);
         return;
       }
       _connection.writeMany(
         _chunks,
         false,
+        onCancel: _terminate,
         onDone: () {
-          final fragments = payload.frame.chunks(_fragmentSize);
+          final fragments = payload.bytes.chunks(_fragmentSize);
           _fragmentate(fragments, 0, 0, fragments.length);
-        },
-        onCancel: () {
-          close();
-          _terminator();
         },
       );
       _chunks = [];
@@ -137,61 +130,17 @@ class ReactiveRequester {
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
       return;
     }
-    if (payload.flags & _cancelFlag > 0) {
-      _chunks.add(payload.frame);
-      _connection.writeMany(
-        _chunks,
-        true,
-        onCancel: () {
-          close();
-          _terminator();
-        },
-      );
+    if (payload.last) {
+      _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
+      _connection.writeMany(_chunks, true, onCancel: _terminate);
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
       close();
       return;
     }
-    if (payload.flags & _errorFlag > 0) {
-      _chunks.add(payload.frame);
-      _connection.writeMany(
-        _chunks,
-        true,
-        onCancel: () {
-          close();
-          _terminator();
-        },
-      );
-      _pending -= _chunks.length;
-      if (_requested != infinityRequestsCount) _requested -= _chunks.length;
-      close();
-      return;
-    }
-    if (payload.flags & _completeFlag > 0) {
-      _chunks.add(payload.frame);
-      _connection.writeMany(
-        _chunks,
-        true,
-        onCancel: () {
-          close();
-          _terminator();
-        },
-      );
-      _pending -= _chunks.length;
-      if (_requested != infinityRequestsCount) _requested -= _chunks.length;
-      close();
-      return;
-    }
-    _chunks.add(payload.frame);
+    _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
     if (_chunks.length >= _chunksLimit || _pending - _chunks.length == 0) {
-      _connection.writeMany(
-        _chunks,
-        false,
-        onCancel: () {
-          close();
-          _terminator();
-        },
-      );
+      _connection.writeMany(_chunks, false, onCancel: _terminate);
       _chunks = [];
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
@@ -202,8 +151,14 @@ class ReactiveRequester {
     fragments = fragments.sublist(fragmentGroup, fragmentGroup + _fragmentGroupLimit);
     fragmentGroup = fragments.length;
     fragmentId += fragments.length;
+    final frames = <Uint8List>[];
+    for (var index = 0; index < fragments.length; index++) {
+      var fragment = fragments[index];
+      final follow = fragmentId < fragmentsCount || index == fragments.length - 1;
+      frames.add(_writer.writePayloadFrame(_streamId, false, follow, ReactivePayload.ofData(fragment)));
+    }
     _connection.writeMany(
-      fragments,
+      frames,
       true,
       onDone: () {
         if (fragmentId < fragmentsCount) {
@@ -219,10 +174,12 @@ class ReactiveRequester {
         _paused = false;
         if (_requested == infinityRequestsCount || --_requested > 0) _subscription.resume();
       },
-      onCancel: () {
-        close();
-        _terminator();
-      },
+      onCancel: _terminate,
     );
+  }
+
+  void _terminate() {
+    close();
+    _terminator();
   }
 }
