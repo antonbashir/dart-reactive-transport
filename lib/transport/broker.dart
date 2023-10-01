@@ -136,6 +136,7 @@ class ReactiveBroker {
       _requesters[remoteStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
       _producers[remoteStreamId] = producer;
+      _activators[remoteStreamId] = ReactiveActivator(channel, producer);
       _activators[remoteStreamId]?.activate();
       channel.bind(remoteStreamId);
       requester.request(initialRequestCount);

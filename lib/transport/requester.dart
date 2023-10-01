@@ -87,7 +87,7 @@ class ReactiveRequester {
   }
 
   void drain(int count) {
-    if (!_sending && _paused) return;
+    if (!_sending || _paused) return;
     if (_requested == infinityRequestsCount) return;
     if (count == infinityRequestsCount) {
       _requested = infinityRequestsCount;

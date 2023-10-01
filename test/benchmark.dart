@@ -16,12 +16,15 @@ Future<void> main() async {
   final clientPayload = "client-payload";
   final serverPayload = "server-payload";
 
+  var counter = 0;
+
   void serve(dynamic payload, ReactiveProducer producer) {
-    producer.payload(serverPayload, complete: true);
+    producer.payload(serverPayload, complete: false);
   }
 
   void communicate(dynamic payload, ReactiveProducer producer) {
-    producer.payload(clientPayload, complete: true);
+    producer.payload(clientPayload, complete: false);
+    counter++;
   }
 
   reactive.serve(
@@ -30,7 +33,9 @@ Future<void> main() async {
     (connection) => connection.subscriber.subscribe(
       "channel",
       serve,
-      onSubscribe: (producer) => producer.request(infinityRequestsCount),
+      onSubscribe: (producer) {
+        producer.request(infinityRequestsCount);
+      },
     ),
   );
 
@@ -47,7 +52,9 @@ Future<void> main() async {
     ),
   );
 
-  await Future.delayed(Duration(seconds: 1));
+  await Future.delayed(Duration(seconds: 10));
+
+  print(counter);
 
   await reactive.shutdown();
 }
