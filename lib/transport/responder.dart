@@ -20,6 +20,7 @@ class ReactiveResponder {
   );
 
   void handle(TransportPayload payload) {
+    if (!_broker.active) return;
     final buffer = ReactiveReadBuffer(payload.takeBytes());
     while (buffer.isReadable()) {
       final header = _reader.readFrameHeader(buffer);

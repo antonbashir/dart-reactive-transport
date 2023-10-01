@@ -24,7 +24,7 @@ class ReactiveRequester {
   final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
   final ReactiveChannelConfiguration _channelConfiguration;
   final void Function() _terminator;
-  final void Function() _closer;
+  final void Function() _completer;
 
   late final StreamSubscription _subscription;
 
@@ -41,7 +41,7 @@ class ReactiveRequester {
     this._writer,
     this._channelConfiguration,
     this._terminator,
-    this._closer,
+    this._completer,
   ) {
     _subscription = _input.stream.listen(_output.add);
     _subscription.pause();
@@ -134,7 +134,7 @@ class ReactiveRequester {
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
       unawaited(close());
-      _closer();
+      _completer();
       return;
     }
     _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));

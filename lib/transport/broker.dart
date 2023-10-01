@@ -39,6 +39,8 @@ class ReactiveBroker {
 
   var _active = true;
 
+  bool get active => _active;
+
   ReactiveBroker(
     this._configuration,
     this._connection,
@@ -96,7 +98,7 @@ class ReactiveBroker {
         streamId,
         _writer,
         channel.configuration,
-        () => _terminate(streamId),
+        () => unawaited(_connection.close()),
         () => cancel(streamId),
       );
       _requesters[streamId] = requester;
@@ -124,7 +126,7 @@ class ReactiveBroker {
         remoteStreamId,
         _writer,
         channel.configuration,
-        () => _terminate(remoteStreamId),
+        () => unawaited(_connection.close()),
         () => cancel(remoteStreamId),
       );
       _requesters[remoteStreamId] = requester;
@@ -206,11 +208,5 @@ class ReactiveBroker {
     _leaseScheduler.stop();
     _keepAliveTimer.stop();
     _streamIdMapping.keys.forEach(cancel);
-  }
-
-  void _terminate(int streamId) {
-    cancel(streamId);
-    close();
-    unawaited(_connection.close());
   }
 }
