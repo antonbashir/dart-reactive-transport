@@ -23,7 +23,6 @@ class ReactiveRequester {
   final StreamController<_ReactivePendingPayload> _input = StreamController();
   final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
   final ReactiveChannelConfiguration _channelConfiguration;
-  final void Function() _terminator;
   final void Function() _completer;
 
   late final StreamSubscription _subscription;
@@ -40,7 +39,6 @@ class ReactiveRequester {
     this._streamId,
     this._writer,
     this._channelConfiguration,
-    this._terminator,
     this._completer,
   ) {
     _subscription = _input.stream.listen(_output.add);
@@ -117,7 +115,6 @@ class ReactiveRequester {
       _connection.writeMany(
         _chunks,
         false,
-        onCancel: _terminate,
         onDone: () {
           final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
           _fragmentate(fragments, 0, 0, fragments.length);
@@ -130,7 +127,7 @@ class ReactiveRequester {
     }
     if (payload.last) {
       _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
-      _connection.writeMany(_chunks, true, onCancel: _terminate);
+      _connection.writeMany(_chunks, true);
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
       unawaited(close());
@@ -139,7 +136,7 @@ class ReactiveRequester {
     }
     _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
     if (_chunks.length >= _channelConfiguration.chunksLimit || _pending - _chunks.length == 0) {
-      _connection.writeMany(_chunks, false, onCancel: _terminate);
+      _connection.writeMany(_chunks, false);
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
       _chunks = [];
@@ -173,12 +170,6 @@ class ReactiveRequester {
         _paused = false;
         if (_requested == infinityRequestsCount || --_requested > 0) _subscription.resume();
       },
-      onCancel: _terminate,
     );
-  }
-
-  void _terminate() {
-    unawaited(close());
-    _terminator();
   }
 }

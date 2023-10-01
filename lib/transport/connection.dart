@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:iouring_transport/iouring_transport.dart';
@@ -14,11 +15,11 @@ import 'responder.dart';
 import 'subscriber.dart';
 
 abstract interface class ReactiveConnection {
-  void writeSingle(Uint8List bytes, {void Function()? onCancel, void Function()? onDone});
+  void writeSingle(Uint8List bytes, {void Function()? onDone});
 
-  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onCancel, void Function()? onDone});
+  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onDone});
 
-  Future<void> close({Duration? gracefulDuration});
+  Future<void> close();
 }
 
 class ReactiveClientConnection implements ReactiveConnection {
@@ -77,29 +78,29 @@ class ReactiveClientConnection implements ReactiveConnection {
   }
 
   @override
-  void writeSingle(Uint8List bytes, {void Function()? onCancel, void Function()? onDone}) => _connection.writeSingle(
+  void writeSingle(Uint8List bytes, {void Function()? onDone}) => _connection.writeSingle(
         bytes,
         onError: (error) {
           _onError?.call(ReactiveException.fromTransport(error));
-          onCancel?.call();
+          unawaited(close());
         },
         onDone: onDone,
       );
 
   @override
-  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onCancel, void Function()? onDone}) => _connection.writeMany(
+  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onDone}) => _connection.writeMany(
         bytes,
         onError: (error) {
           _onError?.call(ReactiveException.fromTransport(error));
-          onCancel?.call();
+          unawaited(close());
         },
         onDone: onDone,
         linked: linked,
       );
 
   @override
-  Future<void> close({Duration? gracefulDuration}) async {
-    await _connection.close(gracefulDuration: gracefulDuration);
+  Future<void> close() async {
+    await _connection.close();
     _broker.close();
   }
 }
@@ -143,29 +144,29 @@ class ReactiveServerConnection implements ReactiveConnection {
   }
 
   @override
-  void writeSingle(Uint8List bytes, {void Function()? onCancel, void Function()? onDone}) => _connection.writeSingle(
+  void writeSingle(Uint8List bytes, {void Function()? onDone}) => _connection.writeSingle(
         bytes,
         onError: (error) {
           _onError?.call(ReactiveException.fromTransport(error));
-          onCancel?.call();
+          unawaited(close());
         },
         onDone: onDone,
       );
 
   @override
-  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onCancel, void Function()? onDone}) => _connection.writeMany(
+  void writeMany(List<Uint8List> bytes, bool linked, {void Function()? onDone}) => _connection.writeMany(
         bytes,
         onError: (error) {
           _onError?.call(ReactiveException.fromTransport(error));
-          onCancel?.call();
+          unawaited(close());
         },
         onDone: onDone,
         linked: linked,
       );
 
   @override
-  Future<void> close({Duration? gracefulDuration}) async {
-    await _connection.close(gracefulDuration: gracefulDuration);
+  Future<void> close() async {
+    await _connection.close();
     _broker.close();
   }
 }

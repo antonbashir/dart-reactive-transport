@@ -98,7 +98,6 @@ class ReactiveBroker {
         streamId,
         _writer,
         channel.configuration,
-        () => unawaited(_connection.close()),
         () => cancel(streamId),
       );
       _requesters[streamId] = requester;
@@ -126,7 +125,6 @@ class ReactiveBroker {
         remoteStreamId,
         _writer,
         channel.configuration,
-        () => unawaited(_connection.close()),
         () => cancel(remoteStreamId),
       );
       _requesters[remoteStreamId] = requester;
@@ -196,7 +194,7 @@ class ReactiveBroker {
   }
 
   void cancel(int streamId) {
-    _requesters.remove(streamId)?.close();
+    unawaited(_requesters.remove(streamId)?.close());
     _producers.remove(streamId);
     _activators.remove(streamId);
     _channels.remove(_streamIdMapping.remove(streamId));

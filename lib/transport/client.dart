@@ -42,7 +42,5 @@ class ReactiveClient {
     });
   }
 
-  Future<void> shutdown({Duration? gracefulDuration}) async {
-    await Future.wait(_connections.map((connection) => connection.close(gracefulDuration: gracefulDuration)));
-  }
+  Future<void> shutdown({Duration? gracefulDuration}) => Future.wait(_connections.map((connection) => connection.close()));
 }
