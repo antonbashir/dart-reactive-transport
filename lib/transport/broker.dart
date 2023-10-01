@@ -205,7 +205,7 @@ class ReactiveBroker {
     _active = false;
     _leaseScheduler.stop();
     _keepAliveTimer.stop();
-    _requesters.values.forEach((requester) => requester.close());
+    _streamIdMapping.keys.forEach(cancel);
   }
 
   void _terminate(int streamId) {
