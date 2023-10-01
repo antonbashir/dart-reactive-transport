@@ -28,7 +28,7 @@ class ReactiveRequester {
   final int _fragmentationMtu;
   final int _fragmentSize;
   final int _fragmentGroupLimit;
-  final void Function() _closer;
+  final void Function() _terminator;
 
   late final StreamSubscription _subscription;
 
@@ -47,7 +47,7 @@ class ReactiveRequester {
     this._fragmentationMtu,
     this._fragmentSize,
     this._fragmentGroupLimit,
-    this._closer,
+    this._terminator,
   ) {
     _subscription = _input.stream.listen(_output.add);
     _subscription.pause();
@@ -108,8 +108,7 @@ class ReactiveRequester {
   }
 
   void _send(_ReactivePendingPayload payload) {
-    if (!_sending || _paused) return;
-    if (_requested == 0) {
+    if (!_sending || _paused || _requested == 0) {
       _subscription.pause();
       return;
     }
@@ -128,6 +127,10 @@ class ReactiveRequester {
           final fragments = payload.frame.chunks(_fragmentSize);
           _fragmentate(fragments, 0, 0, fragments.length);
         },
+        onCancel: () {
+          close();
+          _terminator();
+        },
       );
       _chunks = [];
       _pending -= _chunks.length;
@@ -136,7 +139,14 @@ class ReactiveRequester {
     }
     if (payload.flags & _cancelFlag > 0) {
       _chunks.add(payload.frame);
-      _connection.writeMany(_chunks, true);
+      _connection.writeMany(
+        _chunks,
+        true,
+        onCancel: () {
+          close();
+          _terminator();
+        },
+      );
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
       close();
@@ -144,7 +154,14 @@ class ReactiveRequester {
     }
     if (payload.flags & _errorFlag > 0) {
       _chunks.add(payload.frame);
-      _connection.writeMany(_chunks, true);
+      _connection.writeMany(
+        _chunks,
+        true,
+        onCancel: () {
+          close();
+          _terminator();
+        },
+      );
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
       close();
@@ -152,7 +169,14 @@ class ReactiveRequester {
     }
     if (payload.flags & _completeFlag > 0) {
       _chunks.add(payload.frame);
-      _connection.writeMany(_chunks, true);
+      _connection.writeMany(
+        _chunks,
+        true,
+        onCancel: () {
+          close();
+          _terminator();
+        },
+      );
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
       close();
@@ -160,7 +184,14 @@ class ReactiveRequester {
     }
     _chunks.add(payload.frame);
     if (_chunks.length >= _chunksLimit || _pending - _chunks.length == 0) {
-      _connection.writeMany(_chunks, false);
+      _connection.writeMany(
+        _chunks,
+        false,
+        onCancel: () {
+          close();
+          _terminator();
+        },
+      );
       _chunks = [];
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
@@ -190,7 +221,7 @@ class ReactiveRequester {
       },
       onCancel: () {
         close();
-        _closer();
+        _terminator();
       },
     );
   }

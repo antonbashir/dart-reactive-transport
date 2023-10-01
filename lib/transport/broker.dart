@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -35,6 +36,8 @@ class ReactiveBroker {
 
   late final ReactiveCodec _dataCodec;
   late final ReactiveCodec _metadataCodec;
+
+  var _active = true;
 
   ReactiveBroker(
     this._configuration,
@@ -96,7 +99,7 @@ class ReactiveBroker {
         channel.configuration.fragmentationMtu,
         channel.configuration.fragmentSize,
         channel.configuration.fragmentGroupLimit,
-        () => cancel(streamId),
+        () => _terminate(streamId),
       );
       _requesters[streamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
@@ -126,7 +129,7 @@ class ReactiveBroker {
         channel.configuration.fragmentationMtu,
         channel.configuration.fragmentSize,
         channel.configuration.fragmentGroupLimit,
-        () => cancel(remoteStreamId),
+        () => _terminate(remoteStreamId),
       );
       _requesters[remoteStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
@@ -199,7 +202,15 @@ class ReactiveBroker {
   }
 
   void close() {
+    if (!_active) return;
+    _active = false;
     _leaseScheduler.stop();
     _keepAliveTimer.stop();
+  }
+
+  void _terminate(int streamId) {
+    cancel(streamId);
+    close();
+    unawaited(_connection.close());
   }
 }
