@@ -26,6 +26,7 @@ class ReactiveRequester {
   final int _fragmentSize;
   final int _fragmentGroupLimit;
   final void Function() _terminator;
+  final void Function() _closer;
 
   late final StreamSubscription _subscription;
 
@@ -45,6 +46,7 @@ class ReactiveRequester {
     this._fragmentSize,
     this._fragmentGroupLimit,
     this._terminator,
+    this._closer,
   ) {
     _subscription = _input.stream.listen(_output.add);
     _subscription.pause();
@@ -96,11 +98,13 @@ class ReactiveRequester {
     _subscription.resume();
   }
 
-  void close() {
+  Future<void> close() async {
     if (!active) return;
     _accepting = false;
     _sending = false;
-    unawaited(_subscription.cancel());
+    await _subscription.cancel();
+    await _input.close();
+    await _output.close();
   }
 
   void _send(_ReactivePendingPayload payload) {
@@ -135,7 +139,8 @@ class ReactiveRequester {
       _connection.writeMany(_chunks, true, onCancel: _terminate);
       _pending -= _chunks.length;
       if (_requested != infinityRequestsCount) _requested -= _chunks.length;
-      close();
+      unawaited(close());
+      _closer();
       return;
     }
     _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
@@ -179,7 +184,7 @@ class ReactiveRequester {
   }
 
   void _terminate() {
-    close();
+    unawaited(close());
     _terminator();
   }
 }

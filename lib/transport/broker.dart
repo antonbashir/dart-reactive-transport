@@ -100,6 +100,7 @@ class ReactiveBroker {
         channel.configuration.fragmentSize,
         channel.configuration.fragmentGroupLimit,
         () => _terminate(streamId),
+        () => cancel(streamId),
       );
       _requesters[streamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
@@ -130,6 +131,7 @@ class ReactiveBroker {
         channel.configuration.fragmentSize,
         channel.configuration.fragmentGroupLimit,
         () => _terminate(remoteStreamId),
+        () => cancel(remoteStreamId),
       );
       _requesters[remoteStreamId] = requester;
       final producer = ReactiveProducer(requester, _dataCodec);
@@ -209,6 +211,7 @@ class ReactiveBroker {
     _active = false;
     _leaseScheduler.stop();
     _keepAliveTimer.stop();
+    _requesters.values.forEach((requester) => requester.close());
   }
 
   void _terminate(int streamId) {
