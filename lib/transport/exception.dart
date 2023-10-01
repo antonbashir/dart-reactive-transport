@@ -1,5 +1,5 @@
 import 'package:iouring_transport/transport/exception.dart';
-import 'package:reactive_transport/transport/constants.dart';
+import 'constants.dart';
 
 class ReactiveException implements Exception {
   final int code;
