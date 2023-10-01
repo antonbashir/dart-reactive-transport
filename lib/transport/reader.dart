@@ -20,6 +20,7 @@ class ReactiveReader {
     return FrameHeader(frameLength, streamId, type, flags, meta);
   }
 
+  @pragma(preferInlinePragma)
   SetupFrame readSetupFrame(ReactiveReadBuffer buffer, FrameHeader header) {
     var delta = buffer.readerIndex - reactiveFrameHeaderSize;
     final leaseEnable = (header.flags & reactiveFrameSetupFlagLease) > 0;
