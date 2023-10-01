@@ -193,10 +193,11 @@ class ReactiveBroker {
     _onError?.call(ReactiveException(errorCode, utf8.decode(payload)));
   }
 
-  void cancel(int remoteStreamId) {
-    _requesters.remove(remoteStreamId)?.close();
-    _producers.remove(remoteStreamId);
-    _channels.remove(_streamIdMapping.remove(remoteStreamId));
+  void cancel(int streamId) {
+    _requesters.remove(streamId)?.close();
+    _producers.remove(streamId);
+    _activators.remove(streamId);
+    _channels.remove(_streamIdMapping.remove(streamId));
   }
 
   void close() {
