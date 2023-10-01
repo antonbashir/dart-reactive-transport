@@ -69,13 +69,13 @@ class ReactiveBrokerConfiguration {
 }
 
 class ReactiveLeaseConfiguration {
-  final int timeToLive;
+  final Duration timeToLive;
   final int requests;
 
   ReactiveLeaseConfiguration({required this.timeToLive, required this.requests});
 
   ReactiveLeaseConfiguration copyWith({
-    int? timeToLive,
+    Duration? timeToLive,
     int? requests,
   }) =>
       ReactiveLeaseConfiguration(

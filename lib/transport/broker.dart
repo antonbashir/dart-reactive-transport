@@ -58,9 +58,9 @@ class ReactiveBroker {
     _dataCodec = dataCodec;
     _metadataCodec = metadataCodec;
     if (lease) {
-      _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLive, _configuration.lease!.requests));
-      _leaseScheduler.schedule(_configuration.lease!.timeToLive, () {
-        _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLive, _configuration.lease!.requests));
+      _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLive.inMilliseconds, _configuration.lease!.requests));
+      _leaseScheduler.schedule(_configuration.lease!.timeToLive.inMilliseconds, () {
+        _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLive.inMilliseconds, _configuration.lease!.requests));
       });
     }
     _keepAliveTimer.start(keepAliveInterval, keepAliveMaxLifetime);

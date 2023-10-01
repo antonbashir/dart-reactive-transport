@@ -25,7 +25,7 @@ class ReactiveTransportDefaults {
           octetStreamMimeType: RawReactiveCodec(),
           textMimeType: Utf8ReactiveCodec(),
         },
-        lease: null,
+        lease: ReactiveLeaseConfiguration(timeToLive: Duration(seconds: 1), requests: 1000),
       );
 
   static ReactiveSetupConfiguration setup() => ReactiveSetupConfiguration(
@@ -36,6 +36,6 @@ class ReactiveTransportDefaults {
         flags: 0,
         initialData: Uint8List.fromList([]),
         initialMetaData: Uint8List.fromList([]),
-        lease: false,
+        lease: true,
       );
 }
