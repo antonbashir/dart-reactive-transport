@@ -82,7 +82,7 @@ class ReactiveRequester {
     if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
 
-  void drain(int count) {
+  void resume(int count) {
     if (!_sending || _paused) return;
     if (_requested == infinityRequestsCount) return;
     if (count == infinityRequestsCount) {

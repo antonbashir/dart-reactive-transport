@@ -173,7 +173,7 @@ class ReactiveBroker {
     final channel = _channels[_streamIdMapping[remoteStreamId]];
     if (channel != null && producer != null && requester != null) {
       channel.onRequest(count, producer);
-      requester.drain(count);
+      requester.resume(count);
       if (_leaseLimiter.enabled) _leaseLimiter.notify(count);
     }
   }
