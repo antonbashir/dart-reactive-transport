@@ -122,7 +122,7 @@ class ReactiveBroker {
       );
       final stream = ReactiveStream(remoteStreamId, requester, ReactiveProducer(requester, _dataCodec), channel);
       _streams[remoteStreamId] = stream;
-      stream.activate();
+      stream.subscribe();
       channel.activate();
       channel.bind(remoteStreamId);
       requester.request(initialRequestCount);
@@ -150,7 +150,7 @@ class ReactiveBroker {
     }
     final stream = _streams[remoteStreamId];
     if (stream != null) {
-      stream.activate();
+      stream.subscribe();
       stream.channel.onRequest(count, stream.producer);
       stream.requester.resume(count);
       if (_leaseLimiter.enabled) _leaseLimiter.notify(count);

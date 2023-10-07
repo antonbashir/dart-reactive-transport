@@ -9,14 +9,14 @@ class ReactiveStream {
   final ReactiveRequester requester;
   final ReactiveChannel channel;
 
-  var _active = false;
+  var _subscribed = false;
 
   ReactiveStream(this.streamId, this.requester, this.producer, this.channel);
 
   @pragma(preferInlinePragma)
-  void activate() {
-    if (_active) return;
-    _active = true;
+  void subscribe() {
+    if (_subscribed) return;
+    _subscribed = true;
     channel.onSubscribe(producer);
   }
 }
