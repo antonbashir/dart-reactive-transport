@@ -152,7 +152,7 @@ class ReactiveRequester {
     final frames = <Uint8List>[];
     fragmentNumber += chunks;
     for (var fragment in fragments.take(chunks)) {
-      final follow = fragmentNumber < fragmentsCount || frames.length == chunks - 1;
+      final follow = fragmentNumber < fragmentsCount || frames.length != chunks - 1;
       frames.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
     }
     _connection.writeMany(
