@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:iouring_transport/transport/defaults.dart';
+import 'package:iouring_transport/iouring_transport.dart';
 
 import 'codec.dart';
 import 'configuration.dart';
