@@ -226,7 +226,7 @@ class ReactiveRequesterBuffer {
     }
     final lastChunk = _chunks[_last];
     if (frame.length + lastChunk.length <= _chunkSize) {
-      _chunks[_last] = Uint8List.fromList([..._chunks[_last], ...frame]);
+      _chunks[_last] = Uint8List.fromList([...lastChunk, ...frame]);
       return _chunks;
     }
     _chunks.add(frame);
