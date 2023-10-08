@@ -155,7 +155,7 @@ class PayloadFrame {
   PayloadFrame(this.header, this.completed, this.follow, {this.payload});
 
   @override
-  String toString() => 'PayloadFrame(header: $header, completed: $completed, payload: $payload)';
+  String toString() => 'PayloadFrame(header: $header, completed: $completed, follow: $follow, payload: $payload)';
 }
 
 class ResumeFrame {

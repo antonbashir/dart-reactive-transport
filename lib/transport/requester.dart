@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'configuration.dart';
@@ -112,7 +113,7 @@ class ReactiveRequester {
       _subscription.pause();
       if (_chunks.isEmpty) {
         final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-        _fragmentate(fragments, 0, 0, payload.last);
+        _fragmentate(fragments, 0, fragments.length, payload.last);
         return;
       }
       _connection.writeMany(
@@ -120,7 +121,7 @@ class ReactiveRequester {
         false,
         onDone: () {
           final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-          _fragmentate(fragments, 0, 0, payload.last);
+          _fragmentate(fragments, 0, fragments.length, payload.last);
         },
       );
       _pending -= _chunks.length;
@@ -146,23 +147,22 @@ class ReactiveRequester {
     }
   }
 
-  void _fragmentate(List<Uint8List> fragments, int fragmentId, int fragmentsCount, bool last) {
-    fragments = fragments.sublist(_channelConfiguration.chunksLimit);
-    fragmentId += fragments.length;
+  void _fragmentate(List<Uint8List> fragments, int fragmentNumber, int fragmentsCount, bool last) {
+    final chunks = min(_channelConfiguration.chunksLimit, fragments.length);
     final frames = <Uint8List>[];
-    for (var index = 0; index < fragments.length; index++) {
-      var fragment = fragments[index];
-      final follow = fragmentId < fragmentsCount || index == fragments.length - 1;
+    fragmentNumber += chunks;
+    for (var fragment in fragments.take(chunks)) {
+      final follow = fragmentNumber < fragmentsCount || frames.length == chunks - 1;
       frames.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
     }
     _connection.writeMany(
       frames,
       true,
       onDone: () {
-        if (fragmentId < fragmentsCount) {
+        if (fragmentNumber < fragmentsCount) {
           _fragmentate(
-            fragments,
-            fragmentId,
+            fragments.sublist(chunks),
+            fragmentNumber,
             fragmentsCount,
             last,
           );

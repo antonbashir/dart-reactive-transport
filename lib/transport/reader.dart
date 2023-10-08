@@ -110,12 +110,13 @@ class ReactiveReader {
 
   @pragma(preferInlinePragma)
   PayloadFrame readPayloadFrame(ReactiveReadBuffer buffer, FrameHeader header) {
-    if (header.frameLength > 0) {
+    final payloadSize = header.frameLength + reactiveFrameLengthFieldSize - reactiveFrameHeaderSize;
+    if (payloadSize > 0) {
       return PayloadFrame(
         header,
         (header.flags & reactiveFrameHeaderFlagComplete) > 0,
         (header.flags & reactiveFrameHeaderFlagFollow) > 0,
-        payload: _readPayload(buffer, header.metaPresent, header.frameLength + reactiveFrameLengthFieldSize - reactiveFrameHeaderSize),
+        payload: _readPayload(buffer, header.metaPresent, payloadSize),
       );
     }
     return PayloadFrame(header, (header.flags & reactiveFrameHeaderFlagComplete) > 0, (header.flags & reactiveFrameHeaderFlagFollow) > 0);
