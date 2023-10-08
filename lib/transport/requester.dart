@@ -112,7 +112,7 @@ class ReactiveRequester {
       _subscription.pause();
       if (_chunks.isEmpty) {
         final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-        _fragmentate(fragments, 0, 0, fragments.length, payload.last);
+        _fragmentate(fragments, 0, 0, payload.last);
         return;
       }
       _connection.writeMany(
@@ -120,7 +120,7 @@ class ReactiveRequester {
         false,
         onDone: () {
           final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-          _fragmentate(fragments, 0, 0, fragments.length, payload.last);
+          _fragmentate(fragments, 0, 0, payload.last);
         },
       );
       _pending -= _chunks.length;
@@ -146,9 +146,8 @@ class ReactiveRequester {
     }
   }
 
-  void _fragmentate(List<Uint8List> fragments, int fragmentGroup, int fragmentId, int fragmentsCount, bool last) {
-    fragments = fragments.sublist(fragmentGroup, fragmentGroup + _channelConfiguration.fragmentGroupLimit);
-    fragmentGroup = fragments.length;
+  void _fragmentate(List<Uint8List> fragments, int fragmentId, int fragmentsCount, bool last) {
+    fragments = fragments.sublist(_channelConfiguration.chunksLimit);
     fragmentId += fragments.length;
     final frames = <Uint8List>[];
     for (var index = 0; index < fragments.length; index++) {
@@ -163,7 +162,6 @@ class ReactiveRequester {
         if (fragmentId < fragmentsCount) {
           _fragmentate(
             fragments,
-            fragmentGroup,
             fragmentId,
             fragmentsCount,
             last,
