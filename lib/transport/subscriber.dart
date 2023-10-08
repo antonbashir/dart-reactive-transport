@@ -18,6 +18,7 @@ class ReactiveSubscriber {
     void Function(dynamic error, ReactiveProducer producer)? onError,
     void Function(int count, ReactiveProducer producer)? onRequest,
     void Function(ReactiveProducer producer)? onComplete,
+    void Function(ReactiveProducer producer)? onCancel,
     ReactiveChannelConfiguration? configuration,
   }) =>
       _broker.consume(
@@ -29,6 +30,7 @@ class ReactiveSubscriber {
           errorConsumer: onError,
           requestConsumer: onRequest,
           completeConsumer: onComplete,
+          cancelConsumer: onCancel,
         ),
       );
 }

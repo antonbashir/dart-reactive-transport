@@ -19,6 +19,8 @@ class _ClientChannel with ReactiveChannel {
   final int serverRequests;
   final dynamic clientPayload;
   final dynamic serverPayload;
+  final String? clientError;
+  final String? serverError;
 
   _ClientChannel({
     required this.key,
@@ -28,6 +30,8 @@ class _ClientChannel with ReactiveChannel {
     required this.clientPayload,
     required this.clientRequests,
     required this.serverRequests,
+    this.clientError,
+    this.serverError,
   });
 
   @override
@@ -36,10 +40,14 @@ class _ClientChannel with ReactiveChannel {
   }
 
   @override
-  FutureOr<void> onPayload(payload, ReactiveProducer producer) {
+  FutureOr<void> onPayload(payload, ReactiveProducer producer) async {
     expect(payload, this.serverPayload);
     latch.notify("payload");
-    producer.complete();
+    if (clientError != null) {
+      producer.error(clientError!);
+      return;
+    }
+    if (serverError == null) producer.complete();
   }
 
   @override
@@ -56,7 +64,12 @@ class _ClientChannel with ReactiveChannel {
   }
 
   @override
-  FutureOr<void> onError(String error, ReactiveProducer producer) => throw UnimplementedError();
+  FutureOr<void> onError(String error, ReactiveProducer producer) {
+    if (serverError != null) {
+      expect(error, serverError);
+      latch.notify("error");
+    }
+  }
 }
 
 class _ServerChannel with ReactiveChannel {
@@ -66,6 +79,8 @@ class _ServerChannel with ReactiveChannel {
   final int clientRequests;
   final dynamic clientPayload;
   final dynamic serverPayload;
+  final String? clientError;
+  final String? serverError;
 
   _ServerChannel({
     required this.key,
@@ -74,6 +89,8 @@ class _ServerChannel with ReactiveChannel {
     required this.clientPayload,
     required this.serverPayload,
     required this.clientRequests,
+    this.clientError,
+    this.serverError,
   });
 
   @override
@@ -82,10 +99,14 @@ class _ServerChannel with ReactiveChannel {
   }
 
   @override
-  FutureOr<void> onPayload(payload, ReactiveProducer producer) {
+  FutureOr<void> onPayload(payload, ReactiveProducer producer) async {
     expect(payload, this.clientPayload);
     latch.notify("payload");
-    producer.complete();
+    if (serverError != null) {
+      producer.error(serverError!);
+      return;
+    }
+    if (clientError == null) producer.complete();
   }
 
   @override
@@ -101,7 +122,12 @@ class _ServerChannel with ReactiveChannel {
   }
 
   @override
-  FutureOr<void> onError(String error, ReactiveProducer producer) {}
+  FutureOr<void> onError(String error, ReactiveProducer producer) {
+    if (clientError != null) {
+      expect(error, clientError);
+      latch.notify("error");
+    }
+  }
 }
 
 void custom() {
@@ -154,15 +180,16 @@ void custom() {
     await reactive.shutdown();
   });
 
-  test('custom channel', timeout: Timeout.none, () async {
+  test('custom channel (server error)', timeout: Timeout.none, () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
 
-    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
+    final clientLatch = EventLatch({"complete", "error", "request", "subscribe"}, true);
     final clientPayload = "client-payload";
 
+    final serverError = "server-error";
     final serverPayload = "server-payload";
     final serverLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
 
@@ -177,6 +204,7 @@ void custom() {
           clientPayload: clientPayload,
           serverPayload: serverPayload,
           clientRequests: 1,
+          serverError: serverError,
         ),
       ),
     );
@@ -191,6 +219,59 @@ void custom() {
           latch: clientLatch,
           clientPayload: clientPayload,
           serverPayload: serverPayload,
+          serverError: serverError,
+          clientRequests: 1,
+          serverRequests: 1,
+        ),
+      ),
+    );
+
+    await clientLatch.done();
+    await serverLatch.done();
+
+    await reactive.shutdown();
+  });
+
+  test('custom channel (client error)', timeout: Timeout.none, () async {
+    final transport = Transport();
+    final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
+    await worker.initialize();
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+
+    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
+    final clientError = "client-error";
+    final clientPayload = "client-payload";
+
+    final serverPayload = "server-payload";
+    final serverLatch = EventLatch({"complete", "error", "request", "subscribe"}, true);
+
+    reactive.serve(
+      InternetAddress.anyIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribeCustom(
+        _ServerChannel(
+          key: "channel",
+          configuration: ReactiveTransportDefaults.channel(),
+          latch: serverLatch,
+          clientPayload: clientPayload,
+          serverPayload: serverPayload,
+          clientRequests: 1,
+          clientError: clientError,
+        ),
+      ),
+    );
+
+    reactive.connect(
+      InternetAddress.loopbackIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribeCustom(
+        _ClientChannel(
+          key: "channel",
+          configuration: ReactiveTransportDefaults.channel(),
+          latch: clientLatch,
+          clientPayload: clientPayload,
+          serverPayload: serverPayload,
+          clientError: clientError,
           clientRequests: 1,
           serverRequests: 1,
         ),
