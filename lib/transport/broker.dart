@@ -134,7 +134,7 @@ class ReactiveBroker {
   }
 
   void receive(int remoteStreamId, ReactivePayload? payload, bool completed, bool follow) {
-    final data = payload?.data ?? Uint8List.fromList([]);
+    final data = payload?.data ?? emptyBytes;
     final stream = _streams[remoteStreamId];
     if (stream != null) {
       if (completed) {

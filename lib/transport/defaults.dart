@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:iouring_transport/iouring_transport.dart';
 
 import 'codec.dart';
@@ -36,8 +35,8 @@ class ReactiveTransportDefaults {
         keepAliveInterval: 20 * 1000,
         keepAliveMaxLifetime: 90 * 1000,
         flags: 0,
-        initialData: Uint8List.fromList([]),
-        initialMetaData: Uint8List.fromList([]),
+        initialData: emptyBytes,
+        initialMetaData: emptyBytes,
         lease: false,
       );
 }
