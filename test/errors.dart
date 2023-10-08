@@ -70,12 +70,12 @@ void errors() {
       expect(payload, clientPayload);
       producer.payload(serverPayload);
       producer.request(1);
-      latch.countDown();
+      latch.notify();
     }
 
     void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
-      latch.countDown();
+      latch.notify();
       throw errorPayload;
     }
 
@@ -84,7 +84,7 @@ void errors() {
       12345,
       (connection) => connection.subscriber.subscribe("channel", serve, onError: (error, producer) {
         expect(error, errorPayload.toString());
-        latch.countDown();
+        latch.notify();
       }),
     );
 

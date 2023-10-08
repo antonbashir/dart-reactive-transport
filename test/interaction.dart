@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:iouring_transport/iouring_transport.dart';
+import 'package:reactive_transport/transport/channel.dart';
+import 'package:reactive_transport/transport/configuration.dart';
 import 'package:reactive_transport/transport/defaults.dart';
 import 'package:reactive_transport/transport/producer.dart';
 import 'package:reactive_transport/transport/transport.dart';
@@ -22,12 +25,12 @@ void interaction() {
     void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);
       producer.payload(serverPayload, complete: true);
-      latch.countDown();
+      latch.notify();
     }
 
     void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
-      latch.countDown();
+      latch.notify();
     }
 
     reactive.serve(InternetAddress.anyIPv4, 12345, (connection) => connection.subscriber.subscribe("channel", serve));
@@ -63,12 +66,12 @@ void interaction() {
       expect(payload, clientPayload);
       producer.payload(serverPayload);
       producer.payload(serverPayload, complete: true);
-      latch.countDown();
+      latch.notify();
     }
 
     void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
-      latch.countDown();
+      latch.notify();
     }
 
     reactive.serve(
@@ -109,12 +112,12 @@ void interaction() {
       producer.request(1);
       producer.payload(serverPayload);
       producer.payload(serverPayload);
-      latch.countDown();
+      latch.notify();
     }
 
     void communicate(dynamic payload, ReactiveProducer producer) {
       expect(payload, serverPayload);
-      latch.countDown();
+      latch.notify();
     }
 
     reactive.serve(

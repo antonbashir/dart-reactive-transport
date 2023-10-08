@@ -94,7 +94,7 @@ class ReactiveBroker {
         streamId,
         _writer,
         channel.configuration,
-        () => cancel(streamId),
+        () => complete(streamId),
       );
       _streams[streamId] = ReactiveStream(streamId, requester, ReactiveProducer(requester, _dataCodec), channel);
       channel.bind(streamId);
@@ -118,7 +118,7 @@ class ReactiveBroker {
         remoteStreamId,
         _writer,
         channel.configuration,
-        () => cancel(remoteStreamId),
+        () => complete(remoteStreamId),
       );
       final stream = ReactiveStream(remoteStreamId, requester, ReactiveProducer(requester, _dataCodec), channel);
       _streams[remoteStreamId] = stream;
@@ -134,9 +134,8 @@ class ReactiveBroker {
     final stream = _streams[remoteStreamId];
     if (stream != null) {
       if (completed) {
-        cancel(remoteStreamId);
         stream.channel.onPayloadFragment(_dataCodec, data, stream.producer, follow, true);
-        stream.channel.onComplete(stream.producer);
+        complete(remoteStreamId);
         return;
       }
       Future.sync(() => stream.channel.onPayloadFragment(_dataCodec, data, stream.producer, follow, false)).onError((error, _) => stream.producer.error(error.toString()));
@@ -164,7 +163,7 @@ class ReactiveBroker {
   void handle(int remoteStreamId, int errorCode, Uint8List payload) {
     if (remoteStreamId != 0) {
       final stream = _streams[remoteStreamId];
-      cancel(remoteStreamId);
+      complete(remoteStreamId);
       if (stream != null) {
         stream.channel.onError(utf8.decode(payload), stream.producer);
       }
@@ -173,9 +172,10 @@ class ReactiveBroker {
     _onError?.call(ReactiveException(errorCode, utf8.decode(payload)));
   }
 
-  void cancel(int streamId) {
+  void complete(int streamId) {
     final stream = _streams.remove(streamId);
     if (stream == null) return;
+    stream.channel.onComplete(stream.producer);
     unawaited(stream.requester.close());
   }
 
@@ -184,7 +184,7 @@ class ReactiveBroker {
     _active = false;
     _leaseScheduler.stop();
     _keepAliveTimer.stop();
-    _streams.keys.toList().forEach(cancel);
+    _streams.keys.toList().forEach(complete);
     _channels.clear();
   }
 }

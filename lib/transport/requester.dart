@@ -56,6 +56,7 @@ class ReactiveRequester {
     _accepting = !complete;
     _input.add(_ReactivePendingPayload(bytes, complete, false));
     _pending++;
+    if (complete && _requested != reactiveInfinityRequestsCount) _requested++;
     if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
 
@@ -65,6 +66,7 @@ class ReactiveRequester {
     final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, message);
     _input.add(_ReactivePendingPayload(frame, true, true));
     _pending++;
+    if (_requested != reactiveInfinityRequestsCount) _requested++;
     if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
 
@@ -74,6 +76,7 @@ class ReactiveRequester {
     final frame = _writer.writeCancelFrame(_streamId);
     _input.add(_ReactivePendingPayload(frame, true, true));
     _pending++;
+    if (_requested != reactiveInfinityRequestsCount) _requested++;
     if (_requested > 0 && !_paused && _sending) _subscription.resume();
   }
 
