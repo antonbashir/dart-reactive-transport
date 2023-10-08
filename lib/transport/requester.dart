@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:reactive_transport/transport/buffer.dart';
-
+import 'buffer.dart';
 import 'configuration.dart';
 import 'connection.dart';
 import 'constants.dart';
