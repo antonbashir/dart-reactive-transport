@@ -153,4 +153,53 @@ void custom() {
 
     await reactive.shutdown();
   });
+
+  test('custom channel', timeout: Timeout.none, () async {
+    final transport = Transport();
+    final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
+    await worker.initialize();
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+
+    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
+    final clientPayload = "client-payload";
+
+    final serverPayload = "server-payload";
+    final serverLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
+
+    reactive.serve(
+      InternetAddress.anyIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribeCustom(
+        _ServerChannel(
+          key: "channel",
+          configuration: ReactiveTransportDefaults.channel(),
+          latch: serverLatch,
+          clientPayload: clientPayload,
+          serverPayload: serverPayload,
+          clientRequests: 1,
+        ),
+      ),
+    );
+
+    reactive.connect(
+      InternetAddress.loopbackIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribeCustom(
+        _ClientChannel(
+          key: "channel",
+          configuration: ReactiveTransportDefaults.channel(),
+          latch: clientLatch,
+          clientPayload: clientPayload,
+          serverPayload: serverPayload,
+          clientRequests: 1,
+          serverRequests: 1,
+        ),
+      ),
+    );
+
+    await clientLatch.done();
+    await serverLatch.done();
+
+    await reactive.shutdown();
+  });
 }

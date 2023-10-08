@@ -39,15 +39,17 @@ abstract mixin class ReactiveChannel {
     }
   }
 
-  FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer);
+  FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer) {}
 
-  FutureOr<void> onComplete(ReactiveProducer producer);
+  FutureOr<void> onComplete(ReactiveProducer producer) {}
 
-  FutureOr<void> onSubscribe(ReactiveProducer producer);
+  FutureOr<void> onCancel(ReactiveProducer producer) {}
 
-  FutureOr<void> onError(String error, ReactiveProducer producer);
+  FutureOr<void> onSubscribe(ReactiveProducer producer) {}
 
-  FutureOr<void> onRequest(int count, ReactiveProducer producer);
+  FutureOr<void> onError(String error, ReactiveProducer producer) {}
+
+  FutureOr<void> onRequest(int count, ReactiveProducer producer) {}
 }
 
 class FunctionalReactiveChannel with ReactiveChannel {
@@ -58,6 +60,7 @@ class FunctionalReactiveChannel with ReactiveChannel {
   final FutureOr<void> Function(String error, ReactiveProducer producer)? errorConsumer;
   final FutureOr<void> Function(int count, ReactiveProducer producer)? requestConsumer;
   final FutureOr<void> Function(ReactiveProducer producer)? completeConsumer;
+  final FutureOr<void> Function(ReactiveProducer producer)? cancelConsumer;
 
   FunctionalReactiveChannel(
     this.key,
@@ -67,6 +70,7 @@ class FunctionalReactiveChannel with ReactiveChannel {
     required this.errorConsumer,
     required this.requestConsumer,
     required this.completeConsumer,
+    required this.cancelConsumer,
   });
 
   @override
@@ -88,4 +92,8 @@ class FunctionalReactiveChannel with ReactiveChannel {
   @override
   @pragma(preferInlinePragma)
   FutureOr<void> onComplete(ReactiveProducer producer) => completeConsumer?.call(producer);
+
+  @override
+  @pragma(preferInlinePragma)
+  FutureOr<void> onCancel(ReactiveProducer producer) => cancelConsumer?.call(producer);
 }

@@ -179,6 +179,13 @@ class ReactiveBroker {
     unawaited(stream.requester.close());
   }
 
+  void cancel(int streamId) {
+    final stream = _streams.remove(streamId);
+    if (stream == null) return;
+    stream.channel.onCancel(stream.producer);
+    unawaited(stream.requester.close());
+  }
+
   void close() {
     if (!_active) return;
     _active = false;

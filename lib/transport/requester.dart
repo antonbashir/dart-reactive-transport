@@ -112,7 +112,7 @@ class ReactiveRequester {
       _subscription.pause();
       if (_chunks.isEmpty) {
         final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-        _fragmentate(fragments, 0, 0, fragments.length);
+        _fragmentate(fragments, 0, 0, fragments.length, payload.last);
         return;
       }
       _connection.writeMany(
@@ -120,7 +120,7 @@ class ReactiveRequester {
         false,
         onDone: () {
           final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-          _fragmentate(fragments, 0, 0, fragments.length);
+          _fragmentate(fragments, 0, 0, fragments.length, payload.last);
         },
       );
       _pending -= _chunks.length;
@@ -146,7 +146,7 @@ class ReactiveRequester {
     }
   }
 
-  void _fragmentate(List<Uint8List> fragments, int fragmentGroup, int fragmentId, int fragmentsCount) {
+  void _fragmentate(List<Uint8List> fragments, int fragmentGroup, int fragmentId, int fragmentsCount, bool last) {
     fragments = fragments.sublist(fragmentGroup, fragmentGroup + _channelConfiguration.fragmentGroupLimit);
     fragmentGroup = fragments.length;
     fragmentId += fragments.length;
@@ -154,7 +154,7 @@ class ReactiveRequester {
     for (var index = 0; index < fragments.length; index++) {
       var fragment = fragments[index];
       final follow = fragmentId < fragmentsCount || index == fragments.length - 1;
-      frames.add(_writer.writePayloadFrame(_streamId, false, follow, ReactivePayload.ofData(fragment)));
+      frames.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
     }
     _connection.writeMany(
       frames,
@@ -166,7 +166,16 @@ class ReactiveRequester {
             fragmentGroup,
             fragmentId,
             fragmentsCount,
+            last,
           );
+          return;
+        }
+        if (last) {
+          _pending--;
+          _paused = false;
+          if (_requested != reactiveInfinityRequestsCount) --_requested;
+          unawaited(close());
+          _completer();
           return;
         }
         _pending--;
