@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'constants.dart';
 
 class ReactiveReadBuffer {
-  var _data = emptyBytes;
+  var _data = <int>[];
   var _readerIndex = 0;
   var _capacity = 0;
   var _checkpointIndex = 0;
@@ -16,13 +16,13 @@ class ReactiveReadBuffer {
 
   @pragma(preferInlinePragma)
   void extend(Uint8List data) {
-    _data = Uint8List.fromList([..._data, ...data]);
+    _data.addAll(data);
     _capacity += data.length;
   }
 
   @pragma(preferInlinePragma)
   void reset() {
-    _data = emptyBytes;
+    _data = [];
     _capacity = 0;
     _readerIndex = 0;
     _checkpointIndex = 0;
