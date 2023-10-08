@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'assembler.dart';
 import 'buffer.dart';
 import 'configuration.dart';
 import 'connection.dart';
 import 'constants.dart';
-import 'extensions.dart';
 import 'payload.dart';
 import 'writer.dart';
 
@@ -120,7 +120,7 @@ class ReactiveRequester {
       _paused = true;
       _subscription.pause();
       if (chunks.isEmpty) {
-        final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
+        final fragments = ReactiveAssembler.disassemble(payload.bytes, _channelConfiguration.fragmentSize);
         _fragmentate(fragments, 0, fragments.length, payload.last);
         return;
       }
@@ -128,7 +128,7 @@ class ReactiveRequester {
         chunks,
         false,
         onDone: () {
-          final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
+          final fragments = ReactiveAssembler.disassemble(payload.bytes, _channelConfiguration.fragmentSize);
           _fragmentate(fragments, 0, fragments.length, payload.last);
         },
       );
