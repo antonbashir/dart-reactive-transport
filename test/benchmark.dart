@@ -10,7 +10,7 @@ Future<void> main() async {
   final transport = Transport();
   final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
   await worker.initialize();
-  final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
+  final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith());
   final clientPayload = "client-payload";
   final serverPayload = "server-payload";
 
@@ -47,11 +47,13 @@ Future<void> main() async {
       ..subscribe(
         "channel1",
         serve1,
+        onError: (error, _) => print(error),
         onSubscribe: (producer) => producer.unbound(),
       )
       ..subscribe(
         "channel2",
         serve2,
+        onError: (error, _) => print(error),
         onSubscribe: (producer) => producer.unbound(),
       ),
   );
@@ -63,6 +65,7 @@ Future<void> main() async {
       ..subscribe(
         "channel1",
         communicate1,
+        onError: (error, _) => print(error),
         onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.unbound();
@@ -71,6 +74,7 @@ Future<void> main() async {
       ..subscribe(
         "channel2",
         communicate2,
+        onError: (error, _) => print(error),
         onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.unbound();

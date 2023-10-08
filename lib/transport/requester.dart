@@ -148,7 +148,7 @@ class ReactiveRequester {
       return;
     }
     chunks = _buffer.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
-    if (chunks.length >= _channelConfiguration.chunksLimit || _pending - _buffer.count == 0) {
+    if (_buffer.count >= _channelConfiguration.chunksLimit || _pending - _buffer.count == 0) {
       _connection.writeMany(chunks, false);
       _pending -= _buffer.count;
       if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
