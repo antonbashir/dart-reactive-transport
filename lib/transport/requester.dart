@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:reactive_transport/transport/buffer.dart';
+
 import 'configuration.dart';
 import 'connection.dart';
 import 'constants.dart';
@@ -25,23 +27,26 @@ class ReactiveRequester {
   final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
   final ReactiveChannelConfiguration _channelConfiguration;
   final void Function() _completer;
+  final int _chunkSize;
 
   late final StreamSubscription _subscription;
+  late final ReactiveRequesterBuffer _buffer;
 
   var _pending = 0;
   var _requested = 0;
   var _accepting = true;
   var _sending = true;
   var _paused = false;
-  var _chunks = <Uint8List>[];
 
   ReactiveRequester(
     this._connection,
     this._streamId,
     this._writer,
     this._channelConfiguration,
+    this._chunkSize,
     this._completer,
   ) {
+    _buffer = ReactiveRequesterBuffer(_chunkSize);
     _subscription = _input.stream.listen(_output.add);
     _subscription.pause();
     _output.stream.listen(_send);
@@ -108,55 +113,56 @@ class ReactiveRequester {
       _subscription.pause();
       return;
     }
+    var chunks = _buffer.chunks;
     if (payload.bytes.length > _channelConfiguration.fragmentationMtu) {
       _paused = true;
       _subscription.pause();
-      if (_chunks.isEmpty) {
+      if (chunks.isEmpty) {
         final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-        _fragmentate(fragments, 0, fragments.length, payload.last);
+        _fragmentate(fragments, 0, fragments.length, payload.last, ReactiveRequesterBuffer(_chunkSize));
         return;
       }
       _connection.writeMany(
-        _chunks,
+        chunks,
         false,
         onDone: () {
           final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-          _fragmentate(fragments, 0, fragments.length, payload.last);
+          _fragmentate(fragments, 0, fragments.length, payload.last, ReactiveRequesterBuffer(_chunkSize));
         },
       );
-      _pending -= _chunks.length;
-      if (_requested != reactiveInfinityRequestsCount) _requested -= _chunks.length;
-      _chunks = [];
+      _pending -= chunks.length;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= chunks.length;
+      _buffer.clear();
       return;
     }
     if (payload.last) {
-      _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
-      _connection.writeMany(_chunks, true);
-      _pending -= _chunks.length;
-      if (_requested != reactiveInfinityRequestsCount) _requested -= _chunks.length;
+      chunks = _buffer.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
+      _connection.writeMany(chunks, true);
+      _pending -= chunks.length;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= chunks.length;
       unawaited(close());
       _completer();
       return;
     }
-    _chunks.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
-    if (_chunks.length >= _channelConfiguration.chunksLimit || _pending - _chunks.length == 0) {
-      _connection.writeMany(_chunks, false);
-      _pending -= _chunks.length;
-      if (_requested != reactiveInfinityRequestsCount) _requested -= _chunks.length;
-      _chunks = [];
+    chunks = _buffer.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
+    if (chunks.length >= _channelConfiguration.chunksLimit || _pending - chunks.length == 0) {
+      _connection.writeMany(chunks, false);
+      _pending -= chunks.length;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= chunks.length;
+      _buffer.clear();
     }
   }
 
-  void _fragmentate(List<Uint8List> fragments, int fragmentNumber, int fragmentsCount, bool last) {
+  void _fragmentate(List<Uint8List> fragments, int fragmentNumber, int fragmentsCount, bool last, ReactiveRequesterBuffer buffer) {
     final chunks = min(_channelConfiguration.chunksLimit, fragments.length);
-    final frames = <Uint8List>[];
     fragmentNumber += chunks;
+    var index = 0;
     for (var fragment in fragments.take(chunks)) {
-      final follow = fragmentNumber < fragmentsCount || frames.length != chunks - 1;
-      frames.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
+      final follow = fragmentNumber < fragmentsCount || index++ != chunks;
+      buffer.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
     }
     _connection.writeMany(
-      frames,
+      buffer.chunks,
       true,
       onDone: () {
         if (fragmentNumber < fragmentsCount) {
@@ -165,6 +171,7 @@ class ReactiveRequester {
             fragmentNumber,
             fragmentsCount,
             last,
+            buffer,
           );
           return;
         }

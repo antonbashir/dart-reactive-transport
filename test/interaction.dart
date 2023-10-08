@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:iouring_transport/iouring_transport.dart';
-import 'package:reactive_transport/transport/channel.dart';
-import 'package:reactive_transport/transport/configuration.dart';
 import 'package:reactive_transport/transport/defaults.dart';
 import 'package:reactive_transport/transport/producer.dart';
 import 'package:reactive_transport/transport/transport.dart';
@@ -14,7 +11,7 @@ import 'latch.dart';
 void interaction() {
   test('1 request - 1 response', timeout: Timeout.none, () async {
     final transport = Transport();
-    final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
+    final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
     final clientPayload = "client-payload";
@@ -54,7 +51,7 @@ void interaction() {
 
   test('1 request - 2 responses', timeout: Timeout.none, () async {
     final transport = Transport();
-    final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
+    final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
     final clientPayload = "client-payload";
@@ -99,7 +96,7 @@ void interaction() {
 
   test('2 request - 4 responses', timeout: Timeout.none, () async {
     final transport = Transport();
-    final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
+    final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
     final clientPayload = "client-payload";

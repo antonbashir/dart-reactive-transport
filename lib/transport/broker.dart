@@ -2,22 +2,23 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'stream.dart';
-import 'lease.dart';
 import 'channel.dart';
-import 'exception.dart';
-import 'connection.dart';
 import 'codec.dart';
 import 'configuration.dart';
+import 'connection.dart';
 import 'constants.dart';
+import 'exception.dart';
 import 'keepalive.dart';
+import 'lease.dart';
 import 'payload.dart';
 import 'producer.dart';
 import 'requester.dart';
+import 'stream.dart';
 import 'supplier.dart';
 import 'writer.dart';
 
 class ReactiveBroker {
+  final ReactiveTransportConfiguration _transportConfiguration;
   final ReactiveBrokerConfiguration _configuration;
   final ReactiveWriter _writer;
   final ReactiveConnection _connection;
@@ -39,6 +40,7 @@ class ReactiveBroker {
   bool get active => _active;
 
   ReactiveBroker(
+    this._transportConfiguration,
     this._configuration,
     this._connection,
     this._writer,
@@ -94,6 +96,7 @@ class ReactiveBroker {
         streamId,
         _writer,
         channel.configuration,
+        _transportConfiguration.workerConfiguration.bufferSize,
         () => complete(streamId),
       );
       _streams[streamId] = ReactiveStream(streamId, requester, ReactiveProducer(requester, _dataCodec), channel);
@@ -118,6 +121,7 @@ class ReactiveBroker {
         remoteStreamId,
         _writer,
         channel.configuration,
+        _transportConfiguration.workerConfiguration.bufferSize,
         () => complete(remoteStreamId),
       );
       final stream = ReactiveStream(remoteStreamId, requester, ReactiveProducer(requester, _dataCodec), channel);

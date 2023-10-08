@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:iouring_transport/transport/defaults.dart';
 import 'package:iouring_transport/transport/transport.dart';
 import 'package:iouring_transport/transport/worker.dart';
 import 'package:reactive_transport/transport/defaults.dart';
@@ -9,7 +8,7 @@ import 'package:reactive_transport/transport/transport.dart';
 
 Future<void> main() async {
   final transport = Transport();
-  final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
+  final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
   await worker.initialize();
   final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
   final clientPayload = "client-payload";

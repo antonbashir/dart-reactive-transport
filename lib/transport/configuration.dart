@@ -1,20 +1,29 @@
 import 'dart:typed_data';
 
+import 'package:iouring_transport/iouring_transport.dart';
+
 import 'codec.dart';
 
 class ReactiveTransportConfiguration {
   final void Function(dynamic frame)? tracer;
   final Duration? gracefulDuration;
+  final TransportWorkerConfiguration workerConfiguration;
 
-  ReactiveTransportConfiguration({required this.tracer, required this.gracefulDuration});
+  ReactiveTransportConfiguration({
+    required this.tracer,
+    required this.gracefulDuration,
+    required this.workerConfiguration,
+  });
 
   ReactiveTransportConfiguration copyWith({
     void Function(dynamic frame)? tracer,
     Duration? gracefulDuration,
+    TransportWorkerConfiguration? workerConfiguration,
   }) =>
       ReactiveTransportConfiguration(
         tracer: tracer ?? this.tracer,
         gracefulDuration: gracefulDuration ?? this.gracefulDuration,
+        workerConfiguration: workerConfiguration ?? this.workerConfiguration,
       );
 }
 

@@ -195,3 +195,34 @@ class ReactiveWriteBuffer {
   @pragma(preferInlinePragma)
   Uint8List _int16ToBytes(int value) => Uint8List(2)..buffer.asByteData().setUint16(0, value, Endian.big);
 }
+
+class ReactiveRequesterBuffer {
+  final int _chunkSize;
+
+  var _chunks = <Uint8List>[];
+  var _last = 0;
+
+  ReactiveRequesterBuffer(this._chunkSize);
+
+  List<Uint8List> get chunks => _chunks;
+
+  int get length => _chunks.length;
+
+  @pragma(preferInlinePragma)
+  void clear() {
+    _last = 0;
+    _chunks = [];
+  }
+
+  @pragma(preferInlinePragma)
+  List<Uint8List> add(Uint8List frame) {
+    final lastChunk = _chunks[_last];
+    if (frame.length + lastChunk.length <= _chunkSize) {
+      _chunks[_last] = Uint8List.fromList([..._chunks[_last], ...frame]);
+      return _chunks;
+    }
+    _chunks.add(frame);
+    _last++;
+    return _chunks;
+  }
+}

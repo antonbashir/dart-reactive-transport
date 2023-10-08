@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:iouring_transport/transport/defaults.dart';
+
 import 'codec.dart';
 import 'configuration.dart';
 import 'constants.dart';
@@ -9,6 +11,7 @@ class ReactiveTransportDefaults {
   static ReactiveTransportConfiguration transport() => ReactiveTransportConfiguration(
         tracer: null,
         gracefulDuration: null,
+        workerConfiguration: TransportDefaults.worker(),
       );
 
   static ReactiveChannelConfiguration channel() => ReactiveChannelConfiguration(

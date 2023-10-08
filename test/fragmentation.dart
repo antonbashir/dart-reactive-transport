@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:iouring_transport/transport/defaults.dart';
 import 'package:iouring_transport/transport/transport.dart';
 import 'package:iouring_transport/transport/worker.dart';
 import 'package:reactive_transport/transport/constants.dart';
@@ -15,7 +14,7 @@ import 'latch.dart';
 void fragmentation() {
   test('custom channel', timeout: Timeout.none, () async {
     final transport = Transport();
-    final worker = TransportWorker(transport.worker(TransportDefaults.worker()));
+    final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
     final fullPayload = Uint8List.fromList(List.generate(1 * 1024 * 1024, (index) => 31));
