@@ -21,6 +21,13 @@ class ReactiveReadBuffer {
   }
 
   @pragma(preferInlinePragma)
+  void shrink() {
+    _data = _data.sublist(_readerIndex);
+    _capacity = _data.length;
+    _readerIndex = 0;
+  }
+
+  @pragma(preferInlinePragma)
   void reset() {
     _data = [];
     _capacity = 0;
