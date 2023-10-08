@@ -87,7 +87,10 @@ class ReactiveRequester {
 
   void resume(int count) {
     if (!_sending || _paused) return;
-    if (_requested == reactiveInfinityRequestsCount) return;
+    if (_requested == reactiveInfinityRequestsCount) {
+      _subscription.resume();
+      return;
+    }
     if (count == reactiveInfinityRequestsCount) {
       _requested = reactiveInfinityRequestsCount;
       _subscription.resume();
