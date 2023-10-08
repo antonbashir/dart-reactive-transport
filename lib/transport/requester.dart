@@ -130,25 +130,26 @@ class ReactiveRequester {
           _fragmentate(fragments, 0, fragments.length, payload.last, ReactiveRequesterBuffer(_chunkSize));
         },
       );
-      _pending -= chunks.length;
-      if (_requested != reactiveInfinityRequestsCount) _requested -= chunks.length;
+      _pending -= _buffer.count;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
       return;
     }
     if (payload.last) {
       chunks = _buffer.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
       _connection.writeMany(chunks, true);
-      _pending -= chunks.length;
-      if (_requested != reactiveInfinityRequestsCount) _requested -= chunks.length;
+      _pending -= _buffer.count;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
+      _buffer.clear();
       unawaited(close());
       _completer();
       return;
     }
     chunks = _buffer.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
-    if (chunks.length >= _channelConfiguration.chunksLimit || _pending - chunks.length == 0) {
+    if (chunks.length >= _channelConfiguration.chunksLimit || _pending - _buffer.count == 0) {
       _connection.writeMany(chunks, false);
-      _pending -= chunks.length;
-      if (_requested != reactiveInfinityRequestsCount) _requested -= chunks.length;
+      _pending -= _buffer.count;
+      if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
     }
   }
@@ -158,7 +159,7 @@ class ReactiveRequester {
     fragmentNumber += chunks;
     var index = 0;
     for (var fragment in fragments.take(chunks)) {
-      final follow = fragmentNumber < fragmentsCount || index++ != chunks;
+      final follow = fragmentNumber < fragmentsCount || ++index != chunks;
       buffer.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
     }
     _connection.writeMany(
@@ -166,6 +167,7 @@ class ReactiveRequester {
       true,
       onDone: () {
         if (fragmentNumber < fragmentsCount) {
+          buffer.clear();
           _fragmentate(
             fragments.sublist(chunks),
             fragmentNumber,

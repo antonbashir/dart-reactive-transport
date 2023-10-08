@@ -199,6 +199,7 @@ class ReactiveWriteBuffer {
 class ReactiveRequesterBuffer {
   final int _chunkSize;
 
+  var _count = 0;
   var _chunks = <Uint8List>[];
   var _last = 0;
 
@@ -206,16 +207,23 @@ class ReactiveRequesterBuffer {
 
   List<Uint8List> get chunks => _chunks;
 
-  int get length => _chunks.length;
+  int get count => _count;
 
   @pragma(preferInlinePragma)
   void clear() {
     _last = 0;
+    _count = 0;
     _chunks = [];
   }
 
   @pragma(preferInlinePragma)
   List<Uint8List> add(Uint8List frame) {
+    _count++;
+    if (_chunks.isEmpty) {
+      _chunks.add(frame);
+      _last = 0;
+      return _chunks;
+    }
     final lastChunk = _chunks[_last];
     if (frame.length + lastChunk.length <= _chunkSize) {
       _chunks[_last] = Uint8List.fromList([..._chunks[_last], ...frame]);
