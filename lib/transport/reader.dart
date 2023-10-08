@@ -125,7 +125,6 @@ class ReactiveReader {
   @pragma(preferInlinePragma)
   ReactivePayload _readPayload(ReactiveReadBuffer buffer, bool metadataPresent, int dataLength) {
     var metadata = emptyBytes;
-    var data = emptyBytes;
     if (metadataPresent) {
       final metadataLength = buffer.readInt24();
       if (metadataLength != null) {
@@ -135,9 +134,6 @@ class ReactiveReader {
         }
       }
     }
-    if (dataLength > 0) {
-      data = buffer.readUint8List(dataLength);
-    }
-    return ReactivePayload(metadata, data);
+    return ReactivePayload(metadata, buffer.readUint8List(dataLength));
   }
 }
