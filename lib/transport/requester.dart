@@ -119,7 +119,7 @@ class ReactiveRequester {
       _subscription.pause();
       if (chunks.isEmpty) {
         final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-        _fragmentate(fragments, 0, fragments.length, payload.last, ReactiveRequesterBuffer(_chunkSize));
+        _fragmentate(fragments, 0, fragments.length, payload.last);
         return;
       }
       _connection.writeMany(
@@ -127,7 +127,7 @@ class ReactiveRequester {
         false,
         onDone: () {
           final fragments = payload.bytes.chunks(_channelConfiguration.fragmentSize);
-          _fragmentate(fragments, 0, fragments.length, payload.last, ReactiveRequesterBuffer(_chunkSize));
+          _fragmentate(fragments, 0, fragments.length, payload.last);
         },
       );
       _pending -= _buffer.count;
@@ -154,26 +154,24 @@ class ReactiveRequester {
     }
   }
 
-  void _fragmentate(List<Uint8List> fragments, int fragmentNumber, int fragmentsCount, bool last, ReactiveRequesterBuffer buffer) {
+  void _fragmentate(List<Uint8List> fragments, int fragmentNumber, int fragmentsCount, bool last) {
     final chunks = min(_channelConfiguration.chunksLimit, fragments.length);
     fragmentNumber += chunks;
     var index = 0;
     for (var fragment in fragments.take(chunks)) {
       final follow = fragmentNumber < fragmentsCount || ++index != chunks;
-      buffer.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
+      _buffer.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
     }
     _connection.writeMany(
-      buffer.chunks,
+      _buffer.chunks,
       true,
       onDone: () {
         if (fragmentNumber < fragmentsCount) {
-          buffer.clear();
           _fragmentate(
             fragments.sublist(chunks),
             fragmentNumber,
             fragmentsCount,
             last,
-            buffer,
           );
           return;
         }
@@ -190,5 +188,6 @@ class ReactiveRequester {
         if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();
       },
     );
+    _buffer.clear();
   }
 }
