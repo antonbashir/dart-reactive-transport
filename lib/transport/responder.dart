@@ -1,9 +1,9 @@
 import 'package:iouring_transport/iouring_transport.dart';
 
 import 'broker.dart';
-import 'keepalive.dart';
 import 'buffer.dart';
 import 'constants.dart';
+import 'keepalive.dart';
 import 'reader.dart';
 
 class ReactiveResponder {
@@ -11,6 +11,8 @@ class ReactiveResponder {
   final ReactiveReader _reader;
   final void Function(dynamic frame)? _tracer;
   final ReactiveKeepAliveTimer _keepAliveTimer;
+
+  final _buffer = ReactiveReadBuffer();
 
   ReactiveResponder(
     this._broker,
@@ -21,13 +23,18 @@ class ReactiveResponder {
 
   void handle(TransportPayload payload) {
     if (!_broker.active) return;
-    final buffer = ReactiveReadBuffer(payload.takeBytes());
-    while (buffer.isReadable()) {
-      final header = _reader.readFrameHeader(buffer);
+    _buffer.extend(payload.takeBytes());
+    while (_buffer.isReadable()) {
+      _buffer.save();
+      final header = _reader.readFrameHeader(_buffer);
+      if (header == null) {
+        _buffer.restore();
+        return;
+      }
       _tracer?.call(header);
       switch (header.type) {
         case reactiveFrameSetup:
-          final frame = _reader.readSetupFrame(buffer, header);
+          final frame = _reader.readSetupFrame(_buffer, header);
           _tracer?.call(frame);
           _broker.setup(
             frame.dataMimeType,
@@ -38,27 +45,47 @@ class ReactiveResponder {
           );
           continue;
         case reactiveFrameLease:
-          final frame = _reader.readLeaseFrame(buffer, header);
+          final frame = _reader.readLeaseFrame(_buffer, header);
+          if (frame == null) {
+            _buffer.restore();
+            return;
+          }
           _tracer?.call(frame);
           _broker.lease(frame.timeToLive, frame.requests);
           continue;
         case reactiveFrameKeepalive:
-          final frame = _reader.readKeepAliveFrame(buffer, header);
+          final frame = _reader.readKeepAliveFrame(_buffer, header);
+          if (frame == null) {
+            _buffer.restore();
+            return;
+          }
           _tracer?.call(frame);
           _keepAliveTimer.pong(frame.respond);
           continue;
         case reactiveFrameRequestN:
-          final frame = _reader.readRequestNFrame(buffer, header);
+          final frame = _reader.readRequestNFrame(_buffer, header);
+          if (frame == null) {
+            _buffer.restore();
+            return;
+          }
           _tracer?.call(frame);
-          _broker.request(frame.header.streamId, frame.count ?? reactiveInfinityRequestsCount);
+          _broker.request(frame.header.streamId, frame.count);
           continue;
         case reactiveFrameRequestChannel:
-          final frame = _reader.readRequestChannelFrame(buffer, header);
+          final frame = _reader.readRequestChannelFrame(_buffer, header);
+          if (frame == null) {
+            _buffer.restore();
+            return;
+          }
           _tracer?.call(frame);
-          _broker.initiate(frame.header.streamId, frame.initialRequestCount ?? reactiveInfinityRequestsCount, frame.payload!);
+          _broker.initiate(frame.header.streamId, frame.initialRequestCount, frame.payload!);
           continue;
         case reactiveFramePayload:
-          final frame = _reader.readPayloadFrame(buffer, header);
+          final frame = _reader.readPayloadFrame(_buffer, header);
+          if (frame == null) {
+            _buffer.restore();
+            return;
+          }
           _tracer?.call(frame);
           _broker.receive(frame.header.streamId, frame.payload, frame.completed, frame.follow);
           continue;
@@ -66,7 +93,11 @@ class ReactiveResponder {
           _broker.cancel(header.streamId);
           continue;
         case reactiveFrameError:
-          final frame = _reader.readErrorFrame(buffer, header);
+          final frame = _reader.readErrorFrame(_buffer, header);
+          if (frame == null) {
+            _buffer.restore();
+            return;
+          }
           _tracer?.call(frame);
           _broker.handle(frame.header.streamId, frame.code, frame.message);
           continue;
@@ -80,10 +111,11 @@ class ReactiveResponder {
           continue;
         default:
           if (header.frameLength > reactiveFrameHeaderSize) {
-            buffer.readBytes(header.frameLength - reactiveFrameHeaderSize);
+            _buffer.readBytes(header.frameLength - reactiveFrameHeaderSize);
           }
           continue;
       }
     }
+    _buffer.reset();
   }
 }

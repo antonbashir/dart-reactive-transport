@@ -8,6 +8,8 @@ class ReactivePayload {
 
   ReactivePayload(this.metadata, this.data);
 
+  static ReactivePayload empty = ReactivePayload.ofData(emptyBytes);
+
   factory ReactivePayload.ofData(Uint8List data) => ReactivePayload(emptyBytes, data);
 
   factory ReactivePayload.ofMetadata(Uint8List metadata) => ReactivePayload(metadata, emptyBytes);

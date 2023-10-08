@@ -3,15 +3,30 @@ import 'dart:typed_data';
 import 'constants.dart';
 
 class ReactiveReadBuffer {
-  Uint8List _data;
+  var _data = emptyBytes;
   var _readerIndex = 0;
   var _capacity = 0;
+  var _checkpointIndex = 0;
 
-  ReactiveReadBuffer(this._data) : _capacity = _data.length;
+  ReactiveReadBuffer();
 
   int get capacity => _capacity;
 
   int get readerIndex => _readerIndex;
+
+  @pragma(preferInlinePragma)
+  void extend(Uint8List data) {
+    _data = Uint8List.fromList([..._data, ...data]);
+    _capacity += data.length;
+  }
+
+  @pragma(preferInlinePragma)
+  void reset() {
+    _data = emptyBytes;
+    _capacity = 0;
+    _readerIndex = 0;
+    _checkpointIndex = 0;
+  }
 
   @pragma(preferInlinePragma)
   int? readInt8() {
@@ -26,48 +41,51 @@ class ReactiveReadBuffer {
   @pragma(preferInlinePragma)
   int? readInt16() {
     final data = readBytes(2);
-    return data.isEmpty ? null : _bytesToNumber(data);
+    return data == null ? null : _bytesToNumber(data);
   }
 
   @pragma(preferInlinePragma)
   int? readInt24() {
     final data = readBytes(3);
-    return data.isEmpty ? null : _bytesToNumber(data);
+    return data == null ? null : _bytesToNumber(data);
   }
 
   @pragma(preferInlinePragma)
   int? readInt32() {
     final data = readBytes(4);
-    return data.isEmpty ? null : _bytesToNumber(data);
+    return data == null ? null : _bytesToNumber(data);
   }
 
   @pragma(preferInlinePragma)
   int? readInt64() {
     final data = readBytes(8);
-    return data.isEmpty ? null : _bytesToNumber(data);
+    return data == null ? null : _bytesToNumber(data);
   }
 
   @pragma(preferInlinePragma)
-  List<int> readBytes(int length) {
+  List<int>? readBytes(int length) {
     if (_readerIndex + length <= _capacity) {
       final array = _data.sublist(_readerIndex, _readerIndex + length);
       _readerIndex += length;
       return array;
     }
-    return [];
+    return null;
   }
 
   @pragma(preferInlinePragma)
-  Uint8List readUint8List(int length) => Uint8List.fromList(readBytes(length));
+  Uint8List? readUint8List(int length) {
+    final data = readBytes(length);
+    return data == null ? null : Uint8List.fromList(data);
+  }
 
   @pragma(preferInlinePragma)
   bool isReadable() => _readerIndex < _capacity;
 
   @pragma(preferInlinePragma)
-  int maxReadableBytes() => _capacity - _readerIndex;
+  void save() => _checkpointIndex = _readerIndex;
 
   @pragma(preferInlinePragma)
-  void resetReaderIndex() => _readerIndex = 0;
+  void restore() => _readerIndex = _checkpointIndex;
 
   @pragma(preferInlinePragma)
   int _bytesToNumber(List<int> data) {

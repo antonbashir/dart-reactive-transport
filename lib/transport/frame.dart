@@ -84,43 +84,12 @@ class ErrorFrame {
   String toString() => 'ErrorFrame(header: $header, code: $code, message: $message)';
 }
 
-class RequestResponseFrame {
-  final FrameHeader header;
-  final ReactivePayload? payload;
-
-  RequestResponseFrame(this.header, {this.payload});
-
-  @override
-  String toString() => 'RequestResponseFrame(header: $header, payload: $payload)';
-}
-
-class RequestFNFFrame {
-  final FrameHeader header;
-  final ReactivePayload? payload;
-
-  RequestFNFFrame(this.header, {this.payload});
-
-  @override
-  String toString() => 'RequestFNFFrame(header: $header, payload: $payload)';
-}
-
-class RequestStreamFrame {
-  final FrameHeader header;
-  final int? initialRequestCount;
-  final ReactivePayload? payload;
-
-  RequestStreamFrame(this.header, {this.initialRequestCount, this.payload});
-
-  @override
-  String toString() => 'RequestStreamFrame(header: $header, initialRequestCount: $initialRequestCount, payload: $payload)';
-}
-
 class RequestChannelFrame {
   final FrameHeader header;
-  final int? initialRequestCount;
+  final int initialRequestCount;
   final ReactivePayload? payload;
 
-  RequestChannelFrame(this.header, {this.initialRequestCount, this.payload});
+  RequestChannelFrame(this.header, this.initialRequestCount, {this.payload});
 
   @override
   String toString() => 'RequestChannelFrame(header: $header, initialRequestCount: $initialRequestCount, payload: $payload)';
@@ -128,54 +97,22 @@ class RequestChannelFrame {
 
 class RequestNFrame {
   final FrameHeader header;
-  final int? count;
+  final int count;
 
-  RequestNFrame(this.header, {this.count});
+  RequestNFrame(this.header, this.count);
 
   @override
   String toString() => 'RequestNFrame(header: $header, count: $count)';
-}
-
-class MetadataPushFrame {
-  final FrameHeader header;
-  final ReactivePayload? payload;
-
-  MetadataPushFrame(this.header, {this.payload});
-
-  @override
-  String toString() => 'MetadataPushFrame(header: $header, payload: $payload)';
 }
 
 class PayloadFrame {
   final FrameHeader header;
   final bool completed;
   final bool follow;
-  final ReactivePayload? payload;
+  final ReactivePayload payload;
 
-  PayloadFrame(this.header, this.completed, this.follow, {this.payload});
+  PayloadFrame(this.header, this.completed, this.follow, this.payload);
 
   @override
   String toString() => 'PayloadFrame(header: $header, completed: $completed, follow: $follow, payload: $payload)';
-}
-
-class ResumeFrame {
-  final FrameHeader header;
-  final int lastReceivedServerPosition;
-  final int firstAvailableClientPosition;
-  final Uint8List token;
-
-  ResumeFrame(this.header, this.lastReceivedServerPosition, this.firstAvailableClientPosition, this.token);
-
-  @override
-  String toString() => 'ResumeFrame(header: $header, lastReceivedServerPosition: $lastReceivedServerPosition, firstAvailableClientPosition: $firstAvailableClientPosition)';
-}
-
-class ResumeOkFrame {
-  final FrameHeader header;
-  final int lastReceivedClientPosition;
-
-  ResumeOkFrame(this.header, this.lastReceivedClientPosition);
-
-  @override
-  String toString() => 'ResumeOkFrame(header: $header, lastReceivedClientPosition: $lastReceivedClientPosition)';
 }
