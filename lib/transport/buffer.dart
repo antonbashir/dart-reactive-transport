@@ -29,6 +29,15 @@ class ReactiveReadBuffer {
   }
 
   @pragma(preferInlinePragma)
+  bool isReadable() => _readerIndex < _capacity;
+
+  @pragma(preferInlinePragma)
+  void save() => _checkpointIndex = _readerIndex;
+
+  @pragma(preferInlinePragma)
+  void restore() => _readerIndex = _checkpointIndex;
+
+  @pragma(preferInlinePragma)
   int? readInt8() {
     if (_readerIndex < _capacity) {
       var value = _data[_readerIndex];
@@ -77,15 +86,6 @@ class ReactiveReadBuffer {
     final data = readBytes(length);
     return data == null ? null : Uint8List.fromList(data);
   }
-
-  @pragma(preferInlinePragma)
-  bool isReadable() => _readerIndex < _capacity;
-
-  @pragma(preferInlinePragma)
-  void save() => _checkpointIndex = _readerIndex;
-
-  @pragma(preferInlinePragma)
-  void restore() => _readerIndex = _checkpointIndex;
 
   @pragma(preferInlinePragma)
   int _bytesToNumber(List<int> data) {
