@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:reactive_transport/transport/constants.dart';
+import 'constants.dart';
 
 class ReactiveAssembler {
   ReactiveAssembler._();
