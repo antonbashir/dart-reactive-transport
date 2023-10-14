@@ -29,26 +29,26 @@ class ReactiveTransportConfiguration {
 
 class ReactiveChannelConfiguration {
   final int initialRequestCount;
-  final int fragmentationMtu;
+  final int frameMaxSize;
   final int chunksLimit;
   final int fragmentSize;
 
   const ReactiveChannelConfiguration({
     required this.initialRequestCount,
-    required this.fragmentationMtu,
+    required this.frameMaxSize,
     required this.chunksLimit,
     required this.fragmentSize,
   });
 
   ReactiveChannelConfiguration copyWith({
     int? initialRequestCount,
-    int? fragmentationMtu,
+    int? frameMaxSize,
     int? chunksLimit,
     int? fragmentSize,
   }) =>
       ReactiveChannelConfiguration(
         initialRequestCount: initialRequestCount ?? this.initialRequestCount,
-        fragmentationMtu: fragmentationMtu ?? this.fragmentationMtu,
+        frameMaxSize: frameMaxSize ?? this.frameMaxSize,
         fragmentSize: fragmentSize ?? this.fragmentSize,
         chunksLimit: chunksLimit ?? this.chunksLimit,
       );

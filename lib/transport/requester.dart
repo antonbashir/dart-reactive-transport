@@ -116,7 +116,7 @@ class ReactiveRequester {
       return;
     }
     var chunks = _buffer.chunks;
-    if (payload.bytes.length > _channelConfiguration.fragmentationMtu) {
+    if (payload.bytes.length > _channelConfiguration.frameMaxSize) {
       _paused = true;
       _subscription.pause();
       if (chunks.isEmpty) {

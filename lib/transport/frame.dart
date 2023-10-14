@@ -18,9 +18,7 @@ class FrameHeader {
   );
 
   @override
-  String toString() {
-    return 'FrameHeader(frameLength: $frameLength, streamId: $streamId, type: $type, flags: $flags, metaPresent: $metaPresent)';
-  }
+  String toString() => 'FrameHeader(frameLength: $frameLength, streamId: $streamId, type: $type, flags: $flags, metaPresent: $metaPresent)';
 }
 
 class SetupFrame {
@@ -43,9 +41,7 @@ class SetupFrame {
   });
 
   @override
-  String toString() {
-    return 'SetupFrame(header: $header, metadataMimeType: $metadataMimeType, dataMimeType: $dataMimeType, keepAliveInterval: $keepAliveInterval, keepAliveMaxLifetime: $keepAliveMaxLifetime, leaseEnable: $leaseEnable)';
-  }
+  String toString() => 'SetupFrame(header: $header, metadataMimeType: $metadataMimeType, dataMimeType: $dataMimeType, keepAliveInterval: $keepAliveInterval, keepAliveMaxLifetime: $keepAliveMaxLifetime, leaseEnable: $leaseEnable)';
 }
 
 class LeaseFrame {
@@ -68,9 +64,7 @@ class KeepAliveFrame {
   KeepAliveFrame(this.header, this.lastReceivedPosition, this.respond, {this.payload});
 
   @override
-  String toString() {
-    return 'KeepAliveFrame(header: $header, lastReceivedPosition: $lastReceivedPosition, respond: $respond, payload: $payload)';
-  }
+  String toString() => 'KeepAliveFrame(header: $header, lastReceivedPosition: $lastReceivedPosition, respond: $respond, payload: $payload)';
 }
 
 class ErrorFrame {

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'constants.dart';
@@ -15,5 +16,5 @@ class ReactivePayload {
   factory ReactivePayload.ofMetadata(Uint8List metadata) => ReactivePayload(metadata, emptyBytes);
 
   @override
-  String toString() => 'ReactivePayload(metadata: ${metadata.length}, data: ${data.length})';
+  String toString() => 'ReactivePayload(metadata: [${metadata.length}] ${utf8.decode(metadata, allowMalformed: true)}, data: [${data.length}] ${utf8.decode(data, allowMalformed: true)})';
 }

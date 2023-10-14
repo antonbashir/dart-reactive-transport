@@ -39,7 +39,7 @@ void fragmentation() {
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(dataMimeType: octetStreamMimeType),
       (connection) => connection.subscriber.subscribe(
         "channel",
-        configuration: ReactiveTransportDefaults.channel().copyWith(fragmentationMtu: 1024, fragmentSize: 256, chunksLimit: 2),
+        configuration: ReactiveTransportDefaults.channel().copyWith(frameMaxSize: 1024, fragmentSize: 256, chunksLimit: 2),
         onPayload: (payload, producer) {},
         onRequest: (count, producer) => producer.payload(fullPayload),
       ),

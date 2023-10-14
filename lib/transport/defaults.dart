@@ -16,8 +16,8 @@ class ReactiveTransportDefaults {
   static ReactiveChannelConfiguration channel() => ReactiveChannelConfiguration(
         initialRequestCount: 1,
         chunksLimit: 8,
-        fragmentSize: 32 * 1024 * 1024,
-        fragmentationMtu: 64 * 1024 * 1024,
+        fragmentSize: 5 * 1024 * 1024,
+        frameMaxSize: 10 * 1024 * 1024,
       );
 
   static ReactiveBrokerConfiguration broker() => ReactiveBrokerConfiguration(
