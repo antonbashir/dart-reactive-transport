@@ -202,7 +202,6 @@ class ReactiveRequesterBuffer {
   ReactiveRequesterBuffer(this._chunkSize);
 
   List<Uint8List> get chunks => _chunks;
-
   int get count => _count;
 
   @pragma(preferInlinePragma)
