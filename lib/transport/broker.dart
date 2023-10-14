@@ -138,11 +138,11 @@ class ReactiveBroker {
     final stream = _streams[remoteStreamId];
     if (stream != null) {
       if (completed) {
-        stream.onPayloadFragment(_dataCodec, data, follow, true);
+        if (data.isNotEmpty) stream.onPayloadFragment(_dataCodec, data, follow, true);
         complete(remoteStreamId);
         return;
       }
-      Future.sync(() => stream.onPayloadFragment(_dataCodec, data, follow, false)).onError((error, _) => stream.error(error.toString()));
+      if (data.isNotEmpty) Future.sync(() => stream.onPayloadFragment(_dataCodec, data, follow, false)).onError((error, _) => stream.error(error.toString()));
     }
   }
 

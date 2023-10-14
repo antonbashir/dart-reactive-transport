@@ -137,11 +137,11 @@ void custom() {
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
 
-    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"});
+    final clientLatch = EventLatch("client", {"complete", "payload", "request", "subscribe"});
     final clientPayload = "client-payload";
 
     final serverPayload = "server-payload";
-    final serverLatch = EventLatch({"complete", "payload", "request", "subscribe"});
+    final serverLatch = EventLatch("server", {"complete", "payload", "request", "subscribe"});
 
     reactive.serve(
       InternetAddress.anyIPv4,
@@ -186,12 +186,12 @@ void custom() {
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
 
-    final clientLatch = EventLatch({"complete", "error", "request", "subscribe"});
+    final clientLatch = EventLatch("client", {"complete", "error", "request", "subscribe"});
     final clientPayload = "client-payload";
 
     final serverError = "server-error";
     final serverPayload = "server-payload";
-    final serverLatch = EventLatch({"complete", "payload", "request", "subscribe"});
+    final serverLatch = EventLatch("server", {"payload", "request", "subscribe"});
 
     reactive.serve(
       InternetAddress.anyIPv4,
@@ -238,12 +238,12 @@ void custom() {
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
 
-    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"});
+    final clientLatch = EventLatch("client", {"payload", "request", "subscribe"});
     final clientError = "client-error";
     final clientPayload = "client-payload";
 
     final serverPayload = "server-payload";
-    final serverLatch = EventLatch({"complete", "error", "request", "subscribe"});
+    final serverLatch = EventLatch("server", {"complete", "error", "request", "subscribe"});
 
     reactive.serve(
       InternetAddress.anyIPv4,

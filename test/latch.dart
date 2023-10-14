@@ -15,16 +15,17 @@ class Latch {
 }
 
 class EventLatch {
+  final String name;
   final Map<String, bool> _events;
   final Completer _completer = Completer();
   final bool trace;
 
-  EventLatch(Set<String> events, {this.trace = false}) : _events = Map.fromEntries(events.map((event) => MapEntry(event, false)));
+  EventLatch(this.name, Set<String> events, {this.trace = false}) : _events = Map.fromEntries(events.map((event) => MapEntry(event, false)));
 
   void notify(String event) {
     if (_events[event] == true) throw Exception("$event already notified");
     _events[event] = true;
-    if (trace) print(event);
+    if (trace) print("$name: $event");
     if (_events.values.every((element) => element)) _completer.complete();
   }
 
