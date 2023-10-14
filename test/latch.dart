@@ -19,7 +19,7 @@ class EventLatch {
   final Completer _completer = Completer();
   final bool trace;
 
-  EventLatch(Set<String> events, this.trace) : _events = Map.fromEntries(events.map((event) => MapEntry(event, false)));
+  EventLatch(Set<String> events, {this.trace = false}) : _events = Map.fromEntries(events.map((event) => MapEntry(event, false)));
 
   void notify(String event) {
     if (_events[event] == true) throw Exception("$event already notified");

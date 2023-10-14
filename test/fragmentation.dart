@@ -16,7 +16,7 @@ void fragmentation() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
     final fullPayload = Uint8List.fromList(List.generate(1 * 1024 * 1024, (index) => 31));
 
     final latch = Latch(1);

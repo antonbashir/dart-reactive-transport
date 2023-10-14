@@ -135,13 +135,13 @@ void custom() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
 
-    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
+    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"});
     final clientPayload = "client-payload";
 
     final serverPayload = "server-payload";
-    final serverLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
+    final serverLatch = EventLatch({"complete", "payload", "request", "subscribe"});
 
     reactive.serve(
       InternetAddress.anyIPv4,
@@ -155,7 +155,7 @@ void custom() {
           serverPayload: serverPayload,
           clientRequests: 1,
         ),
-      ),  
+      ),
     );
 
     reactive.connect(
@@ -184,14 +184,14 @@ void custom() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
 
-    final clientLatch = EventLatch({"complete", "error", "request", "subscribe"}, true);
+    final clientLatch = EventLatch({"complete", "error", "request", "subscribe"});
     final clientPayload = "client-payload";
 
     final serverError = "server-error";
     final serverPayload = "server-payload";
-    final serverLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
+    final serverLatch = EventLatch({"complete", "payload", "request", "subscribe"});
 
     reactive.serve(
       InternetAddress.anyIPv4,
@@ -236,14 +236,14 @@ void custom() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
 
-    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"}, true);
+    final clientLatch = EventLatch({"complete", "payload", "request", "subscribe"});
     final clientError = "client-error";
     final clientPayload = "client-payload";
 
     final serverPayload = "server-payload";
-    final serverLatch = EventLatch({"complete", "error", "request", "subscribe"}, true);
+    final serverLatch = EventLatch({"complete", "error", "request", "subscribe"});
 
     reactive.serve(
       InternetAddress.anyIPv4,

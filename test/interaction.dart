@@ -13,7 +13,7 @@ void interaction() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
     final clientPayload = "client-payload";
     final serverPayload = "server-payload";
 
@@ -53,7 +53,7 @@ void interaction() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
     final clientPayload = "client-payload";
     final serverPayload = "server-payload";
 
@@ -98,7 +98,7 @@ void interaction() {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: print));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
     final clientPayload = "client-payload";
     final serverPayload = "server-payload";
 
