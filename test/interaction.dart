@@ -30,14 +30,14 @@ void interaction() {
       latch.notify();
     }
 
-    reactive.serve(InternetAddress.anyIPv4, 12345, (connection) => connection.subscriber.subscribe("channel", serve));
+    reactive.serve(InternetAddress.anyIPv4, 12345, (connection) => connection.subscriber.subscribe("channel", onPayload: serve));
 
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
       (connection) => connection.subscriber.subscribe(
         "channel",
-        communicate,
+        onPayload: communicate,
         onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.request(1);
@@ -74,7 +74,7 @@ void interaction() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel", serve),
+      (connection) => connection.subscriber.subscribe("channel", onPayload: serve),
     );
 
     reactive.connect(
@@ -82,7 +82,7 @@ void interaction() {
       12345,
       (connection) => connection.subscriber.subscribe(
         "channel",
-        communicate,
+        onPayload: communicate,
         onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.request(2);
@@ -120,7 +120,7 @@ void interaction() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel", serve),
+      (connection) => connection.subscriber.subscribe("channel", onPayload: serve),
     );
 
     reactive.connect(
@@ -128,7 +128,7 @@ void interaction() {
       12345,
       (connection) => connection.subscriber.subscribe(
         "channel",
-        communicate,
+        onPayload: communicate,
         onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.payload(clientPayload);

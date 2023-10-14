@@ -12,8 +12,8 @@ class ReactiveSubscriber {
   void subscribeCustom(ReactiveChannel channel) => _broker.consume(channel);
 
   void subscribe(
-    String key,
-    void Function(dynamic payload, ReactiveProducer producer) onPayload, {
+    String key, {
+    void Function(dynamic payload, ReactiveProducer producer)? onPayload,
     void Function(ReactiveProducer producer)? onSubscribe,
     void Function(dynamic error, ReactiveProducer producer)? onError,
     void Function(int count, ReactiveProducer producer)? onRequest,

@@ -55,7 +55,7 @@ abstract mixin class ReactiveChannel {
 class FunctionalReactiveChannel with ReactiveChannel {
   final String key;
   final ReactiveChannelConfiguration configuration;
-  final FutureOr<void> Function(dynamic payload, ReactiveProducer producer) payloadConsumer;
+  final FutureOr<void> Function(dynamic payload, ReactiveProducer producer)? payloadConsumer;
   final FutureOr<void> Function(ReactiveProducer producer)? subscribeConsumer;
   final FutureOr<void> Function(String error, ReactiveProducer producer)? errorConsumer;
   final FutureOr<void> Function(int count, ReactiveProducer producer)? requestConsumer;
@@ -79,7 +79,7 @@ class FunctionalReactiveChannel with ReactiveChannel {
 
   @override
   @pragma(preferInlinePragma)
-  FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer) => payloadConsumer(payload, producer);
+  FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer) => payloadConsumer?.call(payload, producer);
 
   @override
   @pragma(preferInlinePragma)

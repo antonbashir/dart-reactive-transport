@@ -26,7 +26,7 @@ void fragmentation() {
       12345,
       (connection) => connection.subscriber.subscribe(
         "channel",
-        (payload, producer) {
+        onPayload: (payload, producer) {
           expect(ListEquality().equals(payload, fullPayload), true);
           latch.notify();
         },
@@ -40,7 +40,7 @@ void fragmentation() {
       (connection) => connection.subscriber.subscribe(
         "channel",
         configuration: ReactiveTransportDefaults.channel().copyWith(fragmentationMtu: 1024, fragmentSize: 256, chunksLimit: 2),
-        (payload, producer) {},
+        onPayload: (payload, producer) {},
         onRequest: (count, producer) => producer.payload(fullPayload),
       ),
     );
