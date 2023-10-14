@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'payload.dart';
 
 class FrameHeader {
@@ -41,7 +39,8 @@ class SetupFrame {
   });
 
   @override
-  String toString() => 'SetupFrame(header: $header, metadataMimeType: $metadataMimeType, dataMimeType: $dataMimeType, keepAliveInterval: $keepAliveInterval, keepAliveMaxLifetime: $keepAliveMaxLifetime, leaseEnable: $leaseEnable)';
+  String toString() =>
+      'SetupFrame(header: $header, metadataMimeType: $metadataMimeType, dataMimeType: $dataMimeType, keepAliveInterval: $keepAliveInterval, keepAliveMaxLifetime: $keepAliveMaxLifetime, leaseEnable: $leaseEnable)';
 }
 
 class LeaseFrame {
@@ -70,7 +69,7 @@ class KeepAliveFrame {
 class ErrorFrame {
   final FrameHeader header;
   final int code;
-  final Uint8List message;
+  final String message;
 
   ErrorFrame(this.header, this.message, this.code);
 

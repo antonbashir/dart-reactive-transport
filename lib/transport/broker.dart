@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'channel.dart';
@@ -167,16 +166,16 @@ class ReactiveBroker {
     _channels[channel.key] = channel;
   }
 
-  void handle(int remoteStreamId, int errorCode, Uint8List payload) {
+  void handle(int remoteStreamId, int code, String message) {
     if (remoteStreamId != 0) {
       final stream = _streams[remoteStreamId];
       complete(remoteStreamId);
       if (stream != null) {
-        stream.onError(utf8.decode(payload));
+        stream.onError(message);
       }
       return;
     }
-    _onError?.call(ReactiveException(errorCode, utf8.decode(payload)));
+    _onError?.call(ReactiveException(code, message));
   }
 
   void complete(int streamId) {

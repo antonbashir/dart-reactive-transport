@@ -103,7 +103,7 @@ class ReactiveReader {
       message = buffer.readUint8List(dataLength);
       if (message == null) return null;
     }
-    return ErrorFrame(header, message, code);
+    return ErrorFrame(header, utf8.decode(message), code);
   }
 
   @pragma(preferInlinePragma)
