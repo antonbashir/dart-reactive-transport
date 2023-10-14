@@ -5,8 +5,10 @@ import 'constants.dart';
 import 'payload.dart';
 
 class ReactiveWriter {
+  ReactiveWriter._();
+
   @pragma(preferInlinePragma)
-  Uint8List writeSetupFrame(
+  static Uint8List writeSetupFrame(
     int keepAliveInterval,
     int keepAliveMaxLifetime,
     String metadataMimeType,
@@ -39,7 +41,7 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writeKeepAliveFrame(bool respond, int lastPosition) {
+  static Uint8List writeKeepAliveFrame(bool respond, int lastPosition) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(0);
@@ -51,7 +53,7 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writeRequestNFrame(int streamId, int count) {
+  static Uint8List writeRequestNFrame(int streamId, int count) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(streamId);
@@ -63,7 +65,7 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writeRequestChannelFrame(int streamId, int initialRequestN, ReactivePayload payload) {
+  static Uint8List writeRequestChannelFrame(int streamId, int initialRequestN, ReactivePayload payload) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(streamId);
@@ -82,7 +84,7 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writePayloadFrame(int streamId, bool completed, bool follow, ReactivePayload? payload) {
+  static Uint8List writePayloadFrame(int streamId, bool completed, bool follow, ReactivePayload? payload) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(streamId);
@@ -107,7 +109,7 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writeErrorFrame(int streamId, int code, String message) {
+  static Uint8List writeErrorFrame(int streamId, int code, String message) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(streamId);
@@ -120,7 +122,7 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writeCancelFrame(int streamId) {
+  static Uint8List writeCancelFrame(int streamId) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(streamId);
@@ -131,7 +133,7 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  Uint8List writeLeaseFrame(int timeToLive, int requests) {
+  static Uint8List writeLeaseFrame(int timeToLive, int requests) {
     final frameBuffer = ReactiveWriteBuffer();
     frameBuffer.writeInt24(0);
     frameBuffer.writeInt32(0);
@@ -144,7 +146,7 @@ class ReactiveWriter {
   }
 
   @pragma(preferInlinePragma)
-  void _refillFrameLength(ReactiveWriteBuffer frameBuffer) {
+  static void _refillFrameLength(ReactiveWriteBuffer frameBuffer) {
     final frameLength = frameBuffer.capacity() - reactiveFrameLengthFieldSize;
     frameBuffer.resetWriterIndex();
     frameBuffer.writeInt24(frameLength);

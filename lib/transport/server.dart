@@ -3,16 +3,15 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:iouring_transport/iouring_transport.dart';
+
 import 'broker.dart';
-import 'reader.dart';
-import 'responder.dart';
-import 'subscriber.dart';
-import 'supplier.dart';
-import 'writer.dart';
 import 'configuration.dart';
 import 'connection.dart';
 import 'exception.dart';
 import 'keepalive.dart';
+import 'responder.dart';
+import 'subscriber.dart';
+import 'supplier.dart';
 
 class ReactiveServer {
   final List<ReactiveServerConnection> _connections = [];
@@ -49,8 +48,6 @@ class ReactiveServer {
 }
 
 class ReactiveServerConnection implements ReactiveConnection {
-  final _writer = ReactiveWriter();
-  final _reader = ReactiveReader();
   final TransportServerConnection _connection;
   final void Function(ReactiveException exception)? _onError;
   final ReactiveBrokerConfiguration _brokerConfiguration;
@@ -69,20 +66,19 @@ class ReactiveServerConnection implements ReactiveConnection {
     this._brokerConfiguration,
     this._transportConfiguration,
   ) {
-    _keepAliveTimer = ReactiveKeepAliveTimer(_writer, this);
+    _keepAliveTimer = ReactiveKeepAliveTimer(this);
     final supplier = ReactiveStreamIdSupplier.server();
     final streamId = supplier.next({});
     _broker = ReactiveBroker(
       _transportConfiguration,
       _brokerConfiguration,
       this,
-      _writer,
       streamId,
       _keepAliveTimer,
       _onError,
       supplier,
     );
-    _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _reader, _keepAliveTimer);
+    _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _keepAliveTimer);
     _subscriber = ReactiveSubscriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
   }

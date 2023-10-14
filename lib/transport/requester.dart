@@ -21,7 +21,6 @@ class _ReactivePendingPayload {
 class ReactiveRequester {
   final int _streamId;
   final ReactiveConnection _connection;
-  final ReactiveWriter _writer;
   final StreamController<_ReactivePendingPayload> _input = StreamController();
   final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
   final ReactiveChannelConfiguration _channelConfiguration;
@@ -40,7 +39,6 @@ class ReactiveRequester {
   ReactiveRequester(
     this._connection,
     this._streamId,
-    this._writer,
     this._channelConfiguration,
     this._chunkSize,
     this._completer,
@@ -53,7 +51,7 @@ class ReactiveRequester {
 
   void request(int count) {
     if (!_accepting) return;
-    _connection.writeSingle(_writer.writeRequestNFrame(_streamId, count));
+    _connection.writeSingle(ReactiveWriter.writeRequestNFrame(_streamId, count));
   }
 
   void schedulePayload(Uint8List bytes, bool complete) {
@@ -68,7 +66,7 @@ class ReactiveRequester {
   void scheduleError(String message) {
     if (!_accepting) return;
     _accepting = false;
-    final frame = _writer.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, message);
+    final frame = ReactiveWriter.writeErrorFrame(_streamId, ReactiveExceptions.applicationErrorCode, message);
     _input.add(_ReactivePendingPayload(frame, true, true));
     _pending++;
     if (_requested != reactiveInfinityRequestsCount) _requested++;
@@ -78,7 +76,7 @@ class ReactiveRequester {
   void scheduleCancel() {
     if (!_accepting) return;
     _accepting = false;
-    final frame = _writer.writeCancelFrame(_streamId);
+    final frame = ReactiveWriter.writeCancelFrame(_streamId);
     _input.add(_ReactivePendingPayload(frame, true, true));
     _pending++;
     if (_requested != reactiveInfinityRequestsCount) _requested++;
@@ -138,7 +136,7 @@ class ReactiveRequester {
       return;
     }
     if (payload.last) {
-      chunks = _buffer.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
+      chunks = _buffer.add(payload.frame ? payload.bytes : ReactiveWriter.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
       _connection.writeMany(chunks, true);
       _pending -= _buffer.count;
       if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
@@ -147,7 +145,7 @@ class ReactiveRequester {
       _completer();
       return;
     }
-    chunks = _buffer.add(payload.frame ? payload.bytes : _writer.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
+    chunks = _buffer.add(payload.frame ? payload.bytes : ReactiveWriter.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
     if (_buffer.count >= _channelConfiguration.chunksLimit || _pending - _buffer.count == 0) {
       _connection.writeMany(chunks, false);
       _pending -= _buffer.count;
@@ -162,7 +160,7 @@ class ReactiveRequester {
     var index = 0;
     for (var fragment in fragments.take(chunks)) {
       final follow = fragmentNumber < fragmentsCount || ++index != chunks;
-      _buffer.add(_writer.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
+      _buffer.add(ReactiveWriter.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
     }
     _connection.writeMany(
       _buffer.chunks,

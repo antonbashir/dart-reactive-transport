@@ -20,7 +20,6 @@ import 'writer.dart';
 class ReactiveBroker {
   final ReactiveTransportConfiguration _transportConfiguration;
   final ReactiveBrokerConfiguration _configuration;
-  final ReactiveWriter _writer;
   final ReactiveConnection _connection;
   final ReactiveKeepAliveTimer _keepAliveTimer;
   final ReactiveStreamIdSupplier streamIdSupplier;
@@ -43,7 +42,6 @@ class ReactiveBroker {
     this._transportConfiguration,
     this._configuration,
     this._connection,
-    this._writer,
     this._currentLocalStreamId,
     this._keepAliveTimer,
     this._onError,
@@ -54,15 +52,15 @@ class ReactiveBroker {
     final dataCodec = _configuration.codecs[dataMimeType];
     final metadataCodec = _configuration.codecs[metadataMimeType];
     if (dataCodec == null || metadataCodec == null || (lease && _configuration.lease == null)) {
-      _connection.writeSingle(_writer.writeErrorFrame(0, ReactiveExceptions.invalidSetup.code, ReactiveExceptions.invalidSetup.content));
+      _connection.writeSingle(ReactiveWriter.writeErrorFrame(0, ReactiveExceptions.invalidSetup.code, ReactiveExceptions.invalidSetup.content));
       return;
     }
     _dataCodec = dataCodec;
     _metadataCodec = metadataCodec;
     if (lease) {
-      _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLiveCheck.inMilliseconds, _configuration.lease!.requests));
+      _connection.writeSingle(ReactiveWriter.writeLeaseFrame(_configuration.lease!.timeToLiveCheck.inMilliseconds, _configuration.lease!.requests));
       _leaseScheduler.schedule(_configuration.lease!.timeToLiveRefresh.inMilliseconds, () {
-        _connection.writeSingle(_writer.writeLeaseFrame(_configuration.lease!.timeToLiveCheck.inMilliseconds, _configuration.lease!.requests));
+        _connection.writeSingle(ReactiveWriter.writeLeaseFrame(_configuration.lease!.timeToLiveCheck.inMilliseconds, _configuration.lease!.requests));
       });
     }
     _keepAliveTimer.start(keepAliveInterval, keepAliveMaxLifetime);
@@ -76,7 +74,7 @@ class ReactiveBroker {
         final key = entry.key;
         final metadata = _metadataCodec.encode({reactiveRoutingKey: key});
         final payload = ReactivePayload.ofMetadata(metadata);
-        _connection.writeSingle(_writer.writeRequestChannelFrame(channel.streamId, channel.configuration.initialRequestCount, payload));
+        _connection.writeSingle(ReactiveWriter.writeRequestChannelFrame(channel.streamId, channel.configuration.initialRequestCount, payload));
       }
     }
   }
@@ -94,7 +92,6 @@ class ReactiveBroker {
       final requester = ReactiveRequester(
         _connection,
         streamId,
-        _writer,
         channel.configuration,
         _transportConfiguration.workerConfiguration.bufferSize,
         () => complete(streamId),
@@ -103,7 +100,7 @@ class ReactiveBroker {
       channel.bind(streamId);
       if (!setupConfiguration.lease) {
         channel.activate();
-        frames.add(_writer.writeRequestChannelFrame(streamId, channel.configuration.initialRequestCount, payload));
+        frames.add(ReactiveWriter.writeRequestChannelFrame(streamId, channel.configuration.initialRequestCount, payload));
       }
       _currentLocalStreamId = streamIdSupplier.next(_streams);
     }
@@ -119,7 +116,6 @@ class ReactiveBroker {
       final requester = ReactiveRequester(
         _connection,
         remoteStreamId,
-        _writer,
         channel.configuration,
         _transportConfiguration.workerConfiguration.bufferSize,
         () => complete(remoteStreamId),
@@ -148,7 +144,7 @@ class ReactiveBroker {
 
   void request(int remoteStreamId, int count) {
     if (_leaseLimiter.restricted) {
-      _connection.writeSingle(_writer.writeErrorFrame(remoteStreamId, ReactiveExceptions.rejected.code, ReactiveExceptions.rejected.content));
+      _connection.writeSingle(ReactiveWriter.writeErrorFrame(remoteStreamId, ReactiveExceptions.rejected.code, ReactiveExceptions.rejected.content));
       return;
     }
     final stream = _streams[remoteStreamId];
