@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'assembler.dart';
+import 'broker.dart';
 import 'buffer.dart';
 import 'configuration.dart';
 import 'connection.dart';
@@ -20,11 +21,11 @@ class _ReactivePendingPayload {
 
 class ReactiveRequester {
   final int _streamId;
+  final ReactiveBroker _broker;
   final ReactiveConnection _connection;
   final StreamController<_ReactivePendingPayload> _input = StreamController();
   final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
   final ReactiveChannelConfiguration _channelConfiguration;
-  final void Function() _completer;
   final int _chunkSize;
 
   late final StreamSubscription _subscription;
@@ -37,11 +38,11 @@ class ReactiveRequester {
   var _paused = false;
 
   ReactiveRequester(
+    this._broker,
     this._connection,
     this._streamId,
     this._channelConfiguration,
     this._chunkSize,
-    this._completer,
   ) {
     _buffer = ReactiveRequesterBuffer(_chunkSize);
     _subscription = _input.stream.listen(_output.add);
@@ -142,7 +143,7 @@ class ReactiveRequester {
       if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
       unawaited(close());
-      _completer();
+      _broker.complete(_streamId);
       return;
     }
     chunks = _buffer.add(payload.frame ? payload.bytes : ReactiveWriter.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
@@ -180,7 +181,7 @@ class ReactiveRequester {
           _paused = false;
           if (_requested != reactiveInfinityRequestsCount) --_requested;
           unawaited(close());
-          _completer();
+          _broker.complete(_streamId);
           return;
         }
         _pending--;

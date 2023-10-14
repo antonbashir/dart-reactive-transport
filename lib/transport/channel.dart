@@ -1,43 +1,12 @@
 import 'dart:async';
-import 'dart:typed_data';
 
-import 'constants.dart';
-
-import 'assembler.dart';
-import 'codec.dart';
 import 'configuration.dart';
+import 'constants.dart';
 import 'producer.dart';
 
 abstract mixin class ReactiveChannel {
-  var _active = false;
-  var _fragments = <Uint8List>[];
-
   String get key;
   ReactiveChannelConfiguration get configuration;
-  late final int streamId;
-
-  @pragma(preferInlinePragma)
-  void bind(int streamId) => this.streamId = streamId;
-
-  @pragma(preferInlinePragma)
-  bool activate() {
-    if (_active) return false;
-    _active = true;
-    return true;
-  }
-
-  @pragma(preferInlinePragma)
-  FutureOr<void> onPayloadFragment(ReactiveCodec codec, Uint8List payload, ReactiveProducer producer, bool follow, bool complete) {
-    if (follow) {
-      _fragments.add(payload);
-      if (complete) return onPayload(codec.decode(ReactiveAssembler.reassemble(_fragments)), producer);
-    }
-    if (!follow) {
-      if (_fragments.isEmpty) return onPayload(payload.isEmpty ? null : codec.decode(payload), producer);
-      _fragments.add(payload);
-      return onPayload(codec.decode(ReactiveAssembler.reassemble(_fragments)), producer);
-    }
-  }
 
   FutureOr<void> onPayload(dynamic payload, ReactiveProducer producer) {}
 
