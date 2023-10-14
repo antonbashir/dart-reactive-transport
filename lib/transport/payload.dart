@@ -9,7 +9,7 @@ class ReactivePayload {
 
   ReactivePayload(this.metadata, this.data);
 
-  static ReactivePayload empty = ReactivePayload.ofData(emptyBytes);
+  static final empty = ReactivePayload.ofData(emptyBytes);
 
   factory ReactivePayload.ofData(Uint8List data) => ReactivePayload(emptyBytes, data);
 
