@@ -3,7 +3,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'assembler.dart';
-import 'broker.dart';
 import 'buffer.dart';
 import 'configuration.dart';
 import 'connection.dart';
@@ -21,7 +20,6 @@ class _ReactivePendingPayload {
 
 class ReactiveRequester {
   final int _streamId;
-  final ReactiveBroker _broker;
   final ReactiveConnection _connection;
   final StreamController<_ReactivePendingPayload> _input = StreamController();
   final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
@@ -38,7 +36,6 @@ class ReactiveRequester {
   var _paused = false;
 
   ReactiveRequester(
-    this._broker,
     this._connection,
     this._streamId,
     this._channelConfiguration,
@@ -143,7 +140,6 @@ class ReactiveRequester {
       _pending -= _buffer.count;
       if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
-      _broker.complete(_streamId);
       unawaited(close());
       return;
     }
@@ -182,7 +178,6 @@ class ReactiveRequester {
         if (last) {
           if (_requested != reactiveInfinityRequestsCount) --_requested;
           unawaited(close());
-          _broker.complete(_streamId);
           return;
         }
         if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();

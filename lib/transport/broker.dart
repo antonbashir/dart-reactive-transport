@@ -87,7 +87,6 @@ class ReactiveBroker {
       final payload = ReactivePayload.ofMetadata(metadata);
       final streamId = _currentLocalStreamId;
       final requester = ReactiveRequester(
-        this,
         _connection,
         streamId,
         channel.configuration,
@@ -116,7 +115,6 @@ class ReactiveBroker {
     final channel = _channels[method];
     if (channel != null) {
       final requester = ReactiveRequester(
-        this,
         _connection,
         remoteStreamId,
         channel.configuration,
@@ -169,9 +167,9 @@ class ReactiveBroker {
   void handle(int remoteStreamId, int code, String message) {
     if (remoteStreamId != 0) {
       final stream = _streams[remoteStreamId];
-      complete(remoteStreamId);
       if (stream != null) {
         stream.onError(message);
+        stream.onComplete();
       }
       return;
     }
