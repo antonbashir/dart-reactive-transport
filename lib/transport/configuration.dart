@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:iouring_transport/iouring_transport.dart';
 
 import 'codec.dart';
@@ -74,17 +72,20 @@ class ReactiveBrokerConfiguration {
 }
 
 class ReactiveLeaseConfiguration {
-  final Duration timeToLive;
+  final Duration timeToLiveRefresh;
+  final Duration timeToLiveCheck;
   final int requests;
 
-  ReactiveLeaseConfiguration({required this.timeToLive, required this.requests});
+  ReactiveLeaseConfiguration({required this.timeToLiveCheck, required this.timeToLiveRefresh, required this.requests});
 
   ReactiveLeaseConfiguration copyWith({
-    Duration? timeToLive,
+    Duration? timeToLiveCheck,
+    Duration? timeToLiveRefresh,
     int? requests,
   }) =>
       ReactiveLeaseConfiguration(
-        timeToLive: timeToLive ?? this.timeToLive,
+        timeToLiveCheck: timeToLiveCheck ?? this.timeToLiveCheck,
+        timeToLiveRefresh: timeToLiveRefresh ?? this.timeToLiveRefresh,
         requests: requests ?? this.requests,
       );
 }
@@ -94,9 +95,6 @@ class ReactiveSetupConfiguration {
   final String dataMimeType;
   final int keepAliveInterval;
   final int keepAliveMaxLifetime;
-  final int flags;
-  final Uint8List initialData;
-  final Uint8List initialMetaData;
   final bool lease;
 
   ReactiveSetupConfiguration({
@@ -104,9 +102,6 @@ class ReactiveSetupConfiguration {
     required this.dataMimeType,
     required this.keepAliveInterval,
     required this.keepAliveMaxLifetime,
-    required this.flags,
-    required this.initialData,
-    required this.initialMetaData,
     required this.lease,
   });
 
@@ -115,9 +110,6 @@ class ReactiveSetupConfiguration {
     String? dataMimeType,
     int? keepAliveInterval,
     int? keepAliveMaxLifetime,
-    int? flags,
-    Uint8List? initialData,
-    Uint8List? initialMetaData,
     bool? lease,
   }) =>
       ReactiveSetupConfiguration(
@@ -125,9 +117,6 @@ class ReactiveSetupConfiguration {
         dataMimeType: dataMimeType ?? this.dataMimeType,
         keepAliveInterval: keepAliveInterval ?? this.keepAliveInterval,
         keepAliveMaxLifetime: keepAliveMaxLifetime ?? this.keepAliveMaxLifetime,
-        flags: flags ?? this.flags,
-        initialData: initialData ?? this.initialData,
-        initialMetaData: initialMetaData ?? this.initialMetaData,
         lease: lease ?? this.lease,
       );
 }

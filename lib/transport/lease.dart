@@ -38,8 +38,8 @@ class ReactiveLeaseScheduler {
 
   void stop() {
     if (_active) {
-      _timer.cancel();
       _active = false;
+      _timer.cancel();
     }
   }
 }

@@ -104,7 +104,7 @@ class ReactiveClientConnection implements ReactiveConnection {
         _setupConfiguration.metadataMimeType,
         _setupConfiguration.dataMimeType,
         _setupConfiguration.lease,
-        ReactivePayload(_setupConfiguration.initialMetaData, _setupConfiguration.initialData),
+        ReactivePayload.empty,
       )
     ];
     _broker.connect(_setupConfiguration).forEach(frames.addAll);

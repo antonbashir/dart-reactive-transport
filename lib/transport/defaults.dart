@@ -34,9 +34,6 @@ class ReactiveTransportDefaults {
         dataMimeType: messagePackMimeType,
         keepAliveInterval: 20 * 1000,
         keepAliveMaxLifetime: 90 * 1000,
-        flags: 0,
-        initialData: emptyBytes,
-        initialMetaData: emptyBytes,
         lease: false,
       );
 }
