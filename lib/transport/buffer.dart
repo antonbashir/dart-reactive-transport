@@ -8,10 +8,6 @@ class ReactiveReadBuffer {
   var _capacity = 0;
   var _checkpointIndex = 0;
 
-  ReactiveReadBuffer();
-
-  int get capacity => _capacity;
-
   int get readerIndex => _readerIndex;
 
   @pragma(preferInlinePragma)
