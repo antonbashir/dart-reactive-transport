@@ -90,7 +90,7 @@ class ReactiveRequester {
       _subscription.resume();
       return;
     }
-    if (count == reactiveInfinityRequestsCount) {
+    if (count >= reactiveInfinityRequestsCount) {
       _requested = reactiveInfinityRequestsCount;
       _subscription.resume();
       return;
@@ -143,8 +143,8 @@ class ReactiveRequester {
       _pending -= _buffer.count;
       if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
-      unawaited(close());
       _broker.complete(_streamId);
+      unawaited(close());
       return;
     }
     chunks = _buffer.add(payload.frame ? payload.bytes : ReactiveWriter.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
@@ -177,16 +177,14 @@ class ReactiveRequester {
           );
           return;
         }
+        _pending--;
+        _paused = false;
         if (last) {
-          _pending--;
-          _paused = false;
           if (_requested != reactiveInfinityRequestsCount) --_requested;
           unawaited(close());
           _broker.complete(_streamId);
           return;
         }
-        _pending--;
-        _paused = false;
         if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();
       },
     );
