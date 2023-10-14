@@ -96,6 +96,7 @@ class ReactiveRequester {
       return;
     }
     _requested += count;
+    if (_requested > reactiveInfinityRequestsCount) _requested = reactiveInfinityRequestsCount;
     _subscription.resume();
   }
 
