@@ -99,14 +99,6 @@ class ReactiveResponder {
           _tracer?.call(frame);
           _broker.handle(frame.header.streamId, frame.code, frame.message);
           break;
-        case reactiveFrameMetadataPush:
-        case reactiveFrameRequestResponse:
-        case reactiveFrameRequestStream:
-        case reactiveFrameRequestFnf:
-        case reactiveFrameResume:
-        case reactiveFrameResumeOk:
-        case reactiveFrameExt:
-          break;
         default:
           if (header.frameLength > reactiveFrameHeaderSize) {
             if (_buffer.readBytes(header.frameLength - reactiveFrameHeaderSize) == null) {
