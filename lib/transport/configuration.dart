@@ -54,20 +54,16 @@ class ReactiveChannelConfiguration {
 
 class ReactiveBrokerConfiguration {
   final Map<String, ReactiveCodec> codecs;
-  final ReactiveLeaseConfiguration? lease;
 
   const ReactiveBrokerConfiguration({
     required this.codecs,
-    this.lease,
   });
 
   ReactiveBrokerConfiguration copyWith({
     Map<String, ReactiveCodec>? codecs,
-    ReactiveLeaseConfiguration? lease,
   }) =>
       ReactiveBrokerConfiguration(
         codecs: codecs ?? this.codecs,
-        lease: lease ?? this.lease,
       );
 }
 

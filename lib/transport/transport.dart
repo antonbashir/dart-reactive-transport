@@ -31,6 +31,7 @@ class ReactiveTransport {
     void onShutdown()?,
     TransportTcpServerConfiguration? tcpConfiguration,
     ReactiveBrokerConfiguration? brokerConfiguration,
+    ReactiveLeaseConfiguration? leaseConfiguration,
   }) {
     final server = ReactiveServer(
       address: address,
@@ -41,6 +42,7 @@ class ReactiveTransport {
       tcpConfiguration: tcpConfiguration,
       transportConfiguration: _configuration,
       brokerConfiguration: brokerConfiguration ?? ReactiveTransportDefaults.broker(),
+      leaseConfiguration: leaseConfiguration,
     );
     _servers.add(server);
     _worker.servers.tcp(address, port, server.accept, configuration: tcpConfiguration);

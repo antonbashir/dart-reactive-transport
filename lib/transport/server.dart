@@ -23,6 +23,7 @@ class ReactiveServer {
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
   final TransportTcpServerConfiguration? tcpConfiguration;
+  final ReactiveLeaseConfiguration? leaseConfiguration;
 
   ReactiveServer({
     required this.address,
@@ -33,6 +34,7 @@ class ReactiveServer {
     required this.brokerConfiguration,
     required this.transportConfiguration,
     this.tcpConfiguration,
+    this.leaseConfiguration,
   });
 
   void accept(TransportServerConnection connection) {
@@ -45,6 +47,7 @@ class ReactiveServer {
       },
       brokerConfiguration,
       transportConfiguration,
+      leaseConfiguration: leaseConfiguration,
     );
     _connections.add(reactive);
     acceptor(reactive);
@@ -59,6 +62,7 @@ class ReactiveServerConnection implements ReactiveConnection {
   final void Function(ReactiveServerConnection connection)? _onClose;
   final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
+  final ReactiveLeaseConfiguration? leaseConfiguration;
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
@@ -72,8 +76,9 @@ class ReactiveServerConnection implements ReactiveConnection {
     this._onError,
     this._onClose,
     this._brokerConfiguration,
-    this._transportConfiguration,
-  ) {
+    this._transportConfiguration, {
+    this.leaseConfiguration,
+  }) {
     _keepAliveTimer = ReactiveKeepAliveTimer(this);
     final supplier = ReactiveStreamIdSupplier.server();
     final streamId = supplier.next({});
@@ -85,6 +90,7 @@ class ReactiveServerConnection implements ReactiveConnection {
       _keepAliveTimer,
       _onError,
       supplier,
+      leaseConfiguration: leaseConfiguration,
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _keepAliveTimer);
     _subscriber = ReactiveSubscriber(_broker);

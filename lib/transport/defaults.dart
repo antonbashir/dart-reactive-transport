@@ -26,7 +26,6 @@ class ReactiveTransportDefaults {
           octetStreamMimeType: RawReactiveCodec(),
           textMimeType: Utf8ReactiveCodec(),
         },
-        lease: null,
       );
 
   static ReactiveSetupConfiguration setup() => ReactiveSetupConfiguration(

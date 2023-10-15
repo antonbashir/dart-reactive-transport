@@ -7,7 +7,7 @@ class ReactiveLeaseLimiter {
   Timer? _timer;
 
   bool get enabled => _enabled;
-  bool get restricted => _enabled && _available == 0;
+  bool get restricted => _available == 0;
 
   void reconfigure(int timeToLive, int requests) {
     _enabled = true;

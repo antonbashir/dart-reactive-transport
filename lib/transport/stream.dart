@@ -10,6 +10,7 @@ import 'requester.dart';
 
 class ReactiveStream {
   final int id;
+  final String key;
   final ReactiveProducer _producer;
   final ReactiveRequester _requester;
   final ReactiveChannel _channel;
@@ -19,7 +20,7 @@ class ReactiveStream {
   var _requested = false;
   var _fragments = <Uint8List>[];
 
-  ReactiveStream(this.id, this.initialRequestCount, this._requester, this._producer, this._channel);
+  ReactiveStream(this.id, this.initialRequestCount, this._requester, this._producer, this._channel) : key = _channel.key;
 
   @pragma(preferInlinePragma)
   bool requested() {
