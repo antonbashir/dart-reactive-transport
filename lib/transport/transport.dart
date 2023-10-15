@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:iouring_transport/iouring_transport.dart';
+
 import 'client.dart';
+import 'configuration.dart';
 import 'defaults.dart';
 import 'exception.dart';
-
-import 'configuration.dart';
 import 'server.dart';
 
 class ReactiveTransport {
@@ -23,7 +23,7 @@ class ReactiveTransport {
     if (transport) await _transport.shutdown(gracefulDuration: _configuration.gracefulDuration);
   }
 
-  void serve(
+  ReactiveServer serve(
     InternetAddress address,
     int port,
     void Function(ReactiveServerConnection connection) acceptor, {
@@ -42,9 +42,10 @@ class ReactiveTransport {
     );
     _servers.add(server);
     _worker.servers.tcp(address, port, server.accept, configuration: tcpConfiguration);
+    return server;
   }
 
-  void connect(
+  ReactiveClient connect(
     InternetAddress address,
     int port,
     void Function(ReactiveClientConnection connection) connector, {
@@ -71,5 +72,6 @@ class ReactiveTransport {
           configuration: tcpConfiguration,
         )
         .then(client.connect, onError: (error) => onError?.call(ReactiveException.fromTransport(error)));
+    return client;
   }
 }
