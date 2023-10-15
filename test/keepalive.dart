@@ -48,25 +48,16 @@ void keepalive() {
 
   test('1 failed keepalive', timeout: Timeout.none, () async {
     final latch = Latch(2);
-    var delta = DateTime.now();
-
-    void _trace(frame) {
-      if (frame is KeepAliveFrame) {
-        latch.notify();
-        if (latch.count == 2) {
-          expect(true, DateTime.now().millisecondsSinceEpoch - delta.millisecondsSinceEpoch > Duration(seconds: 5).inMilliseconds);
-        }
-      }
-    }
 
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
-    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(tracer: _trace));
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
 
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
+      onShutdown: () => latch.notify(),
       (connection) {
         connection.subscriber.subscribe("channel");
       },
@@ -75,7 +66,8 @@ void keepalive() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      setupConfiguration: ReactiveTransportDefaults.setup().copyWith(keepAliveInterval: Duration(seconds: 5)),
+      onShutdown: () => latch.notify(),
+      setupConfiguration: ReactiveTransportDefaults.setup().copyWith(keepAliveInterval: Duration(seconds: 10), keepAliveMaxLifetime: Duration(seconds: 5)),
       (connection) {
         connection.subscriber.subscribe("channel");
       },

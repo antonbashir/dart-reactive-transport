@@ -23,11 +23,12 @@ class ReactiveTransport {
     if (transport) await _transport.shutdown(gracefulDuration: _configuration.gracefulDuration);
   }
 
-  ReactiveServer serve(
+  void serve(
     InternetAddress address,
     int port,
     void Function(ReactiveServerConnection connection) acceptor, {
     void onError(ReactiveException exception)?,
+    void onShutdown()?,
     TransportTcpServerConfiguration? tcpConfiguration,
     ReactiveBrokerConfiguration? brokerConfiguration,
   }) {
@@ -36,20 +37,21 @@ class ReactiveTransport {
       port: port,
       acceptor: acceptor,
       onError: onError,
+      onShutdown: onShutdown,
       tcpConfiguration: tcpConfiguration,
       transportConfiguration: _configuration,
       brokerConfiguration: brokerConfiguration ?? ReactiveTransportDefaults.broker(),
     );
     _servers.add(server);
     _worker.servers.tcp(address, port, server.accept, configuration: tcpConfiguration);
-    return server;
   }
 
-  ReactiveClient connect(
+  void connect(
     InternetAddress address,
     int port,
     void Function(ReactiveClientConnection connection) connector, {
     void onError(ReactiveException exception)?,
+    void onShutdown()?,
     TransportTcpClientConfiguration? tcpConfiguration,
     ReactiveSetupConfiguration? setupConfiguration,
     ReactiveBrokerConfiguration? brokerConfiguration,
@@ -59,6 +61,7 @@ class ReactiveTransport {
       port: port,
       connector: connector,
       onError: onError,
+      onShutdown: onShutdown,
       transportConfiguration: _configuration,
       tcpConfiguration: tcpConfiguration,
       brokerConfiguration: brokerConfiguration ?? ReactiveTransportDefaults.broker(),
@@ -72,6 +75,5 @@ class ReactiveTransport {
           configuration: tcpConfiguration,
         )
         .then(client.connect, onError: (error) => onError?.call(ReactiveException.fromTransport(error)));
-    return client;
   }
 }

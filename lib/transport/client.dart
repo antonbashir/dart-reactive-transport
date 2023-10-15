@@ -21,6 +21,7 @@ class ReactiveClient {
   final int port;
   final void Function(ReactiveClientConnection connection) connector;
   final void Function(ReactiveException exception)? onError;
+  final void Function()? onShutdown;
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
   final ReactiveSetupConfiguration setupConfiguration;
@@ -31,6 +32,7 @@ class ReactiveClient {
     required this.port,
     required this.connector,
     required this.onError,
+    required this.onShutdown,
     required this.brokerConfiguration,
     required this.transportConfiguration,
     required this.setupConfiguration,
@@ -42,6 +44,10 @@ class ReactiveClient {
       final reactive = ReactiveClientConnection(
         connection,
         onError,
+        (connection) {
+          _connections.remove(connection);
+          if (_connections.isEmpty) onShutdown?.call();
+        },
         brokerConfiguration,
         setupConfiguration,
         transportConfiguration,
@@ -52,7 +58,7 @@ class ReactiveClient {
     });
   }
 
-  Future<void> shutdown({Duration? gracefulDuration}) => Future.wait(_connections.map((connection) => connection.close()));
+  Future<void> shutdown({Duration? gracefulDuration}) => Future.wait(_connections.map((connection) => connection.close())).whenComplete(() => onShutdown?.call());
 }
 
 class ReactiveClientConnection implements ReactiveConnection {
@@ -61,6 +67,7 @@ class ReactiveClientConnection implements ReactiveConnection {
   final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
   final void Function(ReactiveException exception)? _onError;
+  final void Function(ReactiveClientConnection connection)? _onClose;
 
   late final ReactiveBroker _broker;
   late final ReactiveResponder _responder;
@@ -72,6 +79,7 @@ class ReactiveClientConnection implements ReactiveConnection {
   ReactiveClientConnection(
     this._connection,
     this._onError,
+    this._onClose,
     this._brokerConfiguration,
     this._setupConfiguration,
     this._transportConfiguration,
@@ -91,12 +99,12 @@ class ReactiveClientConnection implements ReactiveConnection {
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _keepAliveTimer);
     _subscriber = ReactiveSubscriber(_broker);
     _connection.stream().listen(
-          _responder.handle,
-          onError: (error) {
-            _onError?.call(ReactiveException.fromTransport(error));
-            unawaited(close());
-          },
-        );
+      _responder.handle,
+      onError: (error) {
+        _onError?.call(ReactiveException.fromTransport(error));
+        unawaited(close());
+      },
+    );
   }
 
   void connect() {
@@ -145,5 +153,6 @@ class ReactiveClientConnection implements ReactiveConnection {
   Future<void> close() async {
     await _connection.close(gracefulDuration: _transportConfiguration.gracefulDuration);
     _broker.close();
+    _onClose?.call(this);
   }
 }

@@ -19,6 +19,7 @@ class ReactiveServer {
   final int port;
   final void Function(ReactiveServerConnection connection) acceptor;
   final void Function(ReactiveException exception)? onError;
+  final void Function()? onShutdown;
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
   final TransportTcpServerConfiguration? tcpConfiguration;
@@ -28,6 +29,7 @@ class ReactiveServer {
     required this.port,
     required this.acceptor,
     required this.onError,
+    required this.onShutdown,
     required this.brokerConfiguration,
     required this.transportConfiguration,
     this.tcpConfiguration,
@@ -37,6 +39,10 @@ class ReactiveServer {
     final reactive = ReactiveServerConnection(
       connection,
       onError,
+      (connection) {
+        _connections.remove(connection);
+        if (_connections.isEmpty) onShutdown?.call();
+      },
       brokerConfiguration,
       transportConfiguration,
     );
@@ -50,6 +56,7 @@ class ReactiveServer {
 class ReactiveServerConnection implements ReactiveConnection {
   final TransportServerConnection _connection;
   final void Function(ReactiveException exception)? _onError;
+  final void Function(ReactiveServerConnection connection)? _onClose;
   final ReactiveBrokerConfiguration _brokerConfiguration;
   final ReactiveTransportConfiguration _transportConfiguration;
 
@@ -63,6 +70,7 @@ class ReactiveServerConnection implements ReactiveConnection {
   ReactiveServerConnection(
     this._connection,
     this._onError,
+    this._onClose,
     this._brokerConfiguration,
     this._transportConfiguration,
   ) {
@@ -111,5 +119,6 @@ class ReactiveServerConnection implements ReactiveConnection {
   Future<void> close() async {
     await _connection.close(gracefulDuration: _transportConfiguration.gracefulDuration);
     _broker.close();
+    _onClose?.call(this);
   }
 }
