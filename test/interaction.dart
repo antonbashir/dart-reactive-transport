@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:iouring_transport/iouring_transport.dart';
+import 'package:reactive_transport/transport/constants.dart';
 import 'package:reactive_transport/transport/defaults.dart';
 import 'package:reactive_transport/transport/producer.dart';
 import 'package:reactive_transport/transport/transport.dart';
@@ -138,6 +140,58 @@ void interaction() {
     );
 
     await latch.done();
+    await reactive.shutdown();
+  });
+
+  test('infinity requests - infinity responses', timeout: Timeout.none, () async {
+    final transport = Transport();
+    final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
+    await worker.initialize();
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
+    final clientPayload = "client-payload";
+    final serverPayload = "server-payload";
+
+    final clientLatch = Latch(100);
+    final serverLatch = Latch(100);
+
+    void serve(dynamic payload, ReactiveProducer producer) {
+      expect(payload, clientPayload);
+      serverLatch.notify();
+    }
+
+    void communicate(dynamic payload, ReactiveProducer producer) {
+      expect(payload, serverPayload);
+      clientLatch.notify();
+    }
+
+    reactive.serve(
+      InternetAddress.anyIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribe(
+        "channel",
+        onPayload: serve,
+        onSubscribe: (producer) {
+          Stream.periodic(Duration.zero).take(500).listen((event) => producer.payload(serverPayload));
+        },
+      ),
+    );
+
+    reactive.connect(
+      InternetAddress.loopbackIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribe(
+        "channel",
+        configuration: ReactiveTransportDefaults.channel().copyWith(initialRequestCount: reactiveInfinityRequestsCount),
+        onPayload: communicate,
+        onSubscribe: (producer) {
+          producer.request(reactiveInfinityRequestsCount);
+          Stream.periodic(Duration.zero).take(500).listen((event) => producer.payload(clientPayload));
+        },
+      ),
+    );
+
+    await serverLatch.done();
+    await clientLatch.done();
     await reactive.shutdown();
   });
 }

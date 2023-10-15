@@ -126,7 +126,7 @@ class ReactiveBroker {
       );
       final stream = ReactiveStream(
         remoteStreamId,
-        channel.configuration.initialRequestCount,
+        initialRequestCount,
         requester,
         ReactiveProducer(requester, _dataCodec),
         channel,
