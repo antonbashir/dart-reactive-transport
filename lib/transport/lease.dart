@@ -1,25 +1,38 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'constants.dart';
+
 class ReactiveLeaseLimiter {
   var _available = 0;
+  var _timeToLive = 0;
+  var _timestamp = DateTime.now().millisecondsSinceEpoch;
   var _enabled = false;
-  Timer? _timer;
 
   bool get enabled => _enabled;
-  bool get restricted => _available == 0;
+  bool get restricted {
+    if (_available == 0) return true;
+    if (DateTime.now().millisecondsSinceEpoch - _timestamp > _timeToLive) {
+      _available = 0;
+      return true;
+    }
+    return false;
+  }
 
+  @pragma(preferInlinePragma)
   void reconfigure(int timeToLive, int requests) {
     _enabled = true;
     _available = requests;
-    _timer?.cancel();
-    _timer = Timer(Duration(milliseconds: timeToLive), () {
-      if (_timer?.isActive == true) _available = 0;
-    });
+    _timeToLive = timeToLive;
+    _timestamp = DateTime.now().millisecondsSinceEpoch;
   }
 
+  @pragma(preferInlinePragma)
   void notify(int count) {
     _available = max(_available - count, 0);
+    if (DateTime.now().millisecondsSinceEpoch - _timestamp > _timeToLive) {
+      _available = 0;
+    }
   }
 }
 
