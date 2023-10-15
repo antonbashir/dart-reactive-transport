@@ -176,7 +176,7 @@ class ReactiveRequester {
         _pending--;
         _paused = false;
         if (last) {
-          if (_requested != reactiveInfinityRequestsCount) --_requested;
+          _buffer.clear();
           unawaited(close());
           return;
         }
