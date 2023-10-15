@@ -80,7 +80,10 @@ class ReactiveServerConnection implements ReactiveConnection {
     );
     _responder = ReactiveResponder(_broker, _transportConfiguration.tracer, _keepAliveTimer);
     _subscriber = ReactiveSubscriber(_broker);
-    _connection.stream().listen(_responder.handle, onError: (error) => _onError?.call(ReactiveException.fromTransport(error)));
+    _connection.stream().listen(_responder.handle, onError: (error) {
+      _onError?.call(ReactiveException.fromTransport(error));
+      unawaited(close());
+    });
   }
 
   @override

@@ -67,7 +67,10 @@ void keepalive() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel"),
+      (connection) {
+        connection.subscriber.subscribe("channel");
+        connection.close();
+      },
     );
 
     reactive.connect(
