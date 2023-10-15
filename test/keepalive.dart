@@ -69,7 +69,6 @@ void keepalive() {
       12345,
       (connection) {
         connection.subscriber.subscribe("channel");
-        connection.close();
       },
     );
 

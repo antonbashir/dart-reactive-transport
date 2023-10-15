@@ -6,8 +6,8 @@ import 'writer.dart';
 class ReactiveKeepAliveTimer {
   final ReactiveConnection _connection;
 
-  late final Timer _pingTimer;
-  late final Timer _pongTimer;
+  Timer? _pingTimer;
+  Timer? _pongTimer;
 
   var _lastPong = DateTime.now().millisecondsSinceEpoch;
 
@@ -33,7 +33,7 @@ class ReactiveKeepAliveTimer {
   }
 
   void stop() {
-    _pingTimer.cancel();
-    _pongTimer.cancel();
+    _pingTimer?.cancel();
+    _pongTimer?.cancel();
   }
 }
