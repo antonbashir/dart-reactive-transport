@@ -101,6 +101,11 @@ class ReactiveRequester {
     if (_accepting || _sending) {
       _accepting = false;
       _sending = false;
+      _paused = false;
+      _pending = 0;
+      _requested = 0;
+      _buffer.clear();
+      _subscription.pause();
       await _subscription.cancel();
       await _input.close();
       await _output.close();
@@ -108,10 +113,6 @@ class ReactiveRequester {
   }
 
   void _send(_ReactivePendingPayload payload) {
-    if (!_sending || _paused || _requested == 0) {
-      _subscription.pause();
-      return;
-    }
     var chunks = _buffer.chunks;
     if (payload.bytes.length > _channelConfiguration.frameMaxSize) {
       _paused = true;
@@ -137,17 +138,14 @@ class ReactiveRequester {
     if (payload.last) {
       chunks = _buffer.add(payload.frame ? payload.bytes : ReactiveWriter.writePayloadFrame(_streamId, true, false, ReactivePayload.ofData(payload.bytes)));
       _connection.writeMany(chunks, true);
-      _pending -= _buffer.count;
-      if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
-      _buffer.clear();
       unawaited(close());
       return;
     }
     chunks = _buffer.add(payload.frame ? payload.bytes : ReactiveWriter.writePayloadFrame(_streamId, false, false, ReactivePayload.ofData(payload.bytes)));
-    if (_buffer.count >= _channelConfiguration.chunksLimit || _pending - _buffer.count == 0) {
+    if (_requested != reactiveInfinityRequestsCount && --_requested == 0) _subscription.pause();
+    if (_buffer.count >= _channelConfiguration.chunksLimit || _pending - _buffer.count == 0 || _requested == 0) {
       _connection.writeMany(chunks, false);
       _pending -= _buffer.count;
-      if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
     }
   }
@@ -173,13 +171,12 @@ class ReactiveRequester {
           );
           return;
         }
-        _pending--;
-        _paused = false;
         if (last) {
-          _buffer.clear();
           unawaited(close());
           return;
         }
+        _pending--;
+        _paused = false;
         if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();
       },
     );

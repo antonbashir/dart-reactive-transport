@@ -10,13 +10,13 @@ import 'package:test/test.dart';
 import 'latch.dart';
 
 void backpressure() {
-  test("1 (initial) + 4 + 2 requests - infinity response", () async {
-    final latch = Latch(7);
+  test("4 + 2 requests - infinity response", () async {
+    final latch = Latch(6);
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
     final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
-
+    late final Timer timer;
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
@@ -24,7 +24,7 @@ void backpressure() {
         connection.subscriber.subscribe(
           "channel",
           onSubscribe: (producer) {
-            Timer.periodic(Duration(seconds: 1), (timer) => producer.payload("data"));
+            timer = Timer.periodic(Duration(milliseconds: 500), (timer) => producer.payload("data"));
           },
         );
       },
@@ -41,9 +41,8 @@ void backpressure() {
           },
           onPayload: (payload, producer) async {
             latch.notify();
-            print(latch.count);
-            if (latch.count == 5) {
-              await Future.delayed(Duration(seconds: 5));
+            if (latch.count == 4) {
+              await Future.delayed(Duration(seconds: 2));
               producer.request(2);
             }
           },
@@ -53,10 +52,12 @@ void backpressure() {
 
     await latch.done();
 
-    await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(Duration(seconds: 2));
 
-    expect(latch.count, 7);
+    expect(latch.count, 6);
 
     await reactive.shutdown();
+
+    timer.cancel();
   });
 }
