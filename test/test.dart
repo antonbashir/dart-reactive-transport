@@ -7,6 +7,7 @@ import 'fragmentation.dart';
 import 'interaction.dart';
 import 'keepalive.dart';
 import 'lease.dart';
+import 'shutdown.dart';
 
 void main() {
   group("[fragmentation]", fragmentation);
@@ -16,4 +17,5 @@ void main() {
   group("[backpressure]", backpressure);
   group("[keepalive]", keepalive);
   group("[lease]", lease);
+  group("[shutdown]", shutdown);
 }
