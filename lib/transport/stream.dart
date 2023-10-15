@@ -53,7 +53,7 @@ class ReactiveStream {
   FutureOr<void> onRequest(int count) => _channel.onRequest(count, _producer);
 
   @pragma(preferInlinePragma)
-  FutureOr<void> onError(String message) => _channel.onError(message, _producer);
+  FutureOr<void> onError(int code, String message) => _channel.onError(code, message, _producer);
 
   @pragma(preferInlinePragma)
   FutureOr<void> onComplete() => _channel.onComplete(_producer);

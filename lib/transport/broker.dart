@@ -174,7 +174,7 @@ class ReactiveBroker {
     if (remoteStreamId != 0) {
       final stream = _streams[remoteStreamId];
       if (stream != null) {
-        stream.onError(message);
+        stream.onError(code, message);
         stream.onComplete();
       }
       return;

@@ -64,7 +64,7 @@ class _ClientChannel with ReactiveChannel {
   }
 
   @override
-  FutureOr<void> onError(String error, ReactiveProducer producer) {
+  FutureOr<void> onError(int code, String error, ReactiveProducer producer) {
     if (serverError != null) {
       expect(error, serverError);
       latch.notify("error");
@@ -122,7 +122,7 @@ class _ServerChannel with ReactiveChannel {
   }
 
   @override
-  FutureOr<void> onError(String error, ReactiveProducer producer) {
+  FutureOr<void> onError(int code, String error, ReactiveProducer producer) {
     if (clientError != null) {
       expect(error, clientError);
       latch.notify("error");

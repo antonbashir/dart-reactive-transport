@@ -43,7 +43,7 @@ void errors() {
           producer.payload(clientPayload);
           producer.request(1);
         },
-        onError: (error, producer) {
+        onError: (code, error, producer) {
           expect(error, errorPayload.toString());
           completer.complete();
         },
@@ -82,7 +82,7 @@ void errors() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel", onPayload: serve, onError: (error, producer) {
+      (connection) => connection.subscriber.subscribe("channel", onPayload: serve, onError: (code, error, producer) {
         expect(error, errorPayload.toString());
         latch.notify();
       }),

@@ -90,7 +90,7 @@ void lease() {
           onSubscribe: (producer) async {
             producer.request(3);
           },
-          onError: (error, producer) {
+          onError: (code, error, producer) {
             latch.notify();
           },
         );
@@ -139,7 +139,7 @@ void lease() {
             await Future.delayed(Duration(seconds: 2));
             producer.request(2);
           },
-          onError: (error, producer) {
+          onError: (code, error, producer) {
             errorLatch.notify();
           },
           onPayload: (payload, producer) {

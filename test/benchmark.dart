@@ -47,13 +47,13 @@ Future<void> main() async {
       ..subscribe(
         "channel1",
         onPayload: serve1,
-        onError: (error, _) => print(error),
+        onError: (code, error, _) => print(error),
         onSubscribe: (producer) => producer.unbound(),
       )
       ..subscribe(
         "channel2",
         onPayload: serve2,
-        onError: (error, _) => print(error),
+        onError: (code, error, _) => print(error),
         onSubscribe: (producer) => producer.unbound(),
       ),
   );
@@ -65,7 +65,7 @@ Future<void> main() async {
       ..subscribe(
         "channel1",
         onPayload: communicate1,
-        onError: (error, _) => print(error),
+        onError: (code, error, _) => print(error),
         onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.unbound();
@@ -74,7 +74,7 @@ Future<void> main() async {
       ..subscribe(
         "channel2",
         onPayload: communicate2,
-        onError: (error, _) => print(error),
+        onError: (code, error, _) => print(error),
         onSubscribe: (producer) {
           producer.payload(clientPayload);
           producer.unbound();
