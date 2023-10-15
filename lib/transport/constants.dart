@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 
-import 'exception.dart';
-
 const messagePackMimeType = 'application/message-pack';
 const octetStreamMimeType = 'application/octet-stream';
 const textMimeType = 'application/text';
@@ -51,59 +49,3 @@ const reactiveRoutingKey = "method";
 const reactiveFrameLengthFieldSize = 3;
 const reactiveMetadataLengthFieldSize = 3;
 const reactiveFrameHeaderSize = 9;
-
-class ReactiveExceptions {
-  ReactiveExceptions._();
-
-  static const applicationErrorCode = 0x00000201;
-
-  static connectionError(String message) => ReactiveException(
-        0x00000101,
-        message,
-      );
-
-  static const invalidSetup = ReactiveException(
-    0x00000001,
-    "The Setup frame is invalid",
-  );
-
-  static const unsupportedSetup = ReactiveException(
-    0x00000002,
-    "Some (or all) of the parameters specified by the client are unsupported by the server",
-  );
-
-  static const rejectedSetup = ReactiveException(
-    0x00000003,
-    "The server rejected the setup, it can specify the reason in the payload",
-  );
-
-  static const rejectedResume = ReactiveException(
-    0x00000004,
-    "The server rejected the resume, it can specify the reason in the payload",
-  );
-
-  static const connectionClose = ReactiveException(
-    0x00000102,
-    "The connection is being closed",
-  );
-
-  static const rejected = ReactiveException(
-    0x00000202,
-    "Despite being a valid request, the Responder decided to reject it",
-  );
-
-  static const canceled = ReactiveException(
-    0x00000203,
-    "The Responder canceled the request but may have started processing it",
-  );
-
-  static const invalid = ReactiveException(
-    0x00000204,
-    "The request is invalid",
-  );
-
-  static const reservedExtension = ReactiveException(
-    0xFFFFFFFF,
-    "Reserved for Extension",
-  );
-}

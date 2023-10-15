@@ -7,6 +7,7 @@ import 'buffer.dart';
 import 'configuration.dart';
 import 'connection.dart';
 import 'constants.dart';
+import 'exception.dart';
 import 'payload.dart';
 import 'writer.dart';
 

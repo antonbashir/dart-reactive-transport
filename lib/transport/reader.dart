@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'buffer.dart';
 import 'constants.dart';
+import 'exception.dart';
 import 'frame.dart';
 import 'payload.dart';
 
