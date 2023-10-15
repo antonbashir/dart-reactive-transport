@@ -102,7 +102,7 @@ void lease() {
     await reactive.shutdown();
   });
 
-  test("success - fail - success", () async {
+  test("pass - fail - pass", () async {
     final payloadLatch = Latch(4);
     final errorLatch = Latch(1);
     final transport = Transport();
