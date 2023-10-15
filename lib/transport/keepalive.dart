@@ -1,8 +1,7 @@
 import 'dart:async';
 
-import 'package:reactive_transport/transport/writer.dart';
-
 import 'connection.dart';
+import 'writer.dart';
 
 class ReactiveKeepAliveTimer {
   final ReactiveConnection _connection;

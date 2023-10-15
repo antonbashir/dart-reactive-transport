@@ -12,7 +12,7 @@ import 'package:test/test.dart';
 import 'latch.dart';
 
 void fragmentation() {
-  test('custom channel', timeout: Timeout.none, () async {
+  test('1 fragmented request', timeout: Timeout.none, () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();

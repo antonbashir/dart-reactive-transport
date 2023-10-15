@@ -5,6 +5,8 @@ class Latch {
   final int _limit;
   final Completer _completer = Completer();
 
+  int get count => _counter;
+
   Latch(this._limit);
 
   void notify() {

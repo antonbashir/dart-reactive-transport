@@ -93,8 +93,8 @@ class ReactiveLeaseConfiguration {
 class ReactiveSetupConfiguration {
   final String metadataMimeType;
   final String dataMimeType;
-  final int keepAliveInterval;
-  final int keepAliveMaxLifetime;
+  final Duration keepAliveInterval;
+  final Duration keepAliveMaxLifetime;
   final bool lease;
 
   ReactiveSetupConfiguration({
@@ -108,8 +108,8 @@ class ReactiveSetupConfiguration {
   ReactiveSetupConfiguration copyWith({
     String? metadataMimeType,
     String? dataMimeType,
-    int? keepAliveInterval,
-    int? keepAliveMaxLifetime,
+    Duration? keepAliveInterval,
+    Duration? keepAliveMaxLifetime,
     bool? lease,
   }) =>
       ReactiveSetupConfiguration(

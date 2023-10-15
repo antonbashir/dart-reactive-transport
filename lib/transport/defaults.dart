@@ -32,8 +32,8 @@ class ReactiveTransportDefaults {
   static ReactiveSetupConfiguration setup() => ReactiveSetupConfiguration(
         metadataMimeType: messagePackMimeType,
         dataMimeType: messagePackMimeType,
-        keepAliveInterval: 20 * 1000,
-        keepAliveMaxLifetime: 90 * 1000,
+        keepAliveInterval: Duration(seconds: 20),
+        keepAliveMaxLifetime: Duration(seconds: 90),
         lease: false,
       );
 }

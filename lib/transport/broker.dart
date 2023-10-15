@@ -105,7 +105,7 @@ class ReactiveBroker {
       }
       _currentLocalStreamId = streamIdSupplier.next(_streams);
     }
-    _keepAliveTimer.start(setupConfiguration.keepAliveInterval, setupConfiguration.keepAliveMaxLifetime);
+    _keepAliveTimer.start(setupConfiguration.keepAliveInterval.inMilliseconds, setupConfiguration.keepAliveMaxLifetime.inMilliseconds);
     return frames;
   }
 

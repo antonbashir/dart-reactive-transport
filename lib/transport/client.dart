@@ -96,8 +96,8 @@ class ReactiveClientConnection implements ReactiveConnection {
   void connect() {
     final frames = <int>[
       ...ReactiveWriter.writeSetupFrame(
-        _setupConfiguration.keepAliveInterval,
-        _setupConfiguration.keepAliveMaxLifetime,
+        _setupConfiguration.keepAliveInterval.inMilliseconds,
+        _setupConfiguration.keepAliveMaxLifetime.inMilliseconds,
         _setupConfiguration.metadataMimeType,
         _setupConfiguration.dataMimeType,
         _setupConfiguration.lease,
