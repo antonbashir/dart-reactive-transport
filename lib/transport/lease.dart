@@ -10,8 +10,10 @@ class ReactiveLeaseLimiter {
   var _enabled = false;
 
   bool get enabled => _enabled;
-  bool get restricted {
-    if (_available == 0) return true;
+
+  @pragma(preferInlinePragma)
+  bool restricted(int count) {
+    if (_available < count) return true;
     if (DateTime.now().millisecondsSinceEpoch - _timestamp > _timeToLive) {
       _available = 0;
       return true;

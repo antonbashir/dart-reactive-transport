@@ -140,7 +140,7 @@ void lease() {
             producer.request(2);
           },
           onError: (error, producer) {
-            payloadLatch.notify();
+            errorLatch.notify();
           },
           onPayload: (payload, producer) {
             expect(payload, "data");

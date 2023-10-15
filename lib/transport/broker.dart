@@ -152,11 +152,11 @@ class ReactiveBroker {
 
   void request(int remoteStreamId, int count) {
     if (_leaseLimiter.enabled) {
-      _leaseLimiter.notify(count);
-      if (_leaseLimiter.restricted) {
+      if (_leaseLimiter.restricted(count)) {
         _connection.writeSingle(ReactiveWriter.writeErrorFrame(remoteStreamId, ReactiveExceptions.rejected.code, ReactiveExceptions.rejected.content));
         return;
       }
+      _leaseLimiter.notify(count);
     }
     final stream = _streams[remoteStreamId];
     if (stream != null) {
