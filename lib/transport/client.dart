@@ -58,7 +58,7 @@ class ReactiveClient {
     });
   }
 
-  Future<void> shutdown({Duration? gracefulDuration}) => Future.wait(_connections.map((connection) => connection.close())).whenComplete(() => onShutdown?.call());
+  Future<void> shutdown({Duration? gracefulTimeout}) => Future.wait(_connections.map((connection) => connection.close())).whenComplete(() => onShutdown?.call());
 }
 
 class ReactiveClientConnection implements ReactiveConnection {
@@ -151,7 +151,7 @@ class ReactiveClientConnection implements ReactiveConnection {
 
   @override
   Future<void> close() async {
-    await _connection.close(gracefulDuration: _transportConfiguration.gracefulDuration);
+    await _connection.close(gracefulTimeout: _transportConfiguration.gracefulTimeout);
     _broker.close();
     _onClose?.call(this);
   }

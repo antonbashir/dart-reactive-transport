@@ -123,7 +123,7 @@ class ReactiveServerConnection implements ReactiveConnection {
 
   @override
   Future<void> close() async {
-    await _connection.close(gracefulDuration: _transportConfiguration.gracefulDuration);
+    await _connection.close(gracefulTimeout: _transportConfiguration.gracefulTimeout);
     _broker.close();
     _onClose?.call(this);
   }

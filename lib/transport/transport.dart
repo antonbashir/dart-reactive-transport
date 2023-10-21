@@ -20,7 +20,7 @@ class ReactiveTransport {
   Future<void> shutdown({bool transport = true}) async {
     await Future.wait(_servers.map((server) => server.shutdown()));
     await Future.wait(_clients.map((client) => client.shutdown()));
-    if (transport) await _transport.shutdown(gracefulDuration: _configuration.gracefulDuration);
+    if (transport) await _transport.shutdown(gracefulTimeout: _configuration.gracefulTimeout);
   }
 
   void serve(

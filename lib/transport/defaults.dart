@@ -9,7 +9,7 @@ class ReactiveTransportDefaults {
 
   static ReactiveTransportConfiguration transport() => ReactiveTransportConfiguration(
         tracer: null,
-        gracefulDuration: null,
+        gracefulTimeout: null,
         workerConfiguration: TransportDefaults.worker(),
       );
 
