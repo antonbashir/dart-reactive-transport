@@ -162,9 +162,6 @@ class ReactiveRequester {
       _pending -= _buffer.count;
       if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
-      if (_pending == 0 && _closing) {
-        _stop();
-      }
       return;
     }
     if (payload.last) {
@@ -222,7 +219,8 @@ class ReactiveRequester {
   }
 
   void _stop() {
-    _sending = false; _subscription.pause();
+    _sending = false;
+    _subscription.pause();
     if (!_closer.isCompleted) _closer.complete();
   }
 }

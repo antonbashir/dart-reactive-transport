@@ -34,8 +34,13 @@ class ReactiveBroker {
   late final ReactiveCodec _dataCodec;
   late final ReactiveCodec _metadataCodec;
 
-  var _active = true;
-  bool get active => _active;
+  var _accepting = true;
+  var _sending = true;
+  var _activated = false;
+
+  bool get accepting => _accepting;
+  bool get sending => _sending;
+  bool get activated => _activated;
 
   ReactiveBroker(
     this._transportConfiguration,
@@ -67,6 +72,7 @@ class ReactiveBroker {
       });
     }
     _keepAliveTimer.start(keepAliveInterval, keepAliveMaxLifetime);
+    _activated = true;
   }
 
   void lease(int timeToLive, int requests) {
@@ -110,6 +116,7 @@ class ReactiveBroker {
       _currentLocalStreamId = streamIdSupplier.next(_streams);
     }
     _keepAliveTimer.start(setupConfiguration.keepAliveInterval.inMilliseconds, setupConfiguration.keepAliveMaxLifetime.inMilliseconds);
+    _activated = true;
     return frames;
   }
 
@@ -196,12 +203,13 @@ class ReactiveBroker {
     unawaited(stream.close());
   }
 
-  void close() {
-    if (!_active) return;
-    _active = false;
+  Future<void> close() async {
+    if (!_accepting) return;
+    _accepting = false;
+    await Future.wait(_streams.values.map((stream) => stream.close(gracefulTimeout: _transportConfiguration.gracefulTimeout)));
+    _sending = false;
     _leaseScheduler.stop();
     _keepAliveTimer.stop();
-    for (var stream in _streams.values) unawaited(stream.close());
     _streams.clear();
     _channels.clear();
   }

@@ -62,7 +62,7 @@ class ReactiveStream {
   FutureOr<void> onCancel() => _channel.onCancel(_producer);
 
   @pragma(preferInlinePragma)
-  Future<void> close() => _requester.close();
+  Future<void> close({Duration? gracefulTimeout}) => _requester.close(gracefulTimeout: gracefulTimeout);
 
   @pragma(preferInlinePragma)
   void error(String message) => _producer.error(message);

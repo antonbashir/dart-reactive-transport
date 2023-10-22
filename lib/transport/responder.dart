@@ -20,9 +20,9 @@ class ReactiveResponder {
   );
 
   void handle(TransportPayload payload) {
-    if (!_broker.active) return;
+    if (!_broker.sending) return;
     _buffer.extend(payload.takeBytes());
-    while (_buffer.isReadable() && _broker.active) {
+    while (_buffer.isReadable() && _broker.sending) {
       _buffer.save();
       final header = ReactiveReader.readFrameHeader(_buffer);
       if (header == null) {
@@ -32,6 +32,7 @@ class ReactiveResponder {
       _tracer?.call(header);
       switch (header.type) {
         case reactiveFrameSetup:
+          if (!_broker.accepting || _broker.activated) continue;
           final frame = ReactiveReader.readSetupFrame(_buffer, header);
           _tracer?.call(frame);
           _broker.setup(
@@ -70,6 +71,7 @@ class ReactiveResponder {
           _broker.request(frame.header.streamId, frame.count);
           break;
         case reactiveFrameRequestChannel:
+          if (!_broker.accepting) continue;
           final frame = ReactiveReader.readRequestChannelFrame(_buffer, header);
           if (frame == null) {
             _buffer.restore();
@@ -79,6 +81,7 @@ class ReactiveResponder {
           _broker.initiate(frame.header.streamId, frame.initialRequestCount, frame.payload!);
           break;
         case reactiveFramePayload:
+          if (!_broker.accepting) continue;
           final frame = ReactiveReader.readPayloadFrame(_buffer, header);
           if (frame == null) {
             _buffer.restore();
