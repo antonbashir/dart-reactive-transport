@@ -36,7 +36,7 @@ class ReactiveRequester {
   var _closing = false;
   var _accepting = true;
   var _sending = true;
-  var _paused = false;
+  var _fragmenting = false;
 
   ReactiveRequester(
     this._connection,
@@ -61,7 +61,7 @@ class ReactiveRequester {
     _input.add(_ReactivePendingPayload(bytes, complete, false));
     _pending++;
     if (complete && _requested != reactiveInfinityRequestsCount) _requested++;
-    if (_requested > 0 && !_paused && _sending) _subscription.resume();
+    if (_requested > 0 && !_fragmenting && _sending) _subscription.resume();
   }
 
   void scheduleError(String message) {
@@ -71,7 +71,7 @@ class ReactiveRequester {
     _input.add(_ReactivePendingPayload(frame, true, true));
     _pending++;
     if (_requested != reactiveInfinityRequestsCount) _requested++;
-    if (_requested > 0 && !_paused && _sending) _subscription.resume();
+    if (_requested > 0 && !_fragmenting && _sending) _subscription.resume();
   }
 
   void scheduleCancel() {
@@ -81,11 +81,11 @@ class ReactiveRequester {
     _input.add(_ReactivePendingPayload(frame, true, true));
     _pending++;
     if (_requested != reactiveInfinityRequestsCount) _requested++;
-    if (_requested > 0 && !_paused && _sending) _subscription.resume();
+    if (_requested > 0 && !_fragmenting && _sending) _subscription.resume();
   }
 
   void resume(int count) {
-    if (!_sending || _paused) return;
+    if (!_sending || _fragmenting) return;
     if (_requested == reactiveInfinityRequestsCount) {
       _subscription.resume();
       return;
@@ -113,7 +113,7 @@ class ReactiveRequester {
     if (_pending > 0 && gracefulTimeout != null) {
       await _closer.future.timeout(gracefulTimeout, onTimeout: () async {
         _sending = false;
-        if (_paused) {
+        if (_fragmenting) {
           await _closer.future;
           return;
         }
@@ -122,7 +122,7 @@ class ReactiveRequester {
     }
 
     _sending = false;
-    _paused = false;
+    _fragmenting = false;
     _requested = 0;
     _buffer.clear();
     await _subscription.cancel();
@@ -134,7 +134,7 @@ class ReactiveRequester {
     if (!_sending) return;
     var chunks = _buffer.chunks;
     if (payload.bytes.length > _channelConfiguration.frameMaxSize) {
-      _paused = true;
+      _fragmenting = true;
       _subscription.pause();
       if (chunks.isEmpty) {
         final fragments = ReactiveAssembler.disassemble(payload.bytes, _channelConfiguration.fragmentSize);
@@ -201,7 +201,7 @@ class ReactiveRequester {
           _stop();
           return;
         }
-        _paused = false;
+        _fragmenting = false;
         if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();
       },
     );
