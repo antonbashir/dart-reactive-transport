@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:iouring_transport/iouring_transport.dart';
+import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'configuration.dart';
@@ -17,9 +18,11 @@ class ReactiveTransport {
 
   ReactiveTransport(this._transport, this._worker, this._configuration);
 
-  Future<void> shutdown({bool transport = true}) async {
+  Future<void> shutdown({bool transport = false}) async {
     await Future.wait(_servers.map((server) => server.close()));
+    _servers.clear();
     await Future.wait(_clients.map((client) => client.close()));
+    _clients.clear();
     if (transport) await _transport.shutdown(gracefulTimeout: _configuration.gracefulTimeout);
   }
 
@@ -78,4 +81,10 @@ class ReactiveTransport {
         )
         .then(client.connect, onError: (error) => onError?.call(ReactiveException.fromTransport(error)));
   }
+
+  @visibleForTesting
+  List<ReactiveServer> get servers => _servers;
+
+  @visibleForTesting
+  List<ReactiveClient> get clients => _clients;
 }
