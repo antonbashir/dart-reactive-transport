@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:iouring_transport/iouring_transport.dart';
+import 'package:reactive_transport/transport/constants.dart';
 import 'package:reactive_transport/transport/defaults.dart';
 import 'package:reactive_transport/transport/producer.dart';
 import 'package:reactive_transport/transport/transport.dart';
@@ -137,5 +140,46 @@ void shutdown() {
     await transport.shutdown();
   });
 
-  test("graceful shutdown (fragmentation)", () {});
+  test("graceful shutdown (fragmentation)", () async {
+    final transport = Transport();
+    final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
+    await worker.initialize();
+    final serverReactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(gracefulTimeout: Duration(seconds: 1)));
+    final clientReactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport().copyWith(gracefulTimeout: Duration(seconds: 1)));
+    final fullPayload = Uint8List.fromList(List.generate(1 * 1024 * 1024, (index) => 31));
+
+    final latch = Latch(1);
+
+    serverReactive.serve(
+      InternetAddress.anyIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribe(
+        "channel",
+        onPayload: (payload, producer) {
+          expect(ListEquality().equals(payload, fullPayload), true);
+          latch.notify();
+        },
+      ),
+    );
+
+    clientReactive.connect(
+      InternetAddress.loopbackIPv4,
+      12345,
+      setupConfiguration: ReactiveTransportDefaults.setup().copyWith(dataMimeType: octetStreamMimeType),
+      (connection) => connection.subscriber.subscribe(
+        "channel",
+        configuration: ReactiveTransportDefaults.channel().copyWith(frameMaxSize: 1024, fragmentSize: 256, chunksLimit: 2),
+        onPayload: (payload, producer) {},
+        onRequest: (count, producer) {
+          producer.payload(fullPayload);
+          clientReactive.shutdown();
+        },
+      ),
+    );
+
+    await latch.done();
+
+    await serverReactive.shutdown();
+    await transport.shutdown();
+  });
 }
