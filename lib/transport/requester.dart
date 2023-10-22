@@ -222,8 +222,7 @@ class ReactiveRequester {
   }
 
   void _stop() {
-    _sending = false;
-    _subscription.pause();
+    _sending = false; _subscription.pause();
     if (!_closer.isCompleted) _closer.complete();
   }
 }
