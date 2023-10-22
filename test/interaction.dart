@@ -11,6 +11,40 @@ import 'package:test/test.dart';
 import 'latch.dart';
 
 void interaction() {
+  test('1 request - 1 cancel', timeout: Timeout.none, () async {
+    final transport = Transport();
+    final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
+    await worker.initialize();
+    final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
+    final clientPayload = "client-payload";
+
+    final latch = Latch(2);
+
+    void serve(dynamic payload, ReactiveProducer producer) {
+      expect(payload, clientPayload);
+      producer.cancel();
+      latch.notify();
+    }
+
+    reactive.serve(InternetAddress.anyIPv4, 12345, (connection) => connection.subscriber.subscribe("channel", onPayload: serve));
+
+    reactive.connect(
+      InternetAddress.loopbackIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribe(
+        "channel",
+        onCancel: (producer) => latch.notify(),
+        onSubscribe: (producer) {
+          producer.payload(clientPayload);
+          producer.request(1);
+        },
+      ),
+    );
+
+    await latch.done();
+    await reactive.shutdown(transport: true);
+  });
+
   test('1 request - 1 response', timeout: Timeout.none, () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
@@ -19,7 +53,7 @@ void interaction() {
     final clientPayload = "client-payload";
     final serverPayload = "server-payload";
 
-    final latch = Latch(1);
+    final latch = Latch(2);
 
     void serve(dynamic payload, ReactiveProducer producer) {
       expect(payload, clientPayload);

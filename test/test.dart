@@ -10,8 +10,8 @@ import 'lease.dart';
 import 'shutdown.dart';
 
 void main() {
-  group("[fragmentation]", fragmentation);
   group("[interaction]", interaction);
+  group("[fragmentation]", fragmentation);
   group("[errors]", errors);
   group("[custom]", custom);
   group("[backpressure]", backpressure);
