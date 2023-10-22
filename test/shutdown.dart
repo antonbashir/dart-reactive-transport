@@ -9,26 +9,54 @@ import 'package:test/test.dart';
 import 'latch.dart';
 
 void shutdown() {
-  test("shutdown", () async {
+  test("shutdown (before initialization)", () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
     final serverReactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
     final clientReactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
-    final clientPayload = "client-payload";
-
-    void serve(dynamic payload, ReactiveProducer producer) {}
-
-    void communicate(dynamic payload, ReactiveProducer producer) {}
 
     serverReactive.serve(
       InternetAddress.anyIPv4,
       12345,
       (connection) => connection.subscriber.subscribe(
         "channel",
-        onPayload: serve,
+        onSubscribe: (producer) {},
+      ),
+    );
+
+    clientReactive.connect(
+      InternetAddress.loopbackIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribe(
+        "channel",
+        onSubscribe: (producer) {},
+      ),
+    );
+
+    await serverReactive.shutdown();
+    await clientReactive.shutdown();
+    expect(true, serverReactive.servers.isEmpty);
+    expect(true, clientReactive.clients.isEmpty);
+    await transport.shutdown();
+  });
+
+  test("shutdown (after initialization)", () async {
+    final transport = Transport();
+    final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
+    await worker.initialize();
+    final serverReactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
+    final clientReactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
+
+    final latch = Latch(2);
+
+    serverReactive.serve(
+      InternetAddress.anyIPv4,
+      12345,
+      (connection) => connection.subscriber.subscribe(
+        "channel",
         onSubscribe: (producer) {
-          producer.payload(clientPayload);
+          latch.notify();
         },
       ),
     );
@@ -38,12 +66,13 @@ void shutdown() {
       12345,
       (connection) => connection.subscriber.subscribe(
         "channel",
-        onPayload: communicate,
         onSubscribe: (producer) {
-          producer.request(1);
+          latch.notify();
         },
       ),
     );
+
+    await latch.done();
 
     await serverReactive.shutdown();
     await clientReactive.shutdown();
