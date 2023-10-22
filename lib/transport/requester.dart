@@ -100,7 +100,7 @@ class ReactiveRequester {
     _subscription.resume();
   }
 
-  Future<void> close() async {
+  Future<void> close({Duration? gracefulTimeout}) async {
     if (_closing) {
       if (_pending > 0 && !_closer.isCompleted) {
         await _closer.future;
@@ -111,7 +111,16 @@ class ReactiveRequester {
 
     _accepting = false;
     if (_pending > 0) {
-      await _closer.future;
+      if (gracefulTimeout != null) {
+        await _closer.future.timeout(gracefulTimeout, onTimeout: () async {
+          _sending = false;
+          if (_paused) {
+            await _closer.future;
+            return;
+          }
+          if (!_closer.isCompleted) _closer.complete();
+        });
+      }
       _sending = false;
       _paused = false;
       _requested = 0;
@@ -201,7 +210,7 @@ class ReactiveRequester {
           unawaited(close());
           return;
         }
-        if (--_pending == 0 && _closing) {
+        if (_closing && (!_sending || --_pending == 0)) {
           _stop();
           return;
         }
@@ -215,6 +224,6 @@ class ReactiveRequester {
   void _stop() {
     _sending = false;
     _subscription.pause();
-    _closer.complete();
+    if (!_closer.isCompleted) _closer.complete();
   }
 }
