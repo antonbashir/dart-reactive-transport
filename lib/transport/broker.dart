@@ -66,7 +66,7 @@ class ReactiveBroker {
       _leaseLimiter.reconfigure(leaseConfiguration!.timeToLiveCheck.inMilliseconds, leaseConfiguration!.requests);
       final leaseFrame = ReactiveWriter.writeLeaseFrame(leaseConfiguration!.timeToLiveCheck.inMilliseconds, leaseConfiguration!.requests);
       _connection.writeSingle(leaseFrame);
-      _leaseScheduler.schedule(leaseConfiguration!.timeToLiveRefresh.inMilliseconds, () {
+      _leaseScheduler.start(leaseConfiguration!.timeToLiveRefresh.inMilliseconds, () {
         _leaseLimiter.reconfigure(leaseConfiguration!.timeToLiveCheck.inMilliseconds, leaseConfiguration!.requests);
         _connection.writeSingle(leaseFrame);
       });

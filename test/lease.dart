@@ -56,7 +56,7 @@ void lease() {
 
     await latch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test("fail", () async {
@@ -99,7 +99,7 @@ void lease() {
 
     await latch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test("pass - fail - pass", () async {
@@ -154,6 +154,6 @@ void lease() {
 
     await errorLatch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 }

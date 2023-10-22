@@ -47,6 +47,6 @@ void fragmentation() {
 
     await latch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 }

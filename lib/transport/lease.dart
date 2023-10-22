@@ -43,7 +43,7 @@ class ReactiveLeaseScheduler {
 
   late Timer _timer;
 
-  void schedule(int timeToLive, void Function() action) {
+  void start(int timeToLive, void Function() action) {
     if (_active) return;
     _active = true;
     _timer = Timer.periodic(Duration(milliseconds: timeToLive), (Timer timer) {

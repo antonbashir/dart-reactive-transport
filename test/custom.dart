@@ -177,7 +177,7 @@ void custom() {
     await clientLatch.done();
     await serverLatch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test('channel (server error)', timeout: Timeout.none, () async {
@@ -229,7 +229,7 @@ void custom() {
     await clientLatch.done();
     await serverLatch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test('channel (client error)', timeout: Timeout.none, () async {
@@ -281,6 +281,6 @@ void custom() {
     await clientLatch.done();
     await serverLatch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 }

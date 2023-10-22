@@ -52,7 +52,7 @@ void errors() {
 
     await completer.future;
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test("1 - request, 1 - response, 1 - client throw", () async {
@@ -103,6 +103,6 @@ void errors() {
 
     await latch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 }

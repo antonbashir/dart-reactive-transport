@@ -110,25 +110,15 @@ class ReactiveRequester {
     }
 
     _accepting = false;
-    if (_pending > 0) {
-      if (gracefulTimeout != null) {
-        await _closer.future.timeout(gracefulTimeout, onTimeout: () async {
-          _sending = false;
-          if (_paused) {
-            await _closer.future;
-            return;
-          }
-          if (!_closer.isCompleted) _closer.complete();
-        });
-      }
-      _sending = false;
-      _paused = false;
-      _requested = 0;
-      _buffer.clear();
-      await _subscription.cancel();
-      await _input.close();
-      await _output.close();
-      return;
+    if (_pending > 0 && gracefulTimeout != null) {
+      await _closer.future.timeout(gracefulTimeout, onTimeout: () async {
+        _sending = false;
+        if (_paused) {
+          await _closer.future;
+          return;
+        }
+        if (!_closer.isCompleted) _closer.complete();
+      });
     }
 
     _sending = false;

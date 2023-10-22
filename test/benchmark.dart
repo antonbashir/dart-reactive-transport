@@ -86,5 +86,5 @@ Future<void> main() async {
 
   print(counter / 10);
 
-  await reactive.shutdown();
+  await reactive.shutdown(transport: true);
 }

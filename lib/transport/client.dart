@@ -27,6 +27,8 @@ class ReactiveClient {
   final ReactiveSetupConfiguration setupConfiguration;
   final TransportTcpClientConfiguration? tcpConfiguration;
 
+  var _active = true;
+
   ReactiveClient({
     required this.address,
     required this.port,
@@ -40,6 +42,7 @@ class ReactiveClient {
   });
 
   void connect(TransportClientConnectionPool pool) {
+    if (!_active) return;
     pool.forEach((connection) {
       final reactive = ReactiveClientConnection(
         connection,
@@ -58,7 +61,10 @@ class ReactiveClient {
     });
   }
 
-  Future<void> close() => Future.wait(_connections.map((connection) => connection.close()));
+  Future<void> close() async {
+    await Future.wait(_connections.toList().map((connection) => connection.close()));
+    _active = false;
+  }
 }
 
 class ReactiveClientConnection implements ReactiveConnection {

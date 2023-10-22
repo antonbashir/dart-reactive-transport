@@ -48,7 +48,7 @@ void interaction() {
     );
 
     await latch.done();
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test('1 request - 2 responses', timeout: Timeout.none, () async {
@@ -93,7 +93,7 @@ void interaction() {
     );
 
     await latch.done();
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test('2 request - 4 responses', timeout: Timeout.none, () async {
@@ -140,7 +140,7 @@ void interaction() {
     );
 
     await latch.done();
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test('infinity requests - infinity responses', timeout: Timeout.none, () async {
@@ -192,6 +192,6 @@ void interaction() {
 
     await serverLatch.done();
     await clientLatch.done();
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 }

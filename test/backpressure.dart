@@ -56,7 +56,7 @@ void backpressure() {
 
     expect(latch.count, 6);
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
 
     timer.cancel();
   });

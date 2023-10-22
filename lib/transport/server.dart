@@ -25,6 +25,8 @@ class ReactiveServer {
   final TransportTcpServerConfiguration? tcpConfiguration;
   final ReactiveLeaseConfiguration? leaseConfiguration;
 
+  var _active = true;
+
   ReactiveServer({
     required this.address,
     required this.port,
@@ -38,6 +40,7 @@ class ReactiveServer {
   });
 
   void accept(TransportServerConnection connection) {
+    if (!_active) return;
     final reactive = ReactiveServerConnection(
       connection,
       onError,
@@ -53,7 +56,10 @@ class ReactiveServer {
     acceptor(reactive);
   }
 
-  Future<void> close() => Future.wait(_connections.map((connection) => connection.close()));
+  Future<void> close() async {
+    await Future.wait(_connections.toList().map((connection) => connection.close()));
+    _active = false;
+  }
 }
 
 class ReactiveServerConnection implements ReactiveConnection {

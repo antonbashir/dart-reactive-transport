@@ -108,5 +108,5 @@ void shutdown() {
     await transport.shutdown();
   });
 
-  test("graceful shutdown (fragmentation)", () => {});
+  test("graceful shutdown (fragmentation)", () {});
 }

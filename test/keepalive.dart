@@ -43,7 +43,7 @@ void keepalive() {
 
     await latch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 
   test('fail', timeout: Timeout.none, () async {
@@ -75,6 +75,6 @@ void keepalive() {
 
     await latch.done();
 
-    await reactive.shutdown();
+    await reactive.shutdown(transport: true);
   });
 }
