@@ -203,10 +203,10 @@ class ReactiveBroker {
     unawaited(stream.close());
   }
 
-  Future<void> close() async {
+  Future<void> close({Duration? gracefulTimeout}) async {
     if (!_accepting) return;
     _accepting = false;
-    await Future.wait(_streams.values.map((stream) => stream.close(gracefulTimeout: _transportConfiguration.gracefulTimeout)));
+    await Future.wait(_streams.values.map((stream) => stream.close(gracefulTimeout: gracefulTimeout)));
     _sending = false;
     _leaseScheduler.stop();
     _keepAliveTimer.stop();

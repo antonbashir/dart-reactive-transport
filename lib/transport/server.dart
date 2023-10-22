@@ -19,7 +19,7 @@ class ReactiveServer {
   final int port;
   final void Function(ReactiveServerConnection connection) acceptor;
   final void Function(ReactiveException exception)? onError;
-  final void Function()? onShutdown;
+  final void Function()? onClose;
   final ReactiveBrokerConfiguration brokerConfiguration;
   final ReactiveTransportConfiguration transportConfiguration;
   final TransportTcpServerConfiguration? tcpConfiguration;
@@ -30,7 +30,7 @@ class ReactiveServer {
     required this.port,
     required this.acceptor,
     required this.onError,
-    required this.onShutdown,
+    required this.onClose,
     required this.brokerConfiguration,
     required this.transportConfiguration,
     this.tcpConfiguration,
@@ -43,7 +43,7 @@ class ReactiveServer {
       onError,
       (connection) {
         _connections.remove(connection);
-        if (_connections.isEmpty) onShutdown?.call();
+        if (_connections.isEmpty) onClose?.call();
       },
       brokerConfiguration,
       transportConfiguration,
@@ -53,7 +53,7 @@ class ReactiveServer {
     acceptor(reactive);
   }
 
-  Future<void> close() => Future.wait(_connections.map((connection) => connection.close())).whenComplete(() => onShutdown?.call());
+  Future<void> close() => Future.wait(_connections.map((connection) => connection.close())).whenComplete(() => onClose?.call());
 }
 
 class ReactiveServerConnection implements ReactiveConnection {
@@ -96,7 +96,7 @@ class ReactiveServerConnection implements ReactiveConnection {
     _subscriber = ReactiveSubscriber(_broker);
     _connection.stream().listen(_responder.handle, onError: (error) {
       _onError?.call(ReactiveException.fromTransport(error));
-      unawaited(close());
+      unawaited(_terminate());
     });
   }
 
@@ -105,7 +105,7 @@ class ReactiveServerConnection implements ReactiveConnection {
         bytes,
         onError: (error) {
           _onError?.call(ReactiveException.fromTransport(error));
-          unawaited(close());
+          unawaited(_terminate());
         },
         onDone: onDone,
       );
@@ -115,7 +115,7 @@ class ReactiveServerConnection implements ReactiveConnection {
         bytes,
         onError: (error) {
           _onError?.call(ReactiveException.fromTransport(error));
-          unawaited(close());
+          unawaited(_terminate());
         },
         onDone: onDone,
         linked: linked,
@@ -123,8 +123,14 @@ class ReactiveServerConnection implements ReactiveConnection {
 
   @override
   Future<void> close() async {
-    await _broker.close();
+    await _broker.close(gracefulTimeout: _transportConfiguration.gracefulTimeout);
     await _connection.close(gracefulTimeout: _transportConfiguration.gracefulTimeout);
+    _onClose?.call(this);
+  }
+
+  Future<void> _terminate() async {
+    await _broker.close();
+    await _connection.close();
     _onClose?.call(this);
   }
 }
