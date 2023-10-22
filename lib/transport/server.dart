@@ -53,7 +53,7 @@ class ReactiveServer {
     acceptor(reactive);
   }
 
-  Future<void> shutdown() => Future.wait(_connections.map((connection) => connection.close()));
+  Future<void> close() => Future.wait(_connections.map((connection) => connection.close())).whenComplete(() => onShutdown?.call());
 }
 
 class ReactiveServerConnection implements ReactiveConnection {

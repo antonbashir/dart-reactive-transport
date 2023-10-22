@@ -18,8 +18,8 @@ class ReactiveTransport {
   ReactiveTransport(this._transport, this._worker, this._configuration);
 
   Future<void> shutdown({bool transport = true}) async {
-    await Future.wait(_servers.map((server) => server.shutdown()));
-    await Future.wait(_clients.map((client) => client.shutdown()));
+    await Future.wait(_servers.map((server) => server.close()));
+    await Future.wait(_clients.map((client) => client.close()));
     if (transport) await _transport.shutdown(gracefulTimeout: _configuration.gracefulTimeout);
   }
 

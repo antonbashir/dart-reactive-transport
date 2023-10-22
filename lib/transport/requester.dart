@@ -22,6 +22,7 @@ class _ReactivePendingPayload {
 class ReactiveRequester {
   final int _streamId;
   final ReactiveConnection _connection;
+  final Completer _closer = Completer();
   final StreamController<_ReactivePendingPayload> _input = StreamController();
   final StreamController<_ReactivePendingPayload> _output = StreamController(sync: true);
   final ReactiveChannelConfiguration _channelConfiguration;
@@ -32,6 +33,7 @@ class ReactiveRequester {
 
   var _pending = 0;
   var _requested = 0;
+  var _closing = false;
   var _accepting = true;
   var _sending = true;
   var _paused = false;
@@ -99,21 +101,38 @@ class ReactiveRequester {
   }
 
   Future<void> close() async {
-    if (_accepting || _sending) {
-      _accepting = false;
+    if (_closing) {
+      if (_pending > 0 && !_closer.isCompleted) {
+        await _closer.future;
+        return;
+      }
+      return;
+    }
+
+    _accepting = false;
+    if (_pending > 0) {
+      await _closer.future;
       _sending = false;
       _paused = false;
-      _pending = 0;
       _requested = 0;
       _buffer.clear();
-      _subscription.pause();
       await _subscription.cancel();
       await _input.close();
       await _output.close();
+      return;
     }
+
+    _sending = false;
+    _paused = false;
+    _requested = 0;
+    _buffer.clear();
+    await _subscription.cancel();
+    await _input.close();
+    await _output.close();
   }
 
   void _send(_ReactivePendingPayload payload) {
+    if (!_sending) return;
     var chunks = _buffer.chunks;
     if (payload.bytes.length > _channelConfiguration.frameMaxSize) {
       _paused = true;
@@ -134,6 +153,9 @@ class ReactiveRequester {
       _pending -= _buffer.count;
       if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
+      if (_pending == 0 && _closing) {
+        _stop();
+      }
       return;
     }
     if (payload.last) {
@@ -148,6 +170,9 @@ class ReactiveRequester {
       _connection.writeMany(chunks, false);
       _pending -= _buffer.count;
       _buffer.clear();
+      if (_pending == 0 && _closing) {
+        _stop();
+      }
     }
   }
 
@@ -176,11 +201,20 @@ class ReactiveRequester {
           unawaited(close());
           return;
         }
-        _pending--;
+        if (--_pending == 0 && _closing) {
+          _stop();
+          return;
+        }
         _paused = false;
         if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();
       },
     );
     _buffer.clear();
+  }
+
+  void _stop() {
+    _sending = false;
+    _subscription.pause();
+    _closer.complete();
   }
 }

@@ -58,7 +58,7 @@ class ReactiveClient {
     });
   }
 
-  Future<void> shutdown({Duration? gracefulTimeout}) => Future.wait(_connections.map((connection) => connection.close())).whenComplete(() => onShutdown?.call());
+  Future<void> close({Duration? gracefulTimeout}) => Future.wait(_connections.map((connection) => connection.close())).whenComplete(() => onShutdown?.call());
 }
 
 class ReactiveClientConnection implements ReactiveConnection {
