@@ -12,5 +12,4 @@ dependencies:
     git:
       url: https://github.com/antonbashir/dart-iouring-transport/
       path: dart
-  uuid: ^3.0.7
   collection: ^1.18.0
