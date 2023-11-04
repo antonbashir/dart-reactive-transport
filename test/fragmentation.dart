@@ -50,7 +50,7 @@ void fragmentation() {
     await reactive.shutdown(transport: true);
   });
 
-  test('1 simple request + 1 fragmented request', timeout: Timeout.none, () async {
+  test('1 simple request -> 1 fragmented request', timeout: Timeout.none, () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -97,7 +97,7 @@ void fragmentation() {
     await reactive.shutdown(transport: true);
   });
 
-  test('1 simple request + 1 fragmented request + 1 simple request', timeout: Timeout.none, () async {
+  test('1 simple request -> 1 fragmented request -> 1 simple request', timeout: Timeout.none, () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();

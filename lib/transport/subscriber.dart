@@ -15,7 +15,7 @@ class ReactiveSubscriber {
     String key, {
     void Function(dynamic payload, ReactiveProducer producer)? onPayload,
     void Function(ReactiveProducer producer)? onSubscribe,
-    void Function(int code, dynamic error, ReactiveProducer producer)? onError,
+    void Function(int code, String error, ReactiveProducer producer)? onError,
     void Function(int count, ReactiveProducer producer)? onRequest,
     void Function(ReactiveProducer producer)? onComplete,
     void Function(ReactiveProducer producer)? onCancel,

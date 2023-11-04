@@ -10,7 +10,7 @@ import 'package:reactive_transport/transport/transport.dart';
 import 'latch.dart';
 
 void errors() {
-  test("1 - request, 1 - server throw", () async {
+  test("1 - request -> 1 - server throw", () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -55,7 +55,7 @@ void errors() {
     await reactive.shutdown(transport: true);
   });
 
-  test("1 - request, 1 - response, 1 - client throw", () async {
+  test("1 - request -> 1 - response -> 1 - client throw", () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
