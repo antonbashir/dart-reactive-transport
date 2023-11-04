@@ -14,6 +14,7 @@ class ReactiveAssembler {
       assemble.setRange(offset, offset + fragment.length, fragment);
       offset += fragment.length;
     }
+    fragments.clear();
     return assemble;
   }
 
