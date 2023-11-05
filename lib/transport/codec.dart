@@ -11,7 +11,7 @@ abstract interface class ReactiveCodec {
   dynamic decode(Uint8List input);
 }
 
-class MessagePackReactiveCodec implements ReactiveCodec {
+class ReactiveMessagePackCodec implements ReactiveCodec {
   @override
   dynamic decode(Uint8List input) => deserialize(input);
 
@@ -22,7 +22,7 @@ class MessagePackReactiveCodec implements ReactiveCodec {
   String mimeType() => messagePackMimeType;
 }
 
-class Utf8ReactiveCodec implements ReactiveCodec {
+class ReactiveUtf8Codec implements ReactiveCodec {
   @override
   dynamic decode(Uint8List input) => utf8.decode(input);
 
@@ -33,7 +33,7 @@ class Utf8ReactiveCodec implements ReactiveCodec {
   String mimeType() => textMimeType;
 }
 
-class RawReactiveCodec implements ReactiveCodec {
+class ReactiveRawCodec implements ReactiveCodec {
   @override
   dynamic decode(Uint8List input) => input;
 

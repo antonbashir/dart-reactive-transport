@@ -22,9 +22,9 @@ class ReactiveTransportDefaults {
 
   static ReactiveBrokerConfiguration broker() => ReactiveBrokerConfiguration(
         codecs: {
-          messagePackMimeType: MessagePackReactiveCodec(),
-          octetStreamMimeType: RawReactiveCodec(),
-          textMimeType: Utf8ReactiveCodec(),
+          messagePackMimeType: ReactiveMessagePackCodec(),
+          octetStreamMimeType: ReactiveRawCodec(),
+          textMimeType: ReactiveUtf8Codec(),
         },
       );
 

@@ -3,7 +3,7 @@ library reactive_transport;
 export 'package:reactive_transport/transport/channel.dart' show FunctionalReactiveChannel, ReactiveChannel;
 export 'package:reactive_transport/transport/client.dart' show ReactiveClient;
 export 'package:reactive_transport/transport/server.dart' show ReactiveServer;
-export 'package:reactive_transport/transport/codec.dart' show MessagePackReactiveCodec, RawReactiveCodec, ReactiveCodec, Utf8ReactiveCodec;
+export 'package:reactive_transport/transport/codec.dart' show ReactiveMessagePackCodec, ReactiveRawCodec, ReactiveCodec, ReactiveUtf8Codec;
 export 'package:reactive_transport/transport/configuration.dart'
     show ReactiveBrokerConfiguration, ReactiveChannelConfiguration, ReactiveLeaseConfiguration, ReactiveSetupConfiguration, ReactiveTransportConfiguration;
 export 'package:reactive_transport/transport/defaults.dart' show ReactiveTransportDefaults;
