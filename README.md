@@ -18,8 +18,6 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
   - [ReactiveChannel](#reactivechannel)
     - [Properties:](#properties-1)
     - [Methods:](#methods-1)
-  - [ReactiveTransportConfiguration](#reactivetransportconfiguration)
-    - [Method: `ReactiveTransportConfiguration.copyWith`](#method-reactivetransportconfigurationcopywith)
   - [ReactiveTransport](#reactivetransport)
     - [Method: `ReactiveTransport.shutdown`](#method-reactivetransportshutdown)
     - [Method: `ReactiveTransport.serve`](#method-reactivetransportserve)
@@ -120,29 +118,6 @@ ReactiveChannel is an abstract mixin class defining the interface for a reactive
 - `onSubscribe`: Called when a new subscriber requests messages.
 - `onError`: Called when an error occurs.
 - `onRequest`: Called when a subscriber requests more messages.
-
-## ReactiveTransportConfiguration
-
-Configuration options for the reactive transport.
-
-- `tracer`: A function to be called with each frame received by the transport.
-  - Type: `void Function(dynamic frame)?`
-- `gracefulTimeout`: The maximum time the broker should allow a request to timeout before sending a graceful timeout message.
-  - Type: `Duration?`
-- `workerConfiguration`: A configuration for the transport worker.
-  - Type: `TransportWorkerConfiguration`
-
-### Method: `ReactiveTransportConfiguration.copyWith`
-
-Creates a copy of this configuration with optional modifications.
-
-- Parameters:
-  - `tracer`: (optional) A function to be called with each frame received by the transport.
-    - Type: `void Function(dynamic frame)?`
-  - `gracefulTimeout`: (optional) The maximum time the broker should allow a request to timeout before sending a graceful timeout message.
-    - Type: `Duration?`
-  - `workerConfiguration`: (optional) A configuration for the transport worker.
-    - Type: `TransportWorkerConfiguration`
 
 ## ReactiveTransport
 
