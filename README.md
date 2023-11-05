@@ -11,21 +11,13 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
   - [Quick Start](#quick-start)
   - [Sample](#sample)
 - [API](#api)
-  - [FunctionalReactiveChannel](#functionalreactivechannel)
+  - [ReactiveChannel](#reactivechannel)
     - [Properties:](#properties)
     - [Methods:](#methods)
   - [ReactiveSubscriber](#reactivesubscriber)
-    - [Method: `ReactiveSubscriber.subscribeCustom`](#method-reactivesubscribersubscribecustom)
-  - [ReactiveChannel](#reactivechannel)
-    - [Properties:](#properties-1)
     - [Methods:](#methods-1)
   - [ReactiveProducer](#reactiveproducer)
-    - [Method: `payload`](#method-payload)
-    - [Method: `error`](#method-error)
-    - [Method: `cancel`](#method-cancel)
-    - [Method: `complete`](#method-complete)
-    - [Method: `request`](#method-request)
-    - [Method: `unbound`](#method-unbound)
+    - [Methods:](#methods-2)
   - [ReactiveTransport](#reactivetransport)
     - [Method: `ReactiveTransport.shutdown`](#method-reactivetransportshutdown)
     - [Method: `ReactiveTransport.serve`](#method-reactivetransportserve)
@@ -83,20 +75,14 @@ Simple example can be found [here](https://github.com/antonbashir/dart-reactive-
 
 # API
 
-## FunctionalReactiveChannel
+## ReactiveChannel
 
-The `FunctionalReactiveChannel` class is an implementation of the abstract `ReactiveChannel` mixin. It handles events related to error handling, payload processing, subscription, etc.
+It handles events related to error handling, payload processing, subscription, etc.
 
 ### Properties:
 
 - `key` (String): A unique identifier for the channel.
 - `configuration` (ReactiveChannelConfiguration): Configuration settings for the channel.
-- `payloadConsumer`: A function for payload events.
-- `subscribeConsumer`: A function for subscription events.
-- `errorConsumer`: A function for error events.
-- `requestConsumer`: A function for request events.
-- `completeConsumer`: A function for completion events.
-- `cancelConsumer`: A function for cancellation events.
 
 ### Methods:
 
@@ -111,72 +97,23 @@ The `FunctionalReactiveChannel` class is an implementation of the abstract `Reac
 
 The main class for reactive subscribers using the Iouring Transport library.
 
-### Method: `ReactiveSubscriber.subscribeCustom`
-
-Subscribes to a specified channel and receives messages as they arrive.
-
-- Parameters:
-  - `channel`: ReactiveChannel object to subscribe to.
-  
-## ReactiveChannel
-
-ReactiveChannel is an abstract mixin class defining the interface for a reactive channel.
-
-### Properties:
-
-- `key`: A string uniquely identifying the channel.
-- `configuration`: An instance of `ReactiveChannelConfiguration`.
-
 ### Methods:
 
-- `onPayload`: Called when a payload is received.
-- `onComplete`: Called when all subscribers have completed.
-- `onCancel`: Called when a subscriber cancels.
-- `onSubscribe`: Called when a new subscriber requests messages.
-- `onError`: Called when an error occurs.
-- `onRequest`: Called when a subscriber requests more messages.
+- `subscribe`: Subscribes to a functional channel and receives messages as they arrive.
+- `subscribeCustom`: Subscribes to a specified channel and receives messages as they arrive.
 
 ## ReactiveProducer
 
 The main class for reactive producer using the Iouring Transport library.
 
-### Method: `payload`
+### Methods: 
 
-Schedules a payload to be sent through the transport.
-
-- Parameters:
-  - `data`: The data to be encoded and sent.
-    - Type: `dynamic`
-  - `complete`: (optional) Whether to complete the stream with the current buffer.
-    - Type: `bool`
-
-### Method: `error`
-
-Schedules an error message to be sent through the transport.
-
-- Parameters:
-  - `message`: The error message.
-    - Type: `String`
-
-### Method: `cancel`
-
-Cancels a currently scheduled payload or error stream.
-
-### Method: `complete`
-
-Completes the stream with an empty buffer.
-
-### Method: `request`
-
-Requests a specified number of data bytes to be sent through the transport.
-
-- Parameters:
-  - `count`: The number of data bytes to request.
-    - Type: `int`
-
-### Method: `unbound`
-
-Requests an unbounded number of data bytes to be sent through the transport.
+- `payload`: Schedules a payload to be sent through the transport.
+- `error`: Schedules an error message to be sent through the transport.
+- `cancel`: Cancels a currently scheduled payload or error stream.
+- `complete`: Completes the stream.
+- `request`: Requests a specified number of messages to be sent through the transport.
+- `unbound`: Requests an unbounded number of messsages to be sent through the transport.
 
 ## ReactiveTransport
 

@@ -8,8 +8,8 @@ environment:
 dependencies:
   test: ^1.22.0
   msgpack_dart : ^1.0.0
+  collection: ^1.18.0
   iouring_transport:
     git:
       url: https://github.com/antonbashir/dart-iouring-transport/
       path: dart
-  collection: ^1.18.0
