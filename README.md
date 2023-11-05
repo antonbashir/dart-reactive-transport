@@ -3,7 +3,6 @@
 Dart reactive transport is an implementation of the [RSocket](https://rsocket.io/) protocol over the [IOUring](https://github.com/antonbashir/dart-iouring-transport) transport.
 
 This library doesn't implement all RSocket operations. It includes only REQUEST CHANNEL.
-
 - [Introduction](#introduction)
 - [Features](#features)
   - [Implemented](#implemented)
@@ -15,9 +14,18 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
   - [FunctionalReactiveChannel](#functionalreactivechannel)
     - [Properties:](#properties)
     - [Methods:](#methods)
+  - [ReactiveSubscriber](#reactivesubscriber)
+    - [Method: `ReactiveSubscriber.subscribeCustom`](#method-reactivesubscribersubscribecustom)
   - [ReactiveChannel](#reactivechannel)
     - [Properties:](#properties-1)
     - [Methods:](#methods-1)
+  - [ReactiveProducer](#reactiveproducer)
+    - [Method: `payload`](#method-payload)
+    - [Method: `error`](#method-error)
+    - [Method: `cancel`](#method-cancel)
+    - [Method: `complete`](#method-complete)
+    - [Method: `request`](#method-request)
+    - [Method: `unbound`](#method-unbound)
   - [ReactiveTransport](#reactivetransport)
     - [Method: `ReactiveTransport.shutdown`](#method-reactivetransportshutdown)
     - [Method: `ReactiveTransport.serve`](#method-reactivetransportserve)
