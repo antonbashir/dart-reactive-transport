@@ -1,0 +1,19 @@
+name: Dart Reactive Transport
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Dart build
+        run: dart pub get
+
+      - name: Dart Test
+        run: dart run test/test.dart
