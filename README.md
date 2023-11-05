@@ -32,6 +32,10 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 2. Append the following section to your dependencies:
 
 ```
+  iouring_transport:
+    git:
+      url: https://github.com/antonbashir/dart-iouring-transport/
+      path: dart
   reactive_transport:
     git: 
       url: https://github.com/antonbashir/dart-reactive-transport/
