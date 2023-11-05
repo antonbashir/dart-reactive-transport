@@ -42,4 +42,4 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 
 ## Sample
 
-Simple example can be found [here](https://github.com/antonbashir/dart-reactivr-sample).
+Simple example can be found [here](https://github.com/antonbashir/dart-reactive-sample).
