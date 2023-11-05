@@ -22,7 +22,7 @@ class ReactiveSubscriber {
     ReactiveChannelConfiguration? configuration,
   }) =>
       _broker.consume(
-        FunctionalReactiveChannel(
+        ReactiveFunctionalChannel(
           key,
           configuration ?? ReactiveTransportDefaults.channel(),
           payloadConsumer: onPayload,

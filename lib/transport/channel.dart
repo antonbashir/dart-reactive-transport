@@ -21,7 +21,7 @@ abstract mixin class ReactiveChannel {
   FutureOr<void> onRequest(int count, ReactiveProducer producer) {}
 }
 
-class FunctionalReactiveChannel with ReactiveChannel {
+class ReactiveFunctionalChannel with ReactiveChannel {
   final String key;
   final ReactiveChannelConfiguration configuration;
   final FutureOr<void> Function(dynamic payload, ReactiveProducer producer)? payloadConsumer;
@@ -31,7 +31,7 @@ class FunctionalReactiveChannel with ReactiveChannel {
   final FutureOr<void> Function(ReactiveProducer producer)? completeConsumer;
   final FutureOr<void> Function(ReactiveProducer producer)? cancelConsumer;
 
-  FunctionalReactiveChannel(
+  ReactiveFunctionalChannel(
     this.key,
     this.configuration, {
     required this.payloadConsumer,
