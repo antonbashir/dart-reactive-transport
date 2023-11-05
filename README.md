@@ -32,10 +32,9 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 2. Append the following section to your dependencies:
 
 ```
-  iouring_transport:
+  reactive_transport:
     git: 
-      url: https://github.com/antonbashir/dart-iouring-transport/
-      path: dart
+      url: https://github.com/antonbashir/dart-reactive-transport/
 ```
 
 3. Run `dart pub get`.
@@ -43,8 +42,4 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 
 ## Sample
 
-Simple example can be found [here](https://github.com/antonbashir/dart-iouring-sample).
-
-Reactive transport implementation can be found [here](https://github.com/antonbashir/dart-reactive-transport).
-
-
+Simple example can be found [here](https://github.com/antonbashir/dart-reactivr-sample).
