@@ -1,12 +1,13 @@
-# Introduction 
+# Introduction
 
-Dart reactive transport is an implementation of the RSocket protocol over the IOUring transport. 
+Dart reactive transport is an implementation of the [RSocket](https://rsocket.io/) protocol over the [IOUring](https://github.com/antonbashir/dart-iouring-transport) transport.
 
-This library doesn't implement all RSocket operations. It includes only REQUEST CHANNEL. 
+This library doesn't implement all RSocket operations. It includes only REQUEST CHANNEL.
 
-# Features 
+# Features
 
 ## Implemented
+
 * client and server two-sided channels
 * backpressure
 * lease
@@ -14,7 +15,8 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 * fragmentation
 * multicodec
 
-## Unimplemented (and won't be implemented) 
+## Unimplemented (and won't be implemented)
+
 * resume
 * retry
 * fire and forget
@@ -24,14 +26,14 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 * rxdart
 * non-linux platform
 
-# I nstallation & Usage
+# Installation & Usage
 
-### Quick Start
+## Quick Start
 
 1. Initiate a Dart project with pubspec.yaml.
 2. Append the following section to your dependencies:
 
-```
+```yaml
   iouring_transport:
     git:
       url: https://github.com/antonbashir/dart-iouring-transport/
@@ -48,13 +50,15 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 
 Simple example can be found [here](https://github.com/antonbashir/dart-reactive-sample).
 
+# API
+
 # Performance
 
 To be added: Benchmarking results on the preferred machine.
 
 Most recent benchmark results:
 
-- Requests per Second (RPS): 100k-150k per isolate for echo (server and client in the same process, different isolates)
+- Messages per Second: 100k-150k per isolate
 
 # Limitations
 
