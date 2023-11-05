@@ -22,8 +22,6 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
     - [Method: `ReactiveTransport.shutdown`](#method-reactivetransportshutdown)
     - [Method: `ReactiveTransport.serve`](#method-reactivetransportserve)
     - [Method: `ReactiveTransport.connect`](#method-reactivetransportconnect)
-    - [Getter: `ReactiveTransport.servers`](#getter-reactivetransportservers)
-    - [Getter: `ReactiveTransport.clients`](#getter-reactivetransportclients)
 - [Performance](#performance)
 - [Limitations](#limitations)
 - [Further work](#further-work)
@@ -230,18 +228,6 @@ Connects a new client to the server at the specified `address` and `port`.
   - `brokerConfiguration`: (optional) Broker configuration.
     - Type: `ReactiveBrokerConfiguration`
 - Returns: `Future<ReactiveClientConnection>`
-
-### Getter: `ReactiveTransport.servers`
-
-Returns the list of all started servers using this transport.
-
-- Type: `List<ReactiveServer>`
-
-### Getter: `ReactiveTransport.clients`
-
-Returns the list of all connected clients using this transport.
-
-- Type: `List<ReactiveClient>`
 
 # Performance
 
