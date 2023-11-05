@@ -77,7 +77,7 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 
 Simple example can be found [here](https://github.com/antonbashir/dart-reactive-sample).
 
-# API 
+# API
 
 ## FunctionalReactiveChannel
 
