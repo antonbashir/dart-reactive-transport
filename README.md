@@ -101,6 +101,17 @@ The `FunctionalReactiveChannel` class is an implementation of the abstract `Reac
 - `onComplete`: Handles completion events.
 - `onCancel`: Handles cancellation events.
 
+## ReactiveSubscriber
+
+The main class for reactive subscribers using the Iouring Transport library.
+
+### Method: `ReactiveSubscriber.subscribeCustom`
+
+Subscribes to a specified channel and receives messages as they arrive.
+
+- Parameters:
+  - `channel`: ReactiveChannel object to subscribe to.
+  
 ## ReactiveChannel
 
 ReactiveChannel is an abstract mixin class defining the interface for a reactive channel.
@@ -118,6 +129,48 @@ ReactiveChannel is an abstract mixin class defining the interface for a reactive
 - `onSubscribe`: Called when a new subscriber requests messages.
 - `onError`: Called when an error occurs.
 - `onRequest`: Called when a subscriber requests more messages.
+
+## ReactiveProducer
+
+The main class for reactive producer using the Iouring Transport library.
+
+### Method: `payload`
+
+Schedules a payload to be sent through the transport.
+
+- Parameters:
+  - `data`: The data to be encoded and sent.
+    - Type: `dynamic`
+  - `complete`: (optional) Whether to complete the stream with the current buffer.
+    - Type: `bool`
+
+### Method: `error`
+
+Schedules an error message to be sent through the transport.
+
+- Parameters:
+  - `message`: The error message.
+    - Type: `String`
+
+### Method: `cancel`
+
+Cancels a currently scheduled payload or error stream.
+
+### Method: `complete`
+
+Completes the stream with an empty buffer.
+
+### Method: `request`
+
+Requests a specified number of data bytes to be sent through the transport.
+
+- Parameters:
+  - `count`: The number of data bytes to request.
+    - Type: `int`
+
+### Method: `unbound`
+
+Requests an unbounded number of data bytes to be sent through the transport.
 
 ## ReactiveTransport
 
