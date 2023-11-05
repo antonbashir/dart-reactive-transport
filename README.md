@@ -24,7 +24,7 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 * rxdart
 * non-linux platform
 
-#I nstallation & Usage
+# I nstallation & Usage
 
 ### Quick Start
 
@@ -43,3 +43,27 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
 ## Sample
 
 Simple example can be found [here](https://github.com/antonbashir/dart-reactive-sample).
+
+# Performance
+
+To be added: Benchmarking results on the preferred machine.
+
+Most recent benchmark results:
+
+- Requests per Second (RPS): 100k-150k per isolate for echo (server and client in the same process, different isolates)
+
+# Limitations
+
+- Only compatible with Linux.
+- Not tested in a production environment. The current version is developed and tested with unit tests, so bugs may be present.
+
+# Further work
+
+1. Benchmarks and optimization
+2. SSL
+
+# Contribution
+
+Currently maintainer hasn't resources on maintain pull requests but issues are welcome.
+
+Every issue will be observed, discussed and applied or closed if this project does not need it.
