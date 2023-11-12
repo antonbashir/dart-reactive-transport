@@ -28,7 +28,6 @@ This library doesn't implement all RSocket operations. It includes only REQUEST 
     - [Method: `ReactiveTransport.connect`](#method-reactivetransportconnect)
 - [Performance](#performance)
 - [Limitations](#limitations)
-- [Further work](#further-work)
 - [Contribution](#contribution)
 
 # Features
@@ -190,11 +189,6 @@ Most recent benchmark results:
 
 - Only compatible with Linux.
 - Not tested in a production environment. The current version is developed and tested with unit tests, so bugs may be present.
-
-# Further work
-
-1. Benchmarks and optimization
-2. SSL
 
 # Contribution
 
