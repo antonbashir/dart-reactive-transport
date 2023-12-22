@@ -43,7 +43,7 @@ class ReactiveClient {
 
   void connect(TransportClientConnectionPool pool) {
     if (!_active) return;
-    pool.forEach((connection) {
+    for (var connection in pool.clients) {
       final reactive = ReactiveClientConnection(
         connection,
         onError,
@@ -58,7 +58,7 @@ class ReactiveClient {
       _connections.add(reactive);
       connector(reactive);
       reactive.connect();
-    });
+    }
   }
 
   Future<void> close() async {
@@ -124,7 +124,7 @@ class ReactiveClientConnection implements ReactiveConnection {
         ReactivePayload.empty,
       )
     ];
-    _broker.connect(_setupConfiguration).forEach(frames.addAll);
+    for (var requestFrames in _broker.connect(_setupConfiguration)) frames.addAll(requestFrames);
     _connection.writeSingle(
       Uint8List.fromList(frames),
       onError: (error) {
