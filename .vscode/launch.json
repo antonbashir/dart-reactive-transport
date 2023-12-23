@@ -6,6 +6,13 @@
       "request": "launch",
       "type": "dart",
       "program": "${workspaceFolder}/test/test.dart"
+    },
+    {
+      "name": "documentation",
+      "command": "npm start",
+      "request": "launch",
+      "type": "node-terminal",
+      "cwd": "${workspaceFolder}/documentation"
     }
   ]
 }
