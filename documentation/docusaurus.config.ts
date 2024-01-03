@@ -67,7 +67,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://antonbashir.github.io/#projects',
+          href: 'https://antonbashir.github.io/projects',
           label: '💼 Projects',
           position: 'left',
         },
