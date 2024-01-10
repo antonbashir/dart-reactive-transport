@@ -1,6 +1,7 @@
 import { themes as prismThemes, themes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import { prismTheme } from './prism';
 
 const organizationName = "antonbashir";
 const projectName = "dart-reactive-transport";
@@ -114,7 +115,7 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} ${organizationName}`,
     },
     prism: {
-      darkTheme: themes.vsDark,
+      darkTheme: prismTheme,
       additionalLanguages: ['dart', 'yaml',]
     },
   } satisfies Preset.ThemeConfig,

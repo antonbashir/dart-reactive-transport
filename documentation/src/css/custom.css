@@ -69,8 +69,8 @@ html[data-theme='dark'] {
   --ifm-color-primary-light: #ffffff;
   --ifm-color-primary-lighter: #ffffff;
   --ifm-color-primary-lightest: #ffffff;
-  --ifm-navbar-background-color: #18181B;
-  --ifm-background-color: #18181B;
+  --ifm-navbar-background-color: #17181C;
+  --ifm-background-color: #17181C;
   --search-local-modal-background: #070707;
   --search-local-highlight-color: #ffffff;
   --search-local-hit-active-color: #0a0a0a;
@@ -85,7 +85,7 @@ html[data-theme='dark'] footer {
   --ifm-footer-link-color: #ffffff;
   --ifm-footer-title-color: #ffffff;
   --ifm-footer-title-color: #ffffff;
-  --ifm-footer-background-color: #18181B;
+  --ifm-footer-background-color: #17181C;
 }
 
 [data-theme='dark'] .header-github-link::before {
