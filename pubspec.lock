@@ -134,7 +134,7 @@ packages:
     description:
       path: dart
       ref: HEAD
-      resolved-ref: "907d501090543d43a2e2a25e203a90b1212c5396"
+      resolved-ref: "82013fd3f4b8f28bd9ba8222c2c07f23953f1e56"
       url: "https://github.com/antonbashir/dart-iouring-transport/"
     source: git
     version: "1.0.0"
