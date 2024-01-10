@@ -11,7 +11,7 @@ import 'package:test/test.dart';
 import 'latch.dart';
 
 void interaction() {
-  test('1 request -> 1 cancel', timeout: Timeout.none, () async {
+  test('1 request -> 1 cancel', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -45,7 +45,7 @@ void interaction() {
     await reactive.shutdown(transport: true);
   });
 
-  test('1 request -> 1 response', timeout: Timeout.none, () async {
+  test('1 request -> 1 response', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -85,7 +85,7 @@ void interaction() {
     await reactive.shutdown(transport: true);
   });
 
-  test('1 request -> 2 responses', timeout: Timeout.none, () async {
+  test('1 request -> 2 responses', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -130,7 +130,7 @@ void interaction() {
     await reactive.shutdown(transport: true);
   });
 
-  test('2 request -> 4 responses', timeout: Timeout.none, () async {
+  test('2 request -> 4 responses', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -177,7 +177,7 @@ void interaction() {
     await reactive.shutdown(transport: true);
   });
 
-  test('infinity requests -> infinity responses', timeout: Timeout.none, () async {
+  test('infinity requests -> infinity responses', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();

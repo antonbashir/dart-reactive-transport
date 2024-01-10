@@ -131,7 +131,7 @@ class _ServerChannel with ReactiveChannel {
 }
 
 void custom() {
-  test('channel', timeout: Timeout.none, () async {
+  test('channel', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -180,7 +180,7 @@ void custom() {
     await reactive.shutdown(transport: true);
   });
 
-  test('channel (server error)', timeout: Timeout.none, () async {
+  test('channel (server error)', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -232,7 +232,7 @@ void custom() {
     await reactive.shutdown(transport: true);
   });
 
-  test('channel (client error)', timeout: Timeout.none, () async {
+  test('channel (client error)', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();

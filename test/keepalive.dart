@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 import 'latch.dart';
 
 void keepalive() {
-  test('pass', timeout: Timeout.none, () async {
+  test('pass', timeout: Timeout(Duration(seconds: 60)), () async {
     final latch = Latch(2);
     var delta = DateTime.now();
 
@@ -46,7 +46,7 @@ void keepalive() {
     await reactive.shutdown(transport: true);
   });
 
-  test('fail', timeout: Timeout.none, () async {
+  test('fail', timeout: Timeout(Duration(seconds: 60)), () async {
     final latch = Latch(2);
 
     final transport = Transport();

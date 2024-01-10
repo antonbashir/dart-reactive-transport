@@ -12,7 +12,7 @@ import 'package:test/test.dart';
 import 'latch.dart';
 
 void fragmentation() {
-  test('1 fragmented request', timeout: Timeout.none, () async {
+  test('1 fragmented request', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -50,7 +50,7 @@ void fragmentation() {
     await reactive.shutdown(transport: true);
   });
 
-  test('1 simple request -> 1 fragmented request', timeout: Timeout.none, () async {
+  test('1 simple request -> 1 fragmented request', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -97,7 +97,7 @@ void fragmentation() {
     await reactive.shutdown(transport: true);
   });
 
-  test('1 simple request -> 1 fragmented request -> 1 simple request', timeout: Timeout.none, () async {
+  test('1 simple request -> 1 fragmented request -> 1 simple request', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
@@ -151,7 +151,7 @@ void fragmentation() {
     await reactive.shutdown(transport: true);
   });
 
-  test('1 simple request -> 1 fragmented request -> 1 simple request -> 1 fragmented request', timeout: Timeout.none, () async {
+  test('1 simple request -> 1 fragmented request -> 1 simple request -> 1 fragmented request', timeout: Timeout(Duration(seconds: 60)), () async {
     final transport = Transport();
     final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
     await worker.initialize();
