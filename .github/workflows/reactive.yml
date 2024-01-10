@@ -22,7 +22,8 @@ jobs:
         run: dart pub get
 
       - name: Dart Test
-        run: dart run test/test.dart
+        run: sudo dart run test/test.dart
+
   documentation:
     environment:
       name: github-pages
