@@ -20,8 +20,8 @@ void backpressure() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) {
-        connection.subscriber.subscribe(
+      (subscriber) {
+        subscriber.subscribe(
           "channel",
           onSubscribe: (producer) {
             timer = Timer.periodic(Duration(milliseconds: 500), (timer) => producer.payload("data"));
@@ -33,8 +33,8 @@ void backpressure() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) {
-        connection.subscriber.subscribe(
+      (subscriber) {
+        subscriber.subscribe(
           "channel",
           onSubscribe: (producer) {
             producer.request(4);

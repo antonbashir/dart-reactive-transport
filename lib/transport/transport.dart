@@ -8,6 +8,7 @@ import 'configuration.dart';
 import 'defaults.dart';
 import 'exception.dart';
 import 'server.dart';
+import 'subscriber.dart';
 
 class ReactiveTransport {
   final Transport _transport;
@@ -29,7 +30,7 @@ class ReactiveTransport {
   void serve(
     InternetAddress address,
     int port,
-    void Function(ReactiveServerConnection connection) acceptor, {
+    void Function(ReactiveSubscriber subscriber) acceptor, {
     void onError(ReactiveException exception)?,
     void onShutdown()?,
     TransportTcpServerConfiguration? tcpConfiguration,
@@ -54,7 +55,7 @@ class ReactiveTransport {
   void connect(
     InternetAddress address,
     int port,
-    void Function(ReactiveClientConnection connection) connector, {
+    void Function(ReactiveSubscriber subscriber) connector, {
     void onError(ReactiveException exception)?,
     void onShutdown()?,
     TransportTcpClientConfiguration? tcpConfiguration,

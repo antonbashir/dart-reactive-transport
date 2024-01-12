@@ -43,7 +43,7 @@ Future<void> main() async {
   reactive.serve(
     InternetAddress.anyIPv4,
     12345,
-    (connection) => connection.subscriber
+    (subscriber) => subscriber
       ..subscribe(
         "channel1",
         onPayload: serve1,
@@ -61,7 +61,7 @@ Future<void> main() async {
   reactive.connect(
     InternetAddress.loopbackIPv4,
     12345,
-    (connection) => connection.subscriber
+    (subscriber) => subscriber
       ..subscribe(
         "channel1",
         onPayload: communicate1,

@@ -26,12 +26,12 @@ void interaction() {
       latch.notify();
     }
 
-    reactive.serve(InternetAddress.anyIPv4, 12345, (connection) => connection.subscriber.subscribe("channel", onPayload: serve));
+    reactive.serve(InternetAddress.anyIPv4, 12345, (subscriber) => subscriber.subscribe("channel", onPayload: serve));
 
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onCancel: (producer) => latch.notify(),
         onSubscribe: (producer) {
@@ -66,12 +66,12 @@ void interaction() {
       latch.notify();
     }
 
-    reactive.serve(InternetAddress.anyIPv4, 12345, (connection) => connection.subscriber.subscribe("channel", onPayload: serve));
+    reactive.serve(InternetAddress.anyIPv4, 12345, (subscriber) => subscriber.subscribe("channel", onPayload: serve));
 
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: communicate,
         onSubscribe: (producer) {
@@ -110,13 +110,13 @@ void interaction() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel", onPayload: serve),
+      (subscriber) => subscriber.subscribe("channel", onPayload: serve),
     );
 
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: communicate,
         onSubscribe: (producer) {
@@ -156,13 +156,13 @@ void interaction() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel", onPayload: serve),
+      (subscriber) => subscriber.subscribe("channel", onPayload: serve),
     );
 
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: communicate,
         onSubscribe: (producer) {
@@ -201,7 +201,7 @@ void interaction() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: serve,
         onSubscribe: (producer) {
@@ -213,7 +213,7 @@ void interaction() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         configuration: ReactiveTransportDefaults.channel().copyWith(initialRequestCount: reactiveInfinityRequestsCount),
         onPayload: communicate,

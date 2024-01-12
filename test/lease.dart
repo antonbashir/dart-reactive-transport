@@ -25,8 +25,8 @@ void lease() {
         timeToLiveRefresh: Duration(milliseconds: 2 * 1000 - 100),
         requests: 2,
       ),
-      (connection) {
-        connection.subscriber.subscribe(
+      (subscriber) {
+        subscriber.subscribe(
           "channel",
           onSubscribe: (producer) {},
           onRequest: (count, producer) => List.generate(count, (index) => producer.payload("data")),
@@ -38,8 +38,8 @@ void lease() {
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(lease: true),
-      (connection) {
-        connection.subscriber.subscribe(
+      (subscriber) {
+        subscriber.subscribe(
           "channel",
           onSubscribe: (producer) async {
             producer.request(2);
@@ -73,8 +73,8 @@ void lease() {
         timeToLiveRefresh: Duration(seconds: 1),
         requests: 2,
       ),
-      (connection) {
-        connection.subscriber.subscribe(
+      (subscriber) {
+        subscriber.subscribe(
           "channel",
         );
       },
@@ -84,8 +84,8 @@ void lease() {
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(lease: true),
-      (connection) {
-        connection.subscriber.subscribe(
+      (subscriber) {
+        subscriber.subscribe(
           "channel",
           onSubscribe: (producer) async {
             producer.request(3);
@@ -117,8 +117,8 @@ void lease() {
         timeToLiveRefresh: Duration(milliseconds: 2 * 1000 - 100),
         requests: 2,
       ),
-      (connection) {
-        connection.subscriber.subscribe(
+      (subscriber) {
+        subscriber.subscribe(
           "channel",
           onRequest: (count, producer) => List.generate(count, (index) => producer.payload("data")),
         );
@@ -129,8 +129,8 @@ void lease() {
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(lease: true),
-      (connection) {
-        connection.subscriber.subscribe(
+      (subscriber) {
+        subscriber.subscribe(
           "channel",
           onSubscribe: (producer) async {
             producer.request(2);

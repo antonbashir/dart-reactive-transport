@@ -24,7 +24,7 @@ void fragmentation() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: (payload, producer) {
           expect(ListEquality().equals(payload, fullPayload), true);
@@ -37,7 +37,7 @@ void fragmentation() {
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(dataMimeType: octetStreamMimeType),
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         configuration: ReactiveTransportDefaults.channel().copyWith(frameMaxSize: 1024, fragmentSize: 256, chunksLimit: 2),
         onPayload: (payload, producer) {},
@@ -63,7 +63,7 @@ void fragmentation() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onSubscribe: (producer) => producer.request(2),
         onPayload: (payload, producer) {
@@ -82,7 +82,7 @@ void fragmentation() {
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(dataMimeType: octetStreamMimeType),
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         configuration: ReactiveTransportDefaults.channel().copyWith(frameMaxSize: 1024, fragmentSize: 256, chunksLimit: 2),
         onRequest: (count, producer) {
@@ -110,7 +110,7 @@ void fragmentation() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onSubscribe: (producer) => producer.request(3),
         onPayload: (payload, producer) {
@@ -134,7 +134,7 @@ void fragmentation() {
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(dataMimeType: octetStreamMimeType),
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         configuration: ReactiveTransportDefaults.channel().copyWith(frameMaxSize: 1024, fragmentSize: 256, chunksLimit: 2),
         onError: (code, error, producer) => print(error),
@@ -164,7 +164,7 @@ void fragmentation() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onSubscribe: (producer) => producer.request(4),
         onPayload: (payload, producer) {
@@ -194,7 +194,7 @@ void fragmentation() {
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(dataMimeType: octetStreamMimeType),
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         configuration: ReactiveTransportDefaults.channel().copyWith(frameMaxSize: 1024, fragmentSize: 256, chunksLimit: 2),
         onError: (code, error, producer) => print(error),

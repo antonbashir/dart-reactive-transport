@@ -146,7 +146,7 @@ void custom() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribeCustom(
+      (subscriber) => subscriber.subscribeCustom(
         _ServerChannel(
           key: "channel",
           configuration: ReactiveTransportDefaults.channel(),
@@ -161,7 +161,7 @@ void custom() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribeCustom(
+      (subscriber) => subscriber.subscribeCustom(
         _ClientChannel(
           key: "channel",
           configuration: ReactiveTransportDefaults.channel(),
@@ -196,7 +196,7 @@ void custom() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribeCustom(
+      (subscriber) => subscriber.subscribeCustom(
         _ServerChannel(
           key: "channel",
           configuration: ReactiveTransportDefaults.channel(),
@@ -212,7 +212,7 @@ void custom() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribeCustom(
+      (subscriber) => subscriber.subscribeCustom(
         _ClientChannel(
           key: "channel",
           configuration: ReactiveTransportDefaults.channel(),
@@ -248,7 +248,7 @@ void custom() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribeCustom(
+      (subscriber) => subscriber.subscribeCustom(
         _ServerChannel(
           key: "channel",
           configuration: ReactiveTransportDefaults.channel(),
@@ -264,7 +264,7 @@ void custom() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribeCustom(
+      (subscriber) => subscriber.subscribeCustom(
         _ClientChannel(
           key: "channel",
           configuration: ReactiveTransportDefaults.channel(),

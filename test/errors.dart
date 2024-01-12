@@ -30,13 +30,13 @@ void errors() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel", onPayload: serve),
+      (subscriber) => subscriber.subscribe("channel", onPayload: serve),
     );
 
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: communicate,
         onSubscribe: (producer) {
@@ -82,7 +82,7 @@ void errors() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel", onPayload: serve, onError: (code, error, producer) {
+      (subscriber) => subscriber.subscribe("channel", onPayload: serve, onError: (code, error, producer) {
         expect(error, errorPayload.toString());
         latch.notify();
       }),
@@ -91,7 +91,7 @@ void errors() {
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: communicate,
         onSubscribe: (producer) {

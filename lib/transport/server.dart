@@ -17,7 +17,7 @@ class ReactiveServer {
   final List<ReactiveServerConnection> _connections = [];
   final InternetAddress address;
   final int port;
-  final void Function(ReactiveServerConnection connection) acceptor;
+  final void Function(ReactiveSubscriber subscriber) acceptor;
   final void Function(ReactiveException exception)? onError;
   final void Function()? onClose;
   final ReactiveBrokerConfiguration brokerConfiguration;
@@ -53,7 +53,7 @@ class ReactiveServer {
       leaseConfiguration: leaseConfiguration,
     );
     _connections.add(reactive);
-    acceptor(reactive);
+    acceptor(reactive._subscriber);
   }
 
   Future<void> close() async {
@@ -74,8 +74,6 @@ class ReactiveServerConnection implements ReactiveConnection {
   late final ReactiveResponder _responder;
   late final ReactiveSubscriber _subscriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
-
-  ReactiveSubscriber get subscriber => _subscriber;
 
   ReactiveServerConnection(
     this._connection,

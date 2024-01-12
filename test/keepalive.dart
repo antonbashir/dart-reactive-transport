@@ -31,14 +31,14 @@ void keepalive() {
     reactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe("channel"),
+      (subscriber) => subscriber.subscribe("channel"),
     );
 
     reactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(keepAliveInterval: Duration(seconds: 5)),
-      (connection) => connection.subscriber.subscribe("channel"),
+      (subscriber) => subscriber.subscribe("channel"),
     );
 
     await latch.done();
@@ -58,8 +58,8 @@ void keepalive() {
       InternetAddress.anyIPv4,
       12345,
       onShutdown: () => latch.notify(),
-      (connection) {
-        connection.subscriber.subscribe("channel");
+      (subscriber) {
+        subscriber.subscribe("channel");
       },
     );
 
@@ -68,8 +68,8 @@ void keepalive() {
       12345,
       onShutdown: () => latch.notify(),
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(keepAliveInterval: Duration(seconds: 10), keepAliveMaxLifetime: Duration(seconds: 5)),
-      (connection) {
-        connection.subscriber.subscribe("channel");
+      (subscriber) {
+        subscriber.subscribe("channel");
       },
     );
 

@@ -22,7 +22,7 @@ void shutdown() {
     serverReactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onSubscribe: (producer) {},
       ),
@@ -31,7 +31,7 @@ void shutdown() {
     clientReactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onSubscribe: (producer) {},
       ),
@@ -56,7 +56,7 @@ void shutdown() {
     serverReactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onSubscribe: (producer) {
           latch.notify();
@@ -67,7 +67,7 @@ void shutdown() {
     clientReactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onSubscribe: (producer) {
           latch.notify();
@@ -111,7 +111,7 @@ void shutdown() {
     serverReactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: serve,
         onSubscribe: (producer) {
@@ -124,7 +124,7 @@ void shutdown() {
     clientReactive.connect(
       InternetAddress.loopbackIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: communicate,
         onSubscribe: (producer) {
@@ -153,7 +153,7 @@ void shutdown() {
     serverReactive.serve(
       InternetAddress.anyIPv4,
       12345,
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         onPayload: (payload, producer) {
           expect(ListEquality().equals(payload, fullPayload), true);
@@ -166,7 +166,7 @@ void shutdown() {
       InternetAddress.loopbackIPv4,
       12345,
       setupConfiguration: ReactiveTransportDefaults.setup().copyWith(dataMimeType: octetStreamMimeType),
-      (connection) => connection.subscriber.subscribe(
+      (subscriber) => subscriber.subscribe(
         "channel",
         configuration: ReactiveTransportDefaults.channel().copyWith(frameMaxSize: 1024, fragmentSize: 256, chunksLimit: 2),
         onPayload: (payload, producer) {},

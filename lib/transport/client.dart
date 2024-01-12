@@ -19,7 +19,7 @@ class ReactiveClient {
   final List<ReactiveClientConnection> _connections = [];
   final InternetAddress address;
   final int port;
-  final void Function(ReactiveClientConnection connection) connector;
+  final void Function(ReactiveSubscriber subscriber) connector;
   final void Function(ReactiveException exception)? onError;
   final void Function()? onClose;
   final ReactiveBrokerConfiguration brokerConfiguration;
@@ -56,7 +56,7 @@ class ReactiveClient {
         transportConfiguration,
       );
       _connections.add(reactive);
-      connector(reactive);
+      connector(reactive._subscriber);
       reactive.connect();
     }
   }
@@ -79,8 +79,6 @@ class ReactiveClientConnection implements ReactiveConnection {
   late final ReactiveResponder _responder;
   late final ReactiveSubscriber _subscriber;
   late final ReactiveKeepAliveTimer _keepAliveTimer;
-
-  ReactiveSubscriber get subscriber => _subscriber;
 
   ReactiveClientConnection(
     this._connection,
