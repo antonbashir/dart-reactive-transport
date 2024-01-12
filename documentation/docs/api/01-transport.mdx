@@ -4,7 +4,80 @@ title: Transport
 
 # API
 
-### Transport
+## ReactiveTransport
 
+`ReactiveTransport` is the main entry point to configure a reactive server and client.
 
+:::tip
+You could call the `shutdown` method if you want to close all connections and stop all transports (reactive and IOUring)
+:::
 
+```dart title="Declaration"
+class ReactiveTransport {
+  ReactiveTransport(Transport, TransportWorker, ReactiveTransportConfiguration)
+  Future<void> shutdown({bool transport = false}) async
+  void serve(
+    InternetAddress address,
+    int port,
+    void Function(ReactiveServerConnection connection) acceptor, {
+    void onError(ReactiveException exception)?,
+    void onShutdown()?,
+    TransportTcpServerConfiguration? tcpConfiguration,
+    ReactiveBrokerConfiguration? brokerConfiguration,
+    ReactiveLeaseConfiguration? leaseConfiguration,
+  })
+  void connect(
+    InternetAddress address,
+    int port,
+    void Function(ReactiveClientConnection connection) connector, {
+    void onError(ReactiveException exception)?,
+    void onShutdown()?,
+    TransportTcpClientConfiguration? tcpConfiguration,
+    ReactiveSetupConfiguration? setupConfiguration,
+    ReactiveBrokerConfiguration? brokerConfiguration,
+  })
+```
+
+```dart title="Example"
+final transport = Transport();
+final worker = TransportWorker(transport.worker(ReactiveTransportDefaults.transport().workerConfiguration));
+await worker.initialize();
+final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.transport());
+
+reactive.serve(
+  InternetAddress.anyIPv4,
+  12345,
+  (connection) {
+    /* Configure server connection */
+  },
+);
+
+reactive.connect(
+  InternetAddress.loopbackIPv4,
+  12345,
+  (connection) {
+    /* Configure client connection */
+  },
+);
+
+/* Handle stop on your own */
+
+await reactive.shutdown(transport: true);
+```
+
+### Methods
+
+#### serve
+
+Create and configure RSocket server.
+
+#### connect
+
+Create and configure RSocket client.
+
+## References
+
+* See [`ReactiveBrokerConfiguration`](configuration#ReactiveBrokerConfiguration)
+* See [`ReactiveLeaseConfiguration`](configuration#ReactiveLeaseConfiguration)
+* See [`ReactiveServerConnection`](server#ReactiveServerConnection)
+* See [`ReactiveClientConnection`](client#ReactiveClientConnection)
