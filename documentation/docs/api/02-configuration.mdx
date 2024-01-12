@@ -16,11 +16,11 @@ class ReactiveTransportConfiguration {
 
 ### Parameters
 
-| Name                  | Type                           | Description                    | Defaults                     |
-| --------------------- | ------------------------------ | ------------------------------ | ---------------------------- |
-| `tracer`              | `void Function(dynamic)?`      | Function-tracer for each frame | `null`                       |
-| `gracefulTimeout`     | `Duration?`                    | Timeout for graceful shutdown  | `null`                       |
-| `workerConfiguration` | `TransportWorkerConfiguration` | IOUring parameters             | `TransportDefaults.worker()` |
+| Name                | Type                         | Description                    | Defaults                   |
+| ------------------- | ---------------------------- | ------------------------------ | -------------------------- |
+| tracer              | void Function(dynamic)?      | Function-tracer for each frame | null                       |
+| gracefulTimeout     | Duration?                    | Timeout for graceful shutdown  | null                       |
+| workerConfiguration | TransportWorkerConfiguration | IOUring parameters             | TransportDefaults.worker() |
 
 
 ## ReactiveChannelConfiguration
@@ -36,12 +36,12 @@ class ReactiveChannelConfiguration {
 
 ### Parameters
 
-| Name                  | Type | Description                    | Defaults           |
-| --------------------- | ---- | ------------------------------ | ------------------ |
-| `initialRequestCount` | int  | Function-tracer for each frame | `1`                |
-| `frameMaxSize`        | int  | Timeout for graceful shutdown  | `8`                |
-| `chunksLimit`         | int  | IOUring parameters             | `5 * 1024 * 1024`  |
-| `fragmentSize`        | int  | IOUring parameters             | `10 * 1024 * 1024` |
+| Name                | Type | Description                    | Defaults         |
+| ------------------- | ---- | ------------------------------ | ---------------- |
+| initialRequestCount | int  | Function-tracer for each frame | 1                |
+| frameMaxSize        | int  | Timeout for graceful shutdown  | 8                |
+| chunksLimit         | int  | IOUring parameters             | 5 * 1024 * 1024  |
+| fragmentSize        | int  | IOUring parameters             | 10 * 1024 * 1024 |
 
 ## ReactiveBrokerConfiguration
 
@@ -58,9 +58,9 @@ class ReactiveBrokerConfiguration {
 Registry of the codecs for `data mime type` and `metadata mime type`.
 
 Defaults:
-* `application/message-pack: ReactiveMessagePackCodec`
-* `application/octet-stream: ReactiveRawCodec`
-* `application/text: ReactiveUtf8Codec`
+* application/message-pack: ReactiveMessagePackCodec
+* application/octet-stream: ReactiveRawCodec
+* application/text: ReactiveUtf8Codec
 
 ## ReactiveLeaseConfiguration
 
@@ -74,11 +74,11 @@ class ReactiveLeaseConfiguration {
 
 ### Parameters
 
-| Name                | Type     | Description                    |
-| ------------------- | -------- | ------------------------------ |
-| `timeToLiveRefresh` | Duration | Function-tracer for each frame |
-| `timeToLiveCheck`   | Duration | Timeout for graceful shutdown  |
-| `requests`          | int      | IOUring parameters             |
+| Name              | Type     | Description                    |
+| ----------------- | -------- | ------------------------------ |
+| timeToLiveRefresh | Duration | Function-tracer for each frame |
+| timeToLiveCheck   | Duration | Timeout for graceful shutdown  |
+| requests          | int      | IOUring parameters             |
 
 
 ## ReactiveSetupConfiguration
@@ -95,10 +95,10 @@ class ReactiveSetupConfiguration {
 
 ### Parameters
 
-| Name                   | Type     | Description                    | Defaults                 |
-| ---------------------- | -------- | ------------------------------ | ------------------------ |
-| `metadataMimeType`     | String   | Function-tracer for each frame | application/message-pack |
-| `dataMimeType`         | String   | Timeout for graceful shutdown  | application/message-pack |
-| `keepAliveInterval`    | Duration | IOUring parameters             | `Duration(seconds: 20)`  |
-| `keepAliveMaxLifetime` | Duration | IOUring parameters             | `Duration(seconds: 90)`  |
-| `lease`                | bool     | IOUring parameters             | false                    |
+| Name                 | Type     | Description                    | Defaults                 |
+| -------------------- | -------- | ------------------------------ | ------------------------ |
+| metadataMimeType     | String   | Function-tracer for each frame | application/message-pack |
+| dataMimeType         | String   | Timeout for graceful shutdown  | application/message-pack |
+| keepAliveInterval    | Duration | IOUring parameters             | Duration(seconds: 20)    |
+| keepAliveMaxLifetime | Duration | IOUring parameters             | Duration(seconds: 90)    |
+| lease                | bool     | IOUring parameters             | false                    |
