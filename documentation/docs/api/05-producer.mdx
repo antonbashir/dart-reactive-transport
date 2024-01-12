@@ -6,5 +6,13 @@ title: Producer
 
 ## ReactiveProducer
 
-
-
+```dart title="Declaration"
+class ReactiveProducer {
+  void payload(dynamic data, {bool complete = false})
+  void error(String message)
+  void cancel() 
+  void complete()
+  void request(int count)
+  void unbound()
+}
+```

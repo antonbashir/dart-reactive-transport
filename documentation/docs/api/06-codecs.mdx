@@ -6,8 +6,40 @@ title: Codecs
 
 ## ReactiveCodec
 
+```dart title="Declaration"
+abstract interface class ReactiveCodec {
+  String mimeType()
+  Uint8List encode(dynamic input)
+  dynamic decode(Uint8List input)
+}
+```
+
 ## ReactiveMessagePackCodec
+
+```dart title="Declaration"
+class ReactiveMessagePackCodec implements ReactiveCodec {
+  dynamic decode(Uint8List input)
+  Uint8List encode(dynamic input)
+  String mimeType() 
+}
+```
 
 ## ReactiveUtf8Codec
 
+```dart title="Declaration"
+class ReactiveUtf8Codec implements ReactiveCodec {
+  dynamic decode(Uint8List input)
+  Uint8List encode(dynamic input)
+  String mimeType() 
+}
+```
+
 ## ReactiveRawCodec
+
+```dart title="Declaration"
+class ReactiveMessagePackCodec implements ReactiveCodec {
+  dynamic decode(Uint8List input)
+  Uint8List encode(dynamic input)
+  String mimeType() 
+}
+``` 
