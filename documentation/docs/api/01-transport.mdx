@@ -15,7 +15,9 @@ You could call the `shutdown` method if you want to close all connections and st
 ```dart title="Declaration"
 class ReactiveTransport {
   ReactiveTransport(Transport, TransportWorker, ReactiveTransportConfiguration)
+
   Future<void> shutdown({bool transport = false}) async
+
   void serve(
     InternetAddress address,
     int port,
@@ -26,6 +28,7 @@ class ReactiveTransport {
     ReactiveBrokerConfiguration? brokerConfiguration,
     ReactiveLeaseConfiguration? leaseConfiguration,
   })
+
   void connect(
     InternetAddress address,
     int port,
