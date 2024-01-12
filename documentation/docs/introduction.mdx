@@ -12,7 +12,7 @@ The main purpose of this project is an implementation of the RSocket protocol ov
 
 # 🧠 Reasoning
 
-RSocket is a protocol built over TCP which provides reactive communication between client and server.
+[RSocket](https://rsocket.io/) is a protocol built over TCP which provides reactive communication between client and server.
 
 The protocol contains these features:
 * client and server two-sided channels
@@ -31,12 +31,15 @@ So I've decided to take [Dart network library](https://github.com/antonbashir/da
 2. Append the following section to your dependencies:
 ```yaml
   iouring_transport:
-    git: 
+    git:
       url: https://github.com/antonbashir/dart-iouring-transport/
       path: dart
+  reactive_transport:
+    git: 
+      url: https://github.com/antonbashir/dart-reactive-transport/
 ```
 3. Run `dart pub get`.
-4. Refer to the API for implementation details. Enjoy!
+4. Refer to the [API](/category/-api) for implementation details. Enjoy!
 
 # 💥 Samples
 
