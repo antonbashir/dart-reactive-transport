@@ -21,7 +21,7 @@ class ReactiveTransport {
   void serve(
     InternetAddress address,
     int port,
-    void Function(ReactiveServerConnection connection) acceptor, {
+    void Function(ReactiveSubscriber subscriber) acceptor, {
     void onError(ReactiveException exception)?,
     void onShutdown()?,
     TransportTcpServerConfiguration? tcpConfiguration,
@@ -32,7 +32,7 @@ class ReactiveTransport {
   void connect(
     InternetAddress address,
     int port,
-    void Function(ReactiveClientConnection connection) connector, {
+    void Function(ReactiveSubscriber subscriber) connector, {
     void onError(ReactiveException exception)?,
     void onShutdown()?,
     TransportTcpClientConfiguration? tcpConfiguration,
@@ -50,16 +50,16 @@ final reactive = ReactiveTransport(transport, worker, ReactiveTransportDefaults.
 reactive.serve(
   InternetAddress.anyIPv4,
   12345,
-  (connection) {
-    /* Configure server connection */
+  (subscriber) {
+    /* Configure server subscriber */
   },
 );
 
 reactive.connect(
   InternetAddress.loopbackIPv4,
   12345,
-  (connection) {
-    /* Configure client connection */
+  (subscriber) {
+    /* Configure client subscriber */
   },
 );
 
@@ -82,5 +82,4 @@ Create and configure RSocket client.
 
 * See [`ReactiveBrokerConfiguration`](configuration#ReactiveBrokerConfiguration)
 * See [`ReactiveLeaseConfiguration`](configuration#ReactiveLeaseConfiguration)
-* See [`ReactiveServerConnection`](server#ReactiveServerConnection)
-* See [`ReactiveClientConnection`](client#ReactiveClientConnection)
+* See [`ReactiveSubscriber`](subscriber#ReactiveSubscriber)
