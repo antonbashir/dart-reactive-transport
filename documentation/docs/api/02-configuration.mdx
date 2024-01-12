@@ -6,12 +6,99 @@ title: Configuration
 
 ## ReactiveTransportConfiguration
 
+```dart title="Declaration"
+class ReactiveTransportConfiguration {
+  final void Function(dynamic frame)? tracer;
+  final Duration? gracefulTimeout;
+  final TransportWorkerConfiguration workerConfiguration;
+}
+```
+
+### Parameters
+
+| Name                  | Type                           | Description                    | Defaults                     |
+| --------------------- | ------------------------------ | ------------------------------ | ---------------------------- |
+| `tracer`              | `void Function(dynamic)?`      | Function-tracer for each frame | `null`                       |
+| `gracefulTimeout`     | `Duration?`                    | Timeout for graceful shutdown  | `null`                       |
+| `workerConfiguration` | `TransportWorkerConfiguration` | IOUring parameters             | `TransportDefaults.worker()` |
 
 
 ## ReactiveChannelConfiguration
 
+```dart title="Declaration"
+class ReactiveChannelConfiguration {
+  final int initialRequestCount;
+  final int frameMaxSize;
+  final int chunksLimit;
+  final int fragmentSize;
+}
+```
+
+### Parameters
+
+| Name                  | Type | Description                    | Defaults           |
+| --------------------- | ---- | ------------------------------ | ------------------ |
+| `initialRequestCount` | int  | Function-tracer for each frame | `1`                |
+| `frameMaxSize`        | int  | Timeout for graceful shutdown  | `8`                |
+| `chunksLimit`         | int  | IOUring parameters             | `5 * 1024 * 1024`  |
+| `fragmentSize`        | int  | IOUring parameters             | `10 * 1024 * 1024` |
+
 ## ReactiveBrokerConfiguration
+
+```dart title="Declaration"
+class ReactiveBrokerConfiguration {
+  final Map<String, ReactiveCodec> codecs;
+}
+```
+
+### Parameters
+
+#### codecs 
+
+Registry of the codecs for `data mime type` and `metadata mime type`.
+
+Defaults:
+* `application/message-pack: ReactiveMessagePackCodec`
+* `application/octet-stream: ReactiveRawCodec`
+* `application/text: ReactiveUtf8Codec`
 
 ## ReactiveLeaseConfiguration
 
+```dart title="Declaration"
+class ReactiveLeaseConfiguration {
+  final Duration timeToLiveRefresh;
+  final Duration timeToLiveCheck;
+  final int requests;
+}
+```
+
+### Parameters
+
+| Name                | Type     | Description                    |
+| ------------------- | -------- | ------------------------------ |
+| `timeToLiveRefresh` | Duration | Function-tracer for each frame |
+| `timeToLiveCheck`   | Duration | Timeout for graceful shutdown  |
+| `requests`          | int      | IOUring parameters             |
+
+
 ## ReactiveSetupConfiguration
+
+```dart title="Declaration"
+class ReactiveSetupConfiguration {
+  final String metadataMimeType;
+  final String dataMimeType;
+  final Duration keepAliveInterval;
+  final Duration keepAliveMaxLifetime;
+  final bool lease;
+}
+```
+
+### Parameters
+
+| Name                   | Type     | Description                    | Defaults                 |
+| ---------------------- | -------- | ------------------------------ | ------------------------ |
+| `metadataMimeType`     | String   | Function-tracer for each frame | application/message-pack |
+| `dataMimeType`         | String   | Timeout for graceful shutdown  | application/message-pack |
+| `keepAliveInterval`    | Duration | IOUring parameters             | `Duration(seconds: 20)`  |
+| `keepAliveMaxLifetime` | Duration | IOUring parameters             | `Duration(seconds: 90)`  |
+| `lease`                | bool     | IOUring parameters             | false                    |
