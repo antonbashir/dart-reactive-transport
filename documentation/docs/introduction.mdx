@@ -12,15 +12,42 @@ The main purpose of this project is an implementation of the RSocket protocol ov
 
 # 🧠 Reasoning
 
+RSocket is a protocol built over TCP which provides reactive communication between client and server.
+
+The protocol contains these features:
+* client and server two-sided channels
+* backpressure
+* lease
+* graceful shutdown
+* fragmentation
+* multicodec
+* resume
+
+So I've decided to take [Dart network library](https://github.com/antonbashir/dart-iouring-transport) and implement RSocket channels over it.
+
 # 🔨 Usage
+
+1. Initiate a Dart project with `pubspec.yaml`.
+2. Append the following section to your dependencies:
+```yaml
+  iouring_transport:
+    git: 
+      url: https://github.com/antonbashir/dart-iouring-transport/
+      path: dart
+```
+3. Run `dart pub get`.
+4. Refer to the API for implementation details. Enjoy!
 
 # 💥 Samples
 
-A basic sample of usage lives [here](https://github.com/antonbashir/dart-reactive-sample). 
+A basic sample of usage lives [here](https://github.com/antonbashir/dart-reactive-sample).
 
 # ✋ Limitations
 
-
+There are some features which I don't implement:
+* resume and retry
+* fire and forget, request-response, metadata push, request stream
+* non-Linux platform - because of IOUring
 
 # 👨‍💻 Contribution
 
