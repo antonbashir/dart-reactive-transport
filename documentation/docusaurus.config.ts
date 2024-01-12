@@ -100,12 +100,8 @@ const config: Config = {
           href: 'https://dart.dev/',
         },
         {
-          label: 'Dart FFI',
-          href: 'https://dart.dev/interop/c-interop',
-        },
-        {
-          label: 'Flutter',
-          href: 'https://flutter.dev/',
+          label: 'RSocket',
+          href: 'https://rsocket.io/',
         },
         {
           label: 'io_uring',
