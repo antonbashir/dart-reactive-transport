@@ -6,6 +6,8 @@ title: Codecs
 
 ## ReactiveCodec
 
+Base class for all codecs.
+
 ```dart title="Declaration"
 abstract interface class ReactiveCodec {
   String mimeType()
@@ -15,6 +17,8 @@ abstract interface class ReactiveCodec {
 ```
 
 ## ReactiveMessagePackCodec
+
+Codec for [msgpack](https://msgpack.org/index.html).
 
 ```dart title="Declaration"
 class ReactiveMessagePackCodec implements ReactiveCodec {
@@ -26,6 +30,8 @@ class ReactiveMessagePackCodec implements ReactiveCodec {
 
 ## ReactiveUtf8Codec
 
+Codec for strings.
+
 ```dart title="Declaration"
 class ReactiveUtf8Codec implements ReactiveCodec {
   dynamic decode(Uint8List input)
@@ -33,6 +39,8 @@ class ReactiveUtf8Codec implements ReactiveCodec {
   String mimeType() 
 }
 ```
+
+Codec for data retransmitting.
 
 ## ReactiveRawCodec
 
