@@ -4,6 +4,16 @@ title: Channel
 
 # API
 
+There are two variants to implement channels: `ReactiveChannel` and `ReactiveFunctionalChannel`.
+
+:::tip
+Use the first variant when you want to use your class for channels.
+:::
+
+:::tip
+Use the second variant when you want to implement only some functions using function objects.
+:::
+
 ## ReactiveChannel
 
 ```dart title="Declaration"
@@ -18,27 +28,6 @@ class ReactiveChannel {
   FutureOr<void> onRequest(int count, ReactiveProducer producer)
 }
 ```
-
-### Properties
-
-#### key
-
-#### configuration
-
-### Methods
-
-#### onPayload
-
-#### onComplete
-
-#### onCancel
-
-#### onSubscribe
-
-#### onError
-
-#### onRequest
-
 
 ## ReactiveFunctionalChannel
 
@@ -72,3 +61,40 @@ class ReactiveFunctionalChannel with ReactiveChannel {
   FutureOr<void> onCancel(ReactiveProducer producer)
 }
 ```
+
+### Properties
+
+#### key
+
+Channel identifier between server and client.
+
+#### configuration
+
+Specific parameters for the single channel.
+
+### Methods
+
+#### onPayload
+
+Called when a payload was received.
+
+#### onComplete
+
+Called when a complete event was received.
+
+#### onCancel
+
+Called when a cancel event was received.
+
+#### onSubscribe
+
+Called when a channel was subscribed.
+
+#### onError
+
+Called when an error was received.
+
+#### onRequest
+
+Called when channel wants more payloads.
+
