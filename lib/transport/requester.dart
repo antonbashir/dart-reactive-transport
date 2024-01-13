@@ -36,7 +36,12 @@ class ReactiveRequester {
   var _closing = false;
   var _accepting = true;
   var _sending = true;
+
   var _fragmenting = false;
+  late List<Uint8List> _currentFragments;
+  late int _currentFragmentNumber;
+  late int _currentFragmentsCount;
+  late bool _lastFragments;
 
   ReactiveRequester(
     this._connection,
@@ -50,11 +55,13 @@ class ReactiveRequester {
     _output.stream.listen(_send);
   }
 
+  @pragma(preferInlinePragma)
   void request(int count) {
     if (!_accepting) return;
     _connection.writeSingle(ReactiveWriter.writeRequestNFrame(_streamId, count));
   }
 
+  @pragma(preferInlinePragma)
   void schedulePayload(Uint8List bytes, bool complete) {
     if (!_accepting) return;
     _accepting = !complete;
@@ -64,6 +71,7 @@ class ReactiveRequester {
     if (_requested > 0 && !_fragmenting && _sending) _subscription.resume();
   }
 
+  @pragma(preferInlinePragma)
   void scheduleError(String message) {
     if (!_accepting) return;
     _accepting = false;
@@ -74,6 +82,7 @@ class ReactiveRequester {
     if (_requested > 0 && !_fragmenting && _sending) _subscription.resume();
   }
 
+  @pragma(preferInlinePragma)
   void scheduleCancel() {
     if (!_accepting) return;
     _accepting = false;
@@ -84,6 +93,7 @@ class ReactiveRequester {
     if (_requested > 0 && !_fragmenting && _sending) _subscription.resume();
   }
 
+  @pragma(preferInlinePragma)
   void resume(int count) {
     if (!_sending || _fragmenting) return;
     if (_requested == reactiveInfinityRequestsCount) {
@@ -136,19 +146,15 @@ class ReactiveRequester {
     if (payload.bytes.length > _channelConfiguration.frameMaxSize) {
       _fragmenting = true;
       _subscription.pause();
+      _currentFragments = ReactiveAssembler.disassemble(payload.bytes, _channelConfiguration.fragmentSize);
+      _currentFragmentNumber = 0;
+      _currentFragmentsCount = _currentFragments.length;
+      _lastFragments = payload.last;
       if (chunks.isEmpty) {
-        final fragments = ReactiveAssembler.disassemble(payload.bytes, _channelConfiguration.fragmentSize);
-        _fragmentate(fragments, 0, fragments.length, payload.last);
+        _fragmentate();
         return;
       }
-      _connection.writeMany(
-        chunks,
-        false,
-        onDone: () {
-          final fragments = ReactiveAssembler.disassemble(payload.bytes, _channelConfiguration.fragmentSize);
-          _fragmentate(fragments, 0, fragments.length, payload.last);
-        },
-      );
+      _connection.writeMany(chunks, false, onDone: _fragmentate);
       _pending -= _buffer.count;
       if (_requested != reactiveInfinityRequestsCount) _requested -= _buffer.count;
       _buffer.clear();
@@ -172,42 +178,39 @@ class ReactiveRequester {
     }
   }
 
-  void _fragmentate(List<Uint8List> fragments, int fragmentNumber, int fragmentsCount, bool last) {
-    final chunks = min(_channelConfiguration.chunksLimit, fragments.length);
-    fragmentNumber += chunks;
+  @pragma(preferInlinePragma)
+  void _fragmentate() {
+    final chunks = min(_channelConfiguration.chunksLimit, _currentFragments.length);
+    _currentFragmentNumber += chunks;
     var index = 0;
-    for (var fragment in fragments.take(chunks)) {
-      final follow = fragmentNumber < fragmentsCount || ++index != chunks;
-      _buffer.add(ReactiveWriter.writePayloadFrame(_streamId, follow ? false : last, follow, ReactivePayload.ofData(fragment)));
+    for (var fragment in _currentFragments.take(chunks)) {
+      final follow = _currentFragmentNumber < _currentFragmentsCount || ++index != chunks;
+      _buffer.add(ReactiveWriter.writePayloadFrame(_streamId, follow ? false : _lastFragments, follow, ReactivePayload.ofData(fragment)));
     }
-    _connection.writeMany(
-      _buffer.chunks,
-      true,
-      onDone: () {
-        if (fragmentNumber < fragmentsCount) {
-          _fragmentate(
-            fragments.sublist(chunks),
-            fragmentNumber,
-            fragmentsCount,
-            last,
-          );
-          return;
-        }
-        if (last) {
-          unawaited(close());
-          return;
-        }
-        if (_closing && (!_sending || --_pending == 0)) {
-          _stop();
-          return;
-        }
-        _fragmenting = false;
-        if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();
-      },
-    );
+    _connection.writeMany(_buffer.chunks, true, onDone: _fragmentateNext);
+    _currentFragments = _currentFragments.sublist(chunks);
     _buffer.clear();
   }
 
+  @pragma(preferInlinePragma)
+  void _fragmentateNext() {
+    if (_currentFragmentNumber < _currentFragmentsCount) {
+      _fragmentate();
+      return;
+    }
+    if (_lastFragments) {
+      unawaited(close());
+      return;
+    }
+    if (_closing && (!_sending || --_pending == 0)) {
+      _stop();
+      return;
+    }
+    _fragmenting = false;
+    if (_requested == reactiveInfinityRequestsCount || --_requested > 0) _subscription.resume();
+  }
+
+  @pragma(preferInlinePragma)
   void _stop() {
     _sending = false;
     _subscription.pause();
