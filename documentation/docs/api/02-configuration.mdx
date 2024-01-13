@@ -36,12 +36,12 @@ class ReactiveChannelConfiguration {
 
 ### Parameters
 
-| Name                | Type | Description                    | Defaults         |
-| ------------------- | ---- | ------------------------------ | ---------------- |
-| initialRequestCount | int  | Function-tracer for each frame | 1                |
-| frameMaxSize        | int  | Timeout for graceful shutdown  | 8                |
-| chunksLimit         | int  | IOUring parameters             | 5 * 1024 * 1024  |
-| fragmentSize        | int  | IOUring parameters             | 10 * 1024 * 1024 |
+| Name                | Type | Description                                         | Defaults         |
+| ------------------- | ---- | --------------------------------------------------- | ---------------- |
+| initialRequestCount | int  | How many items request after channel initialization | 1                |
+| chunkLimit          | int  | How many frames to hold before sending              | 8                |
+| frameMaxSize        | int  | Max available frame size before fragmentation       | 5 * 1024 * 1024  |
+| fragmentSize        | int  | Frame fragment size during fragmentation            | 10 * 1024 * 1024 |
 
 ## ReactiveBrokerConfiguration
 
@@ -58,9 +58,11 @@ class ReactiveBrokerConfiguration {
 Registry of the codecs for `data mime type` and `metadata mime type`.
 
 Defaults:
-* application/message-pack: ReactiveMessagePackCodec
-* application/octet-stream: ReactiveRawCodec
-* application/text: ReactiveUtf8Codec
+| Mime type                | Codec                    |
+| ------------------------ | ------------------------ |
+| application/message-pack | ReactiveMessagePackCodec |
+| application/octet-stream | ReactiveRawCodec         |
+| application/text         | ReactiveUtf8Codec        |
 
 ## ReactiveLeaseConfiguration
 
@@ -74,11 +76,11 @@ class ReactiveLeaseConfiguration {
 
 ### Parameters
 
-| Name              | Type     | Description                    |
-| ----------------- | -------- | ------------------------------ |
-| timeToLiveRefresh | Duration | Function-tracer for each frame |
-| timeToLiveCheck   | Duration | Timeout for graceful shutdown  |
-| requests          | int      | IOUring parameters             |
+| Name              | Type     | Description              |
+| ----------------- | -------- | ------------------------ |
+| timeToLiveRefresh | Duration | How often to check lease |
+| timeToLiveCheck   | Duration | Lease period             |
+| requests          | int      | Lease request count      |
 
 
 ## ReactiveSetupConfiguration
@@ -95,10 +97,10 @@ class ReactiveSetupConfiguration {
 
 ### Parameters
 
-| Name                 | Type     | Description                    | Defaults                 |
-| -------------------- | -------- | ------------------------------ | ------------------------ |
-| metadataMimeType     | String   | Function-tracer for each frame | application/message-pack |
-| dataMimeType         | String   | Timeout for graceful shutdown  | application/message-pack |
-| keepAliveInterval    | Duration | IOUring parameters             | Duration(seconds: 20)    |
-| keepAliveMaxLifetime | Duration | IOUring parameters             | Duration(seconds: 90)    |
-| lease                | bool     | IOUring parameters             | false                    |
+| Name                 | Type     | Description                                     | Defaults                 |
+| -------------------- | -------- | ----------------------------------------------- | ------------------------ |
+| metadataMimeType     | String   | Mime type for payloads meta data                | application/message-pack |
+| dataMimeType         | String   | Mime type for payloads data                     | application/message-pack |
+| keepAliveInterval    | Duration | Keep alive packets sending interval             | Duration(seconds: 20)    |
+| keepAliveMaxLifetime | Duration | Keep alive max available time before next frame | Duration(seconds: 90)    |
+| lease                | bool     | Enable/Disable lease                            | false                    |
