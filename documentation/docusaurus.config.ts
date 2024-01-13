@@ -100,6 +100,10 @@ const config: Config = {
           href: 'https://dart.dev/',
         },
         {
+          label: 'Flutter',
+          href: 'https://flutter.dev/',
+        },
+        {
           label: 'RSocket',
           href: 'https://rsocket.io/',
         },
